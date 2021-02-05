@@ -1,0 +1,1050 @@
+---
+#
+# Integration Applications (API implementations on IBM ACE) will disallow operations that the client 
+# does not have a valid subscription for.
+#
+swagger: "2.0"
+info:
+  description: "eCollection API (erstwhile known as Profunds API)"
+  version: "1.2.0"
+  title: "Xpress Connect eCollection API."
+  termsOfService: "http://xpressconnect.icicibank.com/api/eCollection/tos"
+  contact:
+    name: "ICICI"
+    url: "http://xpressconnect.icicibank.com/api/eCollection"
+    email: "raman.kumar@icicibank.co.in"
+  license:
+    name: "ICICI Xpress Connect License V1.0"
+    url: "http://xpressconnect.icicibank.com/api/eCollection/license"
+host: "localhost"
+basePath: "/api/eCollection/mis/AMS319/intimation"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+- "application/xml"
+produces: 
+- "application/json"
+- "application/xml"
+paths:
+  /intimate:
+    post:
+      tags:
+      - "eCollection"
+      summary: "Intimation."
+      description: "Intimation."
+      operationId: "Intimation"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Payment transaction that needs to be validated by the beneficiary."
+        required: true
+        schema:
+          $ref: "#/definitions/intimation_request"
+      responses:
+        "200": # HTTP Status: OK
+          description: "Payment transaction validation response."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "400": # HTTP Status: Bad Request
+          description: "API request from sender application is not valid. One or more mandatory fields were found missing from the request or were inconsistent. Example of the latter case could be when the resent_indicator is set to true, but original_request_id or original_request_datetime were not present in the request."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "403": # HTTP Status: Forbidden
+          description: "API request from sender application was disallowed as the client (business / customer) does not have a valid subscription for the service. Example: If client did not opt for receiving Refund MIS during subscription, and if the sender application sent a Refund MIS notification, that request would be rejected."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "422": # HTTP Status: Unprocessable Entity
+          description: "API request from the sender application was understood but declined as one or more mandatory business data fields were either missing or had invalid data.'"
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "500": # HTTP Status: Internal Server Error
+          description: "API service experienced an unexpected error that prevented the sender client application API request to be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "502": # HTTP Status: Bad Gateway
+          description: "API response from client (business / customer) could not be understood."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "503": # HTTP Status: Service Unavailable:
+          description: "Client / Business API service was unavailable and hence the API request could not be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        "504": # HTTP Status: Gateway Timeout
+          description: "Client / Business API service did not respond within the stipulated response period. API request may or may not have been fulfilled by the client / business API service."
+          schema:
+            $ref: "#/definitions/intimation_response"
+  /confirm:
+    post:
+      tags:
+      - "eCollection"
+      summary: "Intimation Confirmation."
+      description: "Confirmation for the default action taken on a Payment Intimation."
+      operationId: "Confirmation"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Confirmation for the default action taken on a Payment Intimation."
+        required: true
+        schema:
+          $ref: "#/definitions/intimation_confirmation"
+      responses:
+        "200": # HTTP Status: OK
+          description: "Payment transaction confirmation notification acknowledgement."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "400": # HTTP Status: Bad Request
+          description: "API request from sender application is not valid. One or more mandatory fields were found missing from the request or were inconsistent. Example of the latter case could be when the resent_indicator is set to true, but original_request_id or original_request_datetime were not present in the request."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "403": # HTTP Status: Forbidden
+          description: "API request from sender application was disallowed as the client (business / customer) does not have a valid subscription for the service. Example: If client did not opt for receiving Refund MIS during subscription, and if the sender application sent a Refund MIS notification, that request would be rejected."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "422": # HTTP Status: Unprocessable Entity
+          description: "API request from the sender application was understood but declined as one or more mandatory business data fields were either missing or had invalid data.'"
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "500": # HTTP Status: Internal Server Error
+          description: "API service experienced an unexpected error that prevented the sender client application API request to be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "502": # HTTP Status: Bad Gateway
+          description: "API response from client (business / customer) could not be understood."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "503": # HTTP Status: Service Unavailable:
+          description: "Client / Business API service was unavailable and hence the API request could not be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+        "504": # HTTP Status: Gateway Timeout
+          description: "Client / Business API service did not respond within the stipulated response period. API request may or may not have been fulfilled by the client / business API service."
+          schema:
+            $ref: "#/definitions/intimation_confirmation_acknowledgement"
+  /refund-intimate:
+    post:
+      tags:
+      - "eCollection"
+      summary: "Refund Intimation."
+      description: "Refund Intimation."
+      operationId: "Refund-Intimation"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Payment transaction refund information passed to the client."
+        required: true
+        schema:
+          $ref: "#/definitions/refund_intimation_notification"
+      responses:
+        "200": # HTTP Status: OK
+          description: "Payment transaction refund intimation acknowledgement."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "400": # HTTP Status: Bad Request
+          description: "API request from sender application is not valid. One or more mandatory fields were found missing from the request or were inconsistent. Example of the latter case could be when the resent_indicator is set to true, but original_request_id or original_request_datetime were not present in the request."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "403": # HTTP Status: Forbidden
+          description: "API request from sender application was disallowed as the client (business / customer) does not have a valid subscription for the service. Example: If client did not opt for receiving Refund MIS during subscription, and if the sender application sent a Refund MIS notification, that request would be rejected."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "422": # HTTP Status: Unprocessable Entity
+          description: "API request from the sender application was understood but declined as one or more mandatory business data fields were either missing or had invalid data.'"
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "500": # HTTP Status: Internal Server Error
+          description: "API service experienced an unexpected error that prevented the sender client application API request to be fulfilled."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "502": # HTTP Status: Bad Gateway
+          description: "API response from client (business / customer) could not be understood."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "503": # HTTP Status: Service Unavailable:
+          description: "Client / Business API service was unavailable and hence the API request could not be fulfilled."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+        "504": # HTTP Status: Gateway Timeout
+          description: "Client / Business API service did not respond within the stipulated response period. API request may or may not have been fulfilled by the client / business API service."
+          schema:
+            $ref: "#/definitions/refund_intimation_notification_acknowledgement"
+definitions:
+  common_client_ext_context:
+    type: "object"
+    properties:
+      client_data_ext:
+        type: object
+        properties: {}
+        title: "Client Data Extension"
+        description: "Client data extension allow client specific fields to be acknowledged between ICICI and client API. Recommendation: Use \"data_ext_version\" field to support handling extension block variations in the future."
+    title: "Common Client Data Extension"
+    description: ""
+  common_message_context:
+    type: "object"
+    properties:
+#      application_context:
+#        type: object
+#        properties: {}
+#        title: "Application Context Header"
+#        description: "Header section to hold application business data that could influence the processing of the main business entity (e.g. Payment Transaction Intimation, Payment Instruction etc.) or describe the circumstances under which the main business entity was processed."
+      product_type:
+        type: string
+        title: Product Type
+        description: "Product Type. Intent is to use it for routing requests (content-based routing) through an API Gateway."
+        example: "eCollection/mis"
+      message_type:
+        type: string
+        title: Message Type
+        description: "Message Type indicates a Business Scenario / Workflow. Intent is to use it for routing requests (content-based routing) through an API Gateway."
+        example: "intimation"
+      operation_name:
+        type: string
+        title: Operation Name
+        description: "Operation Name represents a Business Function. Intent is to use it for routing requests (content-based routing) through an API Gateway."
+        example: "intimate"
+    title: "Common Message Context"
+    description: "Header section to hold contextual data that could influence the processing of the request message / notification event or describe the circumstances under which the message was processed."
+  common_request_header:
+    type: "object"
+    required:
+    - "request_id"
+    - "request_datetime"
+    properties:
+      request_id:
+        type: "string"
+        title: "Request Identifier"
+        description: "Uniquely identifies a request. Each request, even if it is resent, should have a new unique request ID."
+        example: "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+      request_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Request Timestamp"
+        description: "Timestamp in ISO 8601 format when the request was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+      parent_request_id:
+        type: "string"
+        example: "30F14673-BF37-4C55-89E3-AD7ED78BFB14"
+        description: "Uniquely identifies the parent request. Corelates the  request_batch that this request is a part of."
+        title: "Parent (batch) Request Identifier"
+      parent_request_datetime:
+        type: "string"
+        format: "date_time"
+        example: "2019_11_26T12:28:56.321+05:30"
+        description: "Timestamp in ISO 8601 format when the parent  batch_request was sent.  This is applicable to batch requests only."
+        title: "Parent (batch) Request Timestamp"
+      channel_id:
+        type: "string"
+        title: "Channel Logical ID / Name"
+        description: "Channel through which the request originated."
+        example: "Profunds"
+      sender_system_record_id:
+        type: "string"
+        title: "Sender System Record ID"
+        description: "Request / Record ID within the sender system / application."
+        example: "DFAW3939183X"
+      sender_system_id:
+        type: "string"
+        title: "Sender System Logical ID / Name"
+        description: "Logical name of system or an application from which the request originated."
+        example: "Profunds"
+      sender_system_user_id:
+        type: "string"
+        title: "User ID on the Sender System / Application"
+        description: "ID of an authenticated and authorized user who / that sent the request. This field is useful in case the request is triggered manually. This could be an Employee ID, User ID in the sending application or Email ID. This value in field is read in conjunction with the value in \"sender_system_user_id_type\" field."
+        example: "raman.kumar@icicibank.com"
+      sender_system_user_id_type:
+        type: "string"
+        title: "User ID Type."
+        description: "Qualifies the Sender User ID with a type. Type versions can be supported through a naming convention. Currently the following types are supported: employee_id, email and app_user_id. This field is required if \"sender_system_user_id\" is used."
+        example: "email"
+      request_priority: 
+        type: "integer"
+        title: "Message Priority"
+        description: "Priority processing for a request. Whether this field is considered is entirely dependent upon the receiving system or application and the nature of interaction. Example: In a typical HTTP request_response exchange where in the request is processed immediately and the response returned, this field does not play any role. It is ignored. Priority assumes significance when the receiving system or application, has queueing implementation where in it queues a request there by effectively batching or throttling it, and returns an \"intermediate\" response. The client can then prioritize the requests in case of a backlog. Here 1 is considered the highest and 5 the lowest priority. Default priority is 3. In case of a resent request, the client has the option to use the new priority value to bump up or bump down the priority of the \"preceeding\" request - be it original or a resent one if it is still on the client request queue (pending processing)."
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5  
+        example: 1  
+      resent_indicator:
+        type: "boolean"
+        title: "Resent Indicator"
+        description: "Boolean indicating if the request was sent in the past and has been resent."
+        example: true
+        default: false
+      message_delivery_acknowledgement_mode_indicator:
+        type: "boolean"
+        title: "Message Delivery Acknowledgement Mode Indicator"
+        description: "Boolean indicating if a request delivery confirmation suffices for now and that the intimation response [Transaction Accept/Reject] from the client will be sought later (deferred). API implementation is free to default override this value with the best / most suitable value. Example for IMPS payment intimation requests, the request could return the final transaction accept / reject status as the response instead of the intermediate delivery acknowledgement even if this flag was set to true."
+        example: true
+        default: false
+      original_request_id:
+        type: "string"
+        title: "Original Request Identifier"
+        description: "Request id of the very first request. Co_relates the current request with the original request. Original Request ID is required if the request has been resent."
+        example: "131280011"
+      original_request_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Original Request Timestamp"
+        description: "Timestamp in ISO 8601 format when the original request was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+      original_channel_id:
+        type: "string"
+        title: "Channel Logical ID / Name"
+        description: "Channel through which the request originated."
+        example: "Profunds"
+      original_sender_system_id:
+        type: "string"
+        title: "Original Sender System Logical ID / Name"
+        description: "Uniquely identifies the sender system which sent the very first request. Defaults to the current request Sender System Logical ID."
+        example: "profunds"
+      original_sender_system_user_id:
+        type: "string"
+        title: "User ID on the Sender System / Application"
+        description: "ID of an authenticated and authorized user who / that sent the original (very first) request. This field is useful in case the original request was triggered manually. This could be an Employee ID, User ID in the sending application or Email ID. This value in field is read in conjunction with the value in \"sender_system_user_id_type\" field."
+        example: "raman.kumar@icicibank.com"
+      original_sender_system_user_id_type:
+        type: "string"
+        title: "User ID Type."
+        description: "Qualifies the Sender User ID with a type. Type versions can be supported through a naming convention. Currently the following types are supported: employee_id, email and app_user_id. This field is required if \"sender_system_user_id\" is used."
+        example: "email"
+      original_request_priority: 
+        type: "integer"
+        title: "Original Request Message Priority"
+        description: "Message priority that was set for the original (very first) request."
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5  
+        example: 1  
+      original_message_delivery_acknowledgement_mode_indicator:
+        type: "boolean"
+        title: "Original Message Delivery Acknowledgement Mode Indicator"
+        description: "Boolean indicating the delivery acknowledgement mode set on the original request."
+        example: true
+        default: false
+      test_indicator:
+        type: "boolean"
+        title: "Test Indicator"
+        description: "Indicates if this is a test request and is to be ignored. It is recommeded that the receiving system / application process the request as if it were a real one and then rollback the changes. In conditions where this is not possible, the receiving end should simply return a dummy positive acknowledgement."
+        default: false
+        example: false
+    title: "Common Request Header"    
+  common_response_header:
+    type: "object"
+    required:
+    - "response_datetime"
+    - "response_id"
+    properties:
+      response_id:
+        type: "string"
+        example: "76B72B4F-31E1-4915-81E8-A85AE29955AE"
+        title: "Response Identifier"
+        description: "Uniquely identifies a response. Each response, even if it is sent for a \"resent\" request, should have a new unique response ID."
+      response_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Response Timestamp"
+        description: "Timestamp in ISO 8601 format when the response was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+      message_delivery_acknowledgement_override_indicator:
+        type: "boolean"
+        title: "Message Delivery Acknowledgement Override Indicator"
+        description: "Boolean indicating if the message delivery acknowledgement mode given in the request was overridden. This happens when the API implementation chooses the best / most suitable value in place of the one provided in the request. Example for IMPS payment intimation requests, the API implementation could return the final transaction accept / reject status as the response instead of the intermediate delivery acknowledgement even if this flag was set to true. In this case the override flag will be set to true indicating this."
+        example: true
+        default: false
+    title: "Common Response Header"    
+  common_response_trailer:
+    type: "object"
+    required:
+    - "completion_code"
+    properties:
+      completion_code:
+        type: "integer"
+        title: "Completion Code"
+        description: "Completion Code is the final status of the request processing. Completion Code  could have the following values 0: Successful completion, 1: Warning (partial completion) or 2: Error (complete failure)."
+        example: 0
+      reason_code:
+        type: "string"
+        title: "Reason Code"
+        description: "Reason Code lets the request sender know why this request succeeded or failed. This field is required if a negative response is returned by the client. In other words, if the Completion Code has values 1 or 2. Reason Codes follow a naming convention. XCA<nnnnn><I|W|E> where I: Informational, W: Warning and E: Error code, \"nnnnn\" is a 5 digit, 0 left padded number. The first digit is reserved for future use and should not be used."
+        example: "XCA00001E"
+      message:
+        type: "string"
+        title: "Message"
+        description: "Describes the reason in a verbose manner. This field is required if a negative response is returned by the client. In other words, if the Completion Code has values 1 or 2."
+        example: "Sender Account Number and Sender Name mismatch."
+      retry_indicator: 
+         type: "boolean"
+         title: "Retry Indicator"
+         description: "Whether this request has a chance of processing successfully if it resent. A receiving system or application can use this field to request the sending system or application to reattempt the request later. Default value is false."
+         example: true
+      retry_after_datetime: 
+         type: "string"
+         format: "date_time"
+         title: "Retry After"
+         description: "Whether this request has a chance of being processed successfully if it resent after the indicated timestamp. A receiving system or application can use this field to  request the sending system or application to reattempt the request later. Particularly useful for an unscheduled service unavailability. It is upto the sending system whether to enforce this waiting period and how. The timestamp should be in ISO 8601 format. This field is ignored if \"retry_indicator\" is not true."
+         example: "2019-11-26T12:28:56.321+05:30"
+      retry_after_interval: 
+         type: "integer"
+         title: "Retry After Interval (in Seconds)"
+         description: "Whether this request has a chance of being processed successfully if it resent after the indicated interval. A receiving system or application can use this field to request the sending system or application to reattempt the request later. Particularly useful for temporary  unresponsiveness. It is upto the sending system whether to enforce this waiting interval and how. The interval represents time in seconds. This field is ignored if \"retry_after_datetime\" is present in the response or if \"retry_indicator\" is not true."
+         example: 600
+    title: "Common Response Trailer"
+  payment_transaction_data:
+    type: object
+    required:
+    - "client_code"
+    - "currency_code"
+    - "payment_mode"
+    - "sender_account_number"
+    - "sender_ifsc_code"
+    - "client_account_name"
+    - "client_account_number"
+    - "sender_name"
+    - "transaction_amount"
+    - "transaction_datetime"
+    - "transaction_id"
+    - "transaction_id_type"
+    - "virtual_account_number"
+    - "payer_code"
+    - "cms_reference_number"
+    properties:
+      client_code:
+        type: "string"
+        title: "Client Code"
+        description: ""
+        example: "ARNC"
+      virtual_account_number:
+        type: "string"
+        title: "Virtual Account Number"
+        description: ""
+        example: "ARNCMJOM104"
+      transaction_amount:
+        type: "number"
+        title: "Transaction Amount"
+        description: ""
+        example: 110
+      currency_code:
+        type: "string"
+        example: "INR"
+        title: "Currency code."
+        default: "INR"
+        description: "Currency Code conforming to ISO 4217."
+      payment_mode:
+        type: "string"
+        title: "Payment Mode."
+        description: "Payment method. Only one of the following values are valid NEFT, RTGS, IMPS, FT (for Fund Transfer) and UPI."
+        enum:
+        - "NEFT"
+        - "RTGS"
+        - "IMPS"
+        - "FT"
+        - "UPI"
+        example: "NEFT"
+      transaction_id:
+        type: "string"
+        title: "Transaction Id"
+        description: "Uniquely identifies a payment transaction. This should be read in conjunction to the Transaction ID Type."
+        example: "N266190934399380"
+      transaction_id_type:
+        type: "string"
+        title: "Transaction Id Type"
+        description: "Qualifies the Transaction ID with a type. Type versions can be supported through a naming convention."
+        example: "UTR"
+      transaction_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Transaction Timestamp."
+        description: "Transaction Timestamp in ISO 8601 format."
+        example: "2019-11-26T11:48:46.331+05:30"
+      sender_name:
+        type: "string"
+        title: "Sender Name"
+        description: "The sender or the remitter party name."
+        example: "RAMAN KUMAR"
+      sender_mobile_communication_number:
+        type: "string"
+        title: "Sender / Remitter Mobile Number"
+        description: "Sender / remitter mobile number registered with the bank."
+        example: "+910000000000"
+      sender_account_number:
+        type: "string"
+        title: "Sender Account Number"
+        description: "The sender or the remitter party account number."
+        example: "601270000750"
+      sender_bank_name:
+        type: "string"
+        title: "Sender Bank Name"
+        description: "The sender or the remitter party bank name."
+        example: "HDFC"
+      sender_ifsc_code:
+        type: "string"
+        title: "Bank IFSC Code"
+        description: "The sender or the remitter party bank IFSC code."
+        example: "HDFC0000001"
+      client_account_name:
+        type: "string"
+        title: "Client Account Name"
+        example: "RAMAN KUMAR"
+      client_mobile_communication_number:
+        type: "string"
+        title: "Client Mobile Number"
+        description: "Client mobile number registered with the bank."
+        example: "+910000000000"
+      client_account_number:
+        type: "string"
+        title: "Client Account Number"
+        example: "601270000750"
+      client_bank_name:
+        type: "string"
+        title: "Client Bank Name"
+        description: "The client party bank name."
+        example: "ICICI"
+      client_ifsc_code:
+        type: "string"
+        title: "Client's Bank IFSC Code"
+        description: "The client party bank IFSC code."
+        example: "ICIC0000001"
+      payer_code:
+        type: "string"
+        title: "Payer Code"
+        description: "A code to reference a dealer / beneficiary."
+        example: ""
+      cms_reference_number:
+        type: string
+        title: "CMS Reference Number"
+        description: "Payment transaction reference number in CMS system."
+      narration_1:
+        type: "string" 
+        title: "Narration 1"
+        description: "Narration. Used for Bank-To-Bank information exchange."
+      narration_2:
+        type: "string" 
+        title: "Narration 2"
+        description: "Narration. Used for Bank-To-Sender information exchange." 
+      informational_message:
+        type: "string"
+        title: "Information Message (Narration)"
+        description: "Informational message for the client." 
+      external_system_reference_1:
+        type: "string"
+        title: "External System Reference 1"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "202006-3303049219"
+      external_system_reference_name_1:
+        type: "string"
+        title: "External System Reference Name 1"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "CMS-ID"
+      external_system_reference_type_1:
+        type: "string"
+        title: "External System Reference Data Type 1"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example:  "string"
+      external_system_reference_2:
+        type: "string"
+        title: "External System Reference 2"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "BAN0394881"
+      external_system_reference_name_2:
+        type: "string"
+        title: "External System Reference Name 2"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "AuthorizationUserID"
+      external_system_reference_type_2:
+        type: "string"
+        title: "External System Reference Data Type 2"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example: "string"
+      external_system_reference_3:
+        type: "string"
+        title: "External System Reference 3"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "2019-11-26T11:48:46.331+05:30"
+      external_system_reference_name_3:
+        type: "string"
+        title: "External System Reference Name 3"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "AuthorizationDateTime"
+      external_system_reference_type_3:
+        type: "string"
+        title: "External System Reference Data Type 3"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example:  "datetime"
+#      client_data_ext:
+#        type: "object"
+#        title: "Client Data Extension"
+#        description: "Client data extension allow client specific fields to be acknowledged between ICICI and client API. Recommendation: Use \"data_ext_version\" field to support handling extension block variations in the future."
+#        properties: {}
+    title: "Payment Transaction Data"
+    description: "Transaction data from the bank to the client informing them about a payment received in their current / intermediary account."
+  payment_transaction_data_acknowledgement:
+    type: object
+    properties:
+      client_code:
+        type: "string"
+        title: "Client Code"
+        description: ""
+        example: "ARNC"
+      virtual_account_number:
+        type: "string"
+        title: "Virtual Account Number"
+        description: ""
+        example: "ARNCMJOM104"
+      transaction_amount:
+        type: "number"
+        title: "Transaction Amount"
+        description: ""
+        example: 110
+      currency_code:
+        type: "string"
+        example: "INR"
+        title: "Currency code."
+        default: "INR"
+        description: "Currency Code conforming to ISO 4217."
+      payment_mode:
+        type: "string"
+        title: "Payment Mode."
+        description: "Payment method. Only one of the following values are valid NEFT, RTGS, IMPS, FT (for Fund Transfer), UPI."
+        enum:
+        - "NEFT"
+        - "RTGS"
+        - "IMPS"
+        - "FT"
+        - "UPI"
+        example: "NEFT"
+      transaction_id:
+        type: "string"
+        title: "Transaction Id"
+        description: "Uniquely identifies a payment transaction. This should be read in conjunction to the Transaction ID Type."
+        example: "N266190934399380"
+      transaction_id_type:
+        type: "string"
+        title: "Transaction Id Type"
+        description: "Qualifies the Transaction ID with a type. Type versions can be supported through a naming convention."
+        example: "UTR"
+      transaction_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Transaction Timestamp."
+        description: "Transaction Timestamp in ISO 8601 format."
+        example: "2019-11-26T11:48:46.331+05:30"
+      sender_name:
+        type: "string"
+        title: "Sender Name"
+        description: "The sender or the remitter party name."
+        example: "RAMAN KUMAR"
+      sender_mobile_communication_number:
+        type: "string"
+        title: "Sender / Remitter Mobile Number"
+        description: "Sender / remitter mobile number registered with the bank."
+        example: "+910000000000"
+      sender_account_number:
+        type: "string"
+        title: "Sender Account Number"
+        description: "The sender or the remitter party account number."
+        example: "601270000750"
+      sender_bank_name:
+        type: "string"
+        title: "Sender Bank Name"
+        description: "The sender or the remitter party bank name,"
+        example: "HDFC"
+      sender_ifsc_code:
+        type: "string"
+        title: "Bank IFSC Code"
+        description: "The sender or the remitter party bank IFSC code."
+        example: "HDFC0000001"
+      client_account_name:
+        type: "string"
+        title: "Client Account Name"
+        example: "RAMAN KUMAR"
+      client_mobile_communication_number:
+        type: "string"
+        title: "Client Mobile Number"
+        description: "Client mobile number registered with the bank."
+        example: "+910000000000"
+      client_account_number:
+        type: "string"
+        title: "Client Account Number"
+        example: "601270000750"
+      client_bank_name:
+        type: "string"
+        title: "Client Bank Name"
+        description: "The client party bank name."
+        example: "ICICI"
+      client_ifsc_code:
+        type: "string"
+        title: "Client's Bank IFSC Code"
+        description: "The client party bank IFSC code."
+        example: "ICIC0000001"
+      payer_code:
+        type: "string"
+        title: "Payer Code"
+        description: "A code to reference a dealer / beneficiary."
+        example: ""
+      cms_reference_number:
+        type: string
+        title: "CMS Reference Number"
+        description: "Payment transaction reference number in CMS system."
+      narration_1:
+        type: "string" 
+        title: "Narration 1"
+        description: "Narration. Used for Bank-To-Bank information exchange." 
+      narration_2:
+        type: "string" 
+        title: "Narration 2"
+        description: "Narration. Used for Bank-To-Sender information exchange." 
+      informational_message:
+        type: "string"
+        title: "Information Message"
+        description: "Free form informational message for the client." 
+      external_system_reference_1:
+        type: "string"
+        title: "External System Reference 1"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "202006-3303049219"
+      external_system_reference_name_1:
+        type: "string"
+        title: "External System Reference Name 1"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "CMS-ID"
+      external_system_reference_type_1:
+        type: "string"
+        title: "External System Reference Data Type 1"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example:  "string"
+      external_system_reference_2:
+        type: "string"
+        title: "External System Reference 2"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "BAN0394881"
+      external_system_reference_name_2:
+        type: "string"
+        title: "External System Reference Name 2"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "AuthorizationUserID"
+      external_system_reference_type_2:
+        type: "string"
+        title: "External System Reference Data Type 2"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example: "string"
+      external_system_reference_3:
+        type: "string"
+        title: "External System Reference 3"
+        description: "A value that helps correlate messages / documents or data points between one or more participant systems / applications." 
+        example: "2019-11-26T11:48:46.331+05:30"
+      external_system_reference_name_3:
+        type: "string"
+        title: "External System Reference Name 3"
+        description: "A field name / label for the reference value. The name can be any string containing characters A-Z, a-z, 0-9 and special characters - (hypen), _ (underscore) only. Whitespace characters are not allowed." 
+        example: "AuthorizationDateTime"
+      external_system_reference_type_3:
+        type: "string"
+        title: "External System Reference Data Type 3"
+        description: "Data Type of the reference value." 
+        enum:
+        - "string"
+        - "number"
+        - "boolean"
+        - "object"
+        - "array"
+        - "datetime"
+        example:  "datetime"
+      client_completion_code:
+        type: "string"
+        title: "Client Completion Code"
+        description: "API request completion perceived by client/customer."
+      client_reason_code:
+        type: "string"
+        title: "Client Reason Code"
+        description: "Code to further qualify the completion code."
+      client_informational_message:
+        type: "string"
+        title: "Information Message (from the client)"
+        description: "Information from the client. One of the intentions is to be used by client for MIS reconcilation at their end."
+#      client_data_ext:
+#        type: "object"
+#        title: "Client Data Extension"
+#        description: "Client data extension allow client specific fields to be acknowledged between ICICI and client API. Recommendation: Use \"data_ext_version\" field to support handling extension block variations in the future."
+#        properties: {}
+    title: "Acknowledged Payment Transaction Data"
+    description: "Transaction data from the bank to the client informing them about a payment receipt. None of the fields are mandatory to facilitate client opting out of relaying the business data, sent as a part of the request, in the response."
+  intimation_request:
+    allOf:
+    - type: object
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_data"
+    - $ref: "#/definitions/common_client_ext_context"
+    title: "Intimation Request"
+    description: "Transaction intimation from the bank to the client informing them about a payment receipt."
+  intimation_response:
+    allOf: 
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_response_header"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_data_acknowledgement"
+    - $ref: "#/definitions/common_client_ext_context"
+    - $ref: "#/definitions/common_response_trailer"
+    title: "Intimation Response"
+    description: "Response from the client to an intimation request."
+  intimation_confirmation:
+    allOf:
+    - type: object
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_data"
+    - $ref: "#/definitions/payment_transaction_confirmation_data"
+    - $ref: "#/definitions/common_client_ext_context"
+    title: "Intimation Confirmation Notification"
+    description: "Confirmation on the default action taken by the bank for the transaction intimation (for a payment received by the bank in favor of the client) sent earlier to the client but not responded to by them."
+  intimation_confirmation_acknowledgement:
+    allOf: 
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_response_header"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_data_acknowledgement"
+    - $ref: "#/definitions/payment_transaction_confirmation_data_acknowledgement"
+    - $ref: "#/definitions/common_client_ext_context"
+    - $ref: "#/definitions/common_response_trailer"
+    title: "Intimation Notification Acknowledgement"
+    description: "Response from the client to an intimation request."
+  payment_transaction_confirmation_data:
+    type: object
+    required:
+    - intimation_action_code
+    - intimation_action_datetime
+    - intimation_action_reason_code
+    - intimation_action_message
+    properties:
+      intimation_action_code:
+        type: "string"
+        enum:
+        - Accepted
+        - Rejected
+        title: "Intimation Action Code"
+        description: "Action taken by the core banking system on the payment intimation that was sent earlier to the client."
+        example: Accepted
+      intimation_action_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Intimation Action Timestamp"
+        description: "Timestamp in ISO 8601 format when the action was taken."
+        example: "2019-11-26T12:28:56.321+05:30"
+      intimation_action_reason_code:
+        type: "string"
+        title: "Intimation Action Reason Code"
+        description: "Reason code representing why this action was taken by the core banking system."
+      intimation_action_message:
+        type: "string"
+        title: "Intimation Action Reason Message"
+        description: "A short descriptive message on why this action was taken by the core banking system."
+  payment_transaction_confirmation_data_acknowledgement:
+    type: object
+    properties:
+      intimation_action_code:
+        type: "string"
+        enum:
+        - Accepted
+        - Rejected
+        title: "Intimation Action Code"
+        description: "Action taken by the core banking system on the payment intimation that was sent earlier to the client."
+        example: Accepted
+      intimation_action_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Intimation Action Timestamp"
+        description: "Timestamp in ISO 8601 format when the action was taken."
+        example: "2019-11-26T12:28:56.321+05:30"
+      intimation_action_reason_code:
+        type: "string"
+        title: "Intimation Action Reason Code"
+        description: "Reason code representing why this action was taken by the core banking system."
+      intimation_action_message:
+        type: "string"
+        title: "Intimation Action Reason Message"
+        description: "A short descriptive message on why this action was taken by the core banking system."
+  payment_transaction_refund_data:
+    allOf:
+    - $ref: "#/definitions/payment_transaction_data"
+    - type: object
+      required:
+      - remitter_account_number
+      - cms_reference_number
+      - refund_payment_status
+      properties:
+        remitter_account_number:
+          type: string
+          title: "Remitter Account Number"
+          description: ""
+        cms_reference_number:
+          type: string
+          title: "CMS Reference Number"
+          description: "Payment transaction reference number in CMS system."
+        refund_payment_status:
+          type: string
+          title: "Refund Payment Status"
+          description: "Status of the refund payment. P if the refund was Paid. C if the refund was Cancelled."
+          enum:
+          - "P"
+          - "C"
+          example: "P"
+        refund_code:
+          type: string
+          title: "Refund Code"
+          description: "Refund code."
+        refund_rejection_code:
+          type: string
+          title: "Refund / Refund Rejection Code"
+          description: "Code indicating the reason behind the refund / refund rejection."
+    title: "Payment Transaction Refund Data"
+    description: "Payment transaction refund intimation to the client."
+  payment_transaction_refund_data_acknowledgement:
+    allOf:
+    - $ref: "#/definitions/payment_transaction_data_acknowledgement"
+    - type: object
+      properties:
+        remitter_account_number:
+          type: string
+          title: "Remitter Account Number"
+          description: ""
+        cms_reference_number:
+          type: string
+          title: "CMS Reference Number"
+          description: "Payment transaction reference number in CMS system."
+        refund_payment_status:
+          type: string
+          title: "Refund Payment Status"
+          description: "Status of the refund payment. P if the refund was Paid. C if the refund was Cancelled."
+          enum:
+          - "P"
+          - "C"
+          example: "P"
+        refund_code:
+          type: string
+          title: "Refund Code"
+          description: "Refund code."
+        refund_rejection_code:
+          type: string
+          title: "Refund / Refund Rejection Code"
+          description: "Code indicating the reason behind the refund / refund rejection."
+    title: "Acknowledged Payment Transaction Refund Data"
+    description: "Acknowledgement to the payment transaction refund intimation sent to the client."
+  refund_intimation_notification:
+    allOf:
+    - type: object
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_refund_data"
+    - $ref: "#/definitions/common_client_ext_context"
+    title: "Refund Intimation Notification"
+    description: "Transaction refund intimation from the bank to the client informing them about a payment refund."
+  refund_intimation_notification_acknowledgement:
+    allOf: 
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"    
+    - $ref: "#/definitions/common_response_header"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/common_message_context"
+    - $ref: "#/definitions/payment_transaction_refund_data_acknowledgement"
+    - $ref: "#/definitions/common_client_ext_context"
+    - $ref: "#/definitions/common_response_trailer"
+    title: "Refund Intimation Notification Response"
+    description: "Response from the client to an transaction refund intimation request."

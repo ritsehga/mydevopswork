@@ -1,0 +1,10 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback
+
+
+CREATE FILTER MODULE CustomerQueryBack_isActionMismatch_FileCreationNeeded_
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE;
+	END;
+
+END MODULE;

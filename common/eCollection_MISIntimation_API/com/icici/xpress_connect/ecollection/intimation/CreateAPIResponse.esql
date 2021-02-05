@@ -1,0 +1,355 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.intimation
+
+-- [06-May-2020]: REST XML and SOAP Web Services.
+-- DECLARE SUCCESS_TERMINAL 													CONSTANT CHARACTER 		'out'
+-- [08-Jun-2020]; Refactoring. Removed the Flow Sequence node.
+DECLARE RETURN_REPLY_TERMINAL 											CONSTANT CHARACTER 		'out';
+DECLARE REDELIVERY_HANDLER_TERMINAL 							CONSTANT CHARACTER 		'out1';
+DECLARE PAYMENT_HANDLER_TERMINAL 								CONSTANT CHARACTER 		'out2';
+
+-- [20-Jan-2020]  HTTP Status Codes.
+DECLARE API_REASON_CODE_CLIENT_SERVICE_BAD_GATEWAY_ERROR CONSTANT CHARACTER 'XC00094E'; -- [20-Jan-2020]
+
+-- [10-Jan-2020]  Business reason codes.
+DECLARE API_REASON_CODE_INVALID_CLIENT_CODE CONSTANT CHARACTER 'XC00401E';
+DECLARE API_REASON_MESSAGE_INVALID_CLIENT_CODE CONSTANT CHARACTER 'Client Code is not valid.';
+
+DECLARE API_REASON_CODE_INVALID_VIRTUAL_ACCOUNT_NUMBER CONSTANT CHARACTER 'XC00402E';
+DECLARE API_REASON_MESSAGE_INVALID_VIRTUAL_ACCOUNT_NUMBER CONSTANT CHARACTER 'Virtual Account Number is not valid.';
+
+DECLARE API_REASON_CODE_CLIENT_CODE_VIRTUAL_ACCOUNT_NUMBER_MISMATCH CONSTANT CHARACTER 'XC00403E';
+DECLARE API_REASON_MESSAGE_CLIENT_CODE_VIRTUAL_ACCOUNT_NUMBER_MISMATCH CONSTANT CHARACTER 'Client Code & Virtual Account Number do not match.';
+
+DECLARE API_REASON_CODE_DUPLICATE_TRANSACTION_ID CONSTANT CHARACTER 'XC00404E';
+DECLARE API_REASON_MESSAGE_DUPLICATE_TRANSACTION_ID CONSTANT CHARACTER 'Dedup check failed. Transaction ID duplicated.';
+
+DECLARE API_REASON_CODE_MISMATCH_CLIENT_ACCOUNT_NUMBER CONSTANT CHARACTER 'XC00405E';
+DECLARE API_REASON_MESSAGE_MISMATCH_CLIENT_ACCOUNT_NUMBER CONSTANT CHARACTER 'Client (Beneficary) account is invalid or does not match the Client Account Name.';
+
+DECLARE API_REASON_CODE_INVALID_SENDER_IFSC_CODE CONSTANT CHARACTER 'XC00406E';
+DECLARE API_REASON_MESSAGE_INVALID_SENDER_IFSC_CODE CONSTANT CHARACTER 'Sender Bank''s IFSC code is not valid.';
+
+DECLARE API_REASON_CODE_INVALID_CLIENT_IFSC_CODE CONSTANT CHARACTER 'XC00407E';
+DECLARE API_REASON_MESSAGE_INVALID_CLIENT_IFSC_CODE CONSTANT CHARACTER 'Client (Beneficiary) Bank''s IFSC code is not valid.';
+
+DECLARE API_RESPONSE_DEFAULT_MAP EXTERNAL BOOLEAN 	TRUE;
+
+DECLARE API_REASON_CODE_RESPONSE_NOT_PARSEABLE  CONSTANT CHARACTER 'XC00103E';
+
+CREATE COMPUTE MODULE CreateAPIResponse
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		-- DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.API.Request.Message;
+		
+		-- [15-Apr-2020]: API request is a JSON, so the response would be JSON as well. 
+		SET OutputRoot.HTTPReplyHeader."Content-Type" 			= CONTENT_TYPE_MIME_JSON;
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+		CREATE FIELD Environment.Variables.eCollection.API.Response.ValidationResult;
+		DECLARE refAPIValidationReport REFERENCE TO Environment.Variables.eCollection.API.Response.ValidationResult;
+		
+		IF EXISTS(InputRoot.BLOB.*[]) THEN
+			-- [20-May-2020]: Unexpected partial (incomplete) response was received from Resteasy mock service implementation. 
+			-- This lead to a parsing error. Note that the content-type header was returned by the service. But the response did not 
+			-- comply with the content-type. Handling this rare but possible condition.
+			DECLARE EXIT HANDLER FOR  SQLSTATE LIKE '%' 
+			BEGIN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_PARSEABLE, TRUE);
+
+				PROPAGATE TO TERMINAL RETURN_REPLY_TERMINAL;
+--				PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL; 		-- No point in retrying this request and the response from the client end was broken. 
+				
+				RETURN FALSE;
+			END;
+			
+			DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+			IF chTargetMessageDomain = 'JSON' THEN
+				CREATE LASTCHILD OF InputRoot DOMAIN('JSON') PARSE(InputRoot.BLOB.BLOB 
+																										CCSID InputRoot.Properties.CodedCharSetId 
+																										ENCODING InputRoot.Properties.Encoding
+																										OPTIONS FolderBitStream);
+			ELSEIF chTargetMessageDomain = 'XMLNSC' THEN
+				CREATE LASTCHILD OF InputRoot DOMAIN('XMLNSC') PARSE(InputRoot.BLOB.BLOB 
+																										CCSID InputRoot.Properties.CodedCharSetId 
+																										ENCODING InputRoot.Properties.Encoding);
+			END IF;
+		END IF;
+		
+		-- We have already validated the request. Now we will validate if the response received from the client
+		-- is consistent. We correlate the common non business data fields from the request with the corresponding 
+		-- ones in the response.
+		--		IF OPTIMIZE_FOR_UNIFIED_API THEN
+		--			DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+		--			
+		--			-- Perform base validations only if the request-response message definition are per our API spec.
+		--			CALL com.icici.xpress_connect.common.api.performBaseAPIResponseValidation(refClientAPIResponse, refAPIValidationReport);
+		--			
+		--			IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport)  THEN
+		--				CALL buildErrorResponse(refAPIRequest, refAPIResponse, refAPIValidationReport.completion_code, 
+		--																API_REASON_CODE_RESPONSE_NOT_VALID, OPTIMIZE_FOR_UNIFIED_API);
+		--
+		--				PROPAGATE TO TERMINAL RETURN_REPLY_TERMINAL;
+		--				IF routeToRedeliveryHandler() THEN
+		--					PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL;
+		--				END IF;
+		--
+		--				RETURN FALSE;
+		--			END IF;
+		--
+		--			-- TODO: Use DELETE instead.
+		--			SET refAPIValidationReport VALUE = NULL;
+		--			
+		--			CALL com.icici.xpress_connect.common.api.performBaseAPIRequestResponseCorrelationalValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+		--
+		--			IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport)  THEN
+		--				CALL buildErrorResponse(refAPIRequest, refAPIResponse, refAPIValidationReport.completion_code, 
+		--																API_REASON_CODE_RESPONSE_NOT_VALID, OPTIMIZE_FOR_UNIFIED_API);	
+		--
+		--				PROPAGATE TO TERMINAL ERROR_TERMINAL;
+		--				IF routeToRedeliveryHandler() THEN
+		--					PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL;
+		--				END IF;
+		--		
+		--				RETURN FALSE;
+		--			END IF;
+		--		END IF;
+
+		-- Clear the earlier validation results.
+		-- TODO: Use DELETE instead.
+		-- DELETE FIELD refAPIValidationReport.*;
+		-- SET refAPIValidationReport VALUE = NULL;
+		
+		-- Hygiene checks cleared. We now perform business data validations.
+		-- [06-May-2020]: REST-XML and SOAP Web Services.
+		IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+
+		ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.XMLNSC;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+
+		ELSEIF 	CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR 
+						CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.SOAP.Body;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+		END IF;
+
+		IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport)  THEN
+			-- Validation failure.
+			-- Prepare API error response.
+				CALL buildErrorResponse(refAPIRequest, refAPIResponse, refAPIValidationReport.completion_code, 
+																API_REASON_CODE_RESPONSE_NOT_VALID, OPTIMIZE_FOR_UNIFIED_API);
+
+			PROPAGATE TO TERMINAL ERROR_TERMINAL FINALIZE NONE DELETE NONE;
+			IF routeToRedeliveryHandler() THEN
+				PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL;
+			END IF;
+			RETURN FALSE;
+		ELSE
+			
+--			-- [15-Apr-2020]: API request is a JSON, so the response would be JSON as well. 
+--			SET OutputRoot.HTTPReplyHeader."Content-Type" 			= CONTENT_TYPE_MIME_JSON;
+			
+			DECLARE refClientAPIResponseHeader REFERENCE TO InputRoot.HTTPResponseHeader;
+			DECLARE refAPIResponseHeader REFERENCE TO OutputRoot.HTTPReplyHeader;
+			
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+				DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+
+				-- [21-Jan-2020]
+				IF  com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code") THEN
+					-- Chances are we will not receive a proper reason code for an 5XX series HTTP Status Code. 
+					-- In any case, we would still like to mark the request as a candidate for reprocessing before 
+					-- handing it over to the client specific transformation code.
+					SET refClientAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+					SET refClientAPIResponse.reason_code = API_REASON_CODE_CLIENT_SERVICE_BAD_GATEWAY_ERROR;
+				END IF;	
+	
+			-- Map client response with our API response.
+			-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+			CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+														 refAPIResponse, refAPIResponseHeader, refAPIRequest);
+			
+			ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				DECLARE refClientAPIResponse REFERENCE TO InputRoot.XMLNSC.*:{CLIENT_API_MESSAGE_RESPONSE_ROOT}[1]; 
+
+				-- [21-Jan-2020]
+				IF  com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code") THEN
+					-- Chances are we will not receive a proper reason code for an 5XX series HTTP Status Code. 
+					-- In any case, we would still like to mark the request as a candidate for reprocessing before 
+					-- handing it over to the client specific transformation code.
+					SET refClientAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+					SET refClientAPIResponse.reason_code = API_REASON_CODE_CLIENT_SERVICE_BAD_GATEWAY_ERROR;
+				END IF;	
+	
+				-- Map client response with our API response.
+				-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+				CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+															 refAPIResponse, refAPIResponseHeader, refAPIRequest);
+
+			ELSEIF 	CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR 
+							CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+				DECLARE refClientAPIResponse REFERENCE TO InputRoot.SOAP.Body.*:*[1];
+
+				-- [21-Jan-2020]
+				IF  com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code") THEN
+					-- Chances are we will not receive a proper reason code for an 5XX series HTTP Status Code. 
+					-- In any case, we would still like to mark the request as a candidate for reprocessing before 
+					-- handing it over to the client specific transformation code.
+					SET refClientAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+					SET refClientAPIResponse.reason_code = API_REASON_CODE_CLIENT_SERVICE_BAD_GATEWAY_ERROR;
+				END IF;	
+
+				-- Map client response with our API response.
+				-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+				CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+															 refAPIResponse, refAPIResponseHeader, refAPIRequest);
+
+			END IF;				
+			
+			-- Set the HTTP Status Code.
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode =  com.icici.xpress_connect.ecollection.intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);
+			
+			-- [21-Jan-2020]: Add Retry Indicator if applicable.
+			-- [21-Jan-2020]: TODO Refactor into a method if possible. Used in both HandleAPIException and CreateAPIResponse ESQL modules.
+			SET OutputLocalEnvironment.Variables.eCollection.RetryRequired = com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus
+																				(OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode) ;
+			SET OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged= API_MANAGED_RETRIES;
+			
+			IF  	OutputLocalEnvironment.Variables.eCollection.RetryRequired AND 
+					NOT (OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged) THEN
+					-- Retry necessary and not API managed, so let the caller know.
+					CALL com.icici.xpress_connect.common.api.defaultAddAPIRequestRetryHint(NULL, 
+								REDELIVERY_INTERVAL, refAPIResponse);
+			END IF;
+
+			PROPAGATE TO TERMINAL RETURN_REPLY_TERMINAL FINALIZE NONE DELETE NONE;
+
+			IF routeToRedeliveryHandler() THEN
+				PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL FINALIZE NONE DELETE NONE;
+			END IF;
+
+			PROPAGATE TO TERMINAL PAYMENT_HANDLER_TERMINAL;
+
+			RETURN FALSE;
+
+		END IF;
+
+		RETURN FALSE;
+		END;
+		
+	-- [08-Jun-2020]; Refactoring. Removed the Flow Sequence node.
+	CREATE FUNCTION routeToRedeliveryHandler ( ) RETURNS BOOLEAN
+	BEGIN
+		IF OutputLocalEnvironment.Variables.eCollection.RetryRequired AND 
+			OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged THEN
+			RETURN TRUE;
+		ELSE	
+			RETURN FALSE;
+		END IF;
+	END;
+	
+	-- Perform business data validation.
+	CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, IN refClientAPIResponse REFERENCE, INOUT refAPIValidationReport REFERENCE) 
+	BEGIN
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			-- Validate default / common fields.
+			-- TODO: Rethink. Reserved for future use.
+		ELSE
+			-- Validate rest of the message fields.
+			-- @@IXC.AutoGenerateESQL
+			CALL com.icici.xpress_connect.ecollection.intimation.gen.performResponseBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+		END IF;
+	END;
+	
+	-- Map / Build API response body (data / payload).
+	-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+	CREATE FUNCTION mapAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+	BEGIN
+		-- [20-May-2020]: Unexpected partial (incomplete) response was received from Resteasy mock service implementation. 
+		-- This lead to a parsing error. Note that the content-type header was returned by the service. But the response did not 
+		-- comply with the content-type. Handling this rare but possible condition.
+		-- [20-May-2020]: TODO: Need to discern between parsing issues and faulty implementation (code weave).
+		
+		DECLARE CONTINUE HANDLER FOR  SQLSTATE LIKE '%' 
+		BEGIN
+			
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+			API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_PARSEABLE, TRUE);
+			
+		END;
+		
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			CALL com.icici.xpress_connect.common.api.defaultMapAPIResponse(refClientAPIResponse, refAPIResponse);
+			SET refAPIResponse.*[] = refClientAPIResponse.*[];
+		ELSE	
+			-- Build default API response. Include business data from the request as well.
+			CALL com.icici.xpress_connect.common.api.buildAPIResponse(refAPIRequest, refAPIResponse, API_RESPONSE_DEFAULT_MAP);
+			
+			-- @@IXC.AutoGenerateESQL
+			-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+			-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+			CALL com.icici.xpress_connect.ecollection.intimation.gen.mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+								refAPIResponse, refAPIResponseHeader, refAPIRequest);
+
+				-- [12-Jun-2020]: Gather Analytics Data.
+			DECLARE refAnalyticsDataCollector REFERENCE TO Environment.Analytics.Data;
+			CALL com.icici.xpress_connect.ecollection.intimation.gen.gatherAnalyticsData_ClientAPIResponse(refClientAPIResponse, 
+																																							refClientAPIResponseHeader, refAnalyticsDataCollector);																														
+				
+			
+			IF COALESCE(refAPIResponse.completion_code, '') = '' THEN
+				-- TODO
+				-- THROW USER EXCEPTION SEVERITY 1 CATALOG 'BIPMsg' MESSAGE 'Client API response not in line with the expected format or there was a client API response transformation error.';
+			END IF;
+		END IF;	
+		
+	END;
+
+	-- [14-Jan-2020]: Convenience method to build an error response.
+	CREATE FUNCTION buildErrorResponse(IN refAPIRequest REFERENCE, INOUT refAPIResponse REFERENCE, 
+			IN chCompletionCode CHARACTER, IN chAPIResponseCode CHARACTER, IN chOptimizeAPI CHARACTER)
+	BEGIN
+		CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				chCompletionCode, chAPIResponseCode, chOptimizeAPI);
+
+				-- Set the HTTP Status Code.
+				SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = com.icici.xpress_connect.ecollection.intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);
+				
+				-- [14-Jan-2020]: Add Retry Indicator if applicable.
+				SET OutputLocalEnvironment.Variables.eCollection.RetryRequired =  com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus
+																					(OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode);
+				SET OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged = API_MANAGED_RETRIES;
+				
+				IF OutputLocalEnvironment.Variables.eCollection.RetryRequired AND 
+					NOT (OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged) THEN
+					CALL com.icici.xpress_connect.common.api.defaultAddAPIRequestRetryHint(NULL, 
+								REDELIVERY_INTERVAL, refAPIResponse);
+				END IF;
+	END;	
+END MODULE;

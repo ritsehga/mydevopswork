@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationDeferHandler.subflow" nsPrefix="com_icici_xpress_connect_ecollection_batch_refund_intimation_SplitBatchIntimationDeferHandler.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="SplitBatchIntimationDeferHandler" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationDeferHandler" pluginId="eCollection_MISIntimation_API"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj16/SplitBatchIntimationDeferHandler.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj30/SplitBatchIntimationDeferHandler.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="20,20">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.AcceptPaymentIntimationBatch" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationDeferHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="502,118">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.ReturnPaymentIntimationBatchAcceptance" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationDeferHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="321,20" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.batch.refund_intimation#SplitPaymentIntimations.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="SplitPaymentIntimations"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="561,21" queueName="AQ.IXC.ECO.PAYTX.INTIMATN.SPLIT.REQ">
+        <translation xmi:type="utility:ConstantString" string="PaymentIntimationQueue"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

@@ -1,0 +1,140 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation
+PATH com.icici.xpress_connect.common.api;
+
+
+
+CREATE COMPUTE MODULE CustomerIntimationHandlerPending_Error
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+
+		DECLARE chTargetTerminal CHARACTER RESPONSE_READY_TERMINAL;
+		
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+		IF NOT EXISTS(Environment.Variables.eCollection.mh.API.Request.Message[]) THEN
+			SET Environment.Variables.eCollection.mh.API.Request.Message = InputRoot.Collection.Input.JSON.Data;
+			SET Environment.Variables.InputMsg.JSON.Data 	= Environment.Variables.eCollection.mh.API.Request.Message;
+		END IF;
+				
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.mh.API.Request.Message;
+
+		IF EXISTS (InputExceptionList.*[]) THEN
+	  		-- These are different from 5XX HTTP status codes that we might receive from the remote client.
+	  		IF com.icici.xpress_connect.common.api.isAPIRequestBuildingException(InputExceptionList) THEN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_UNEXPECTED_FAILURE, 
+					TRUE); 
+	  		ELSE 
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_COMMUNICATION_ERROR, 
+					TRUE);
+	  		END IF;
+	
+			-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+			SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+			
+		ELSE
+			DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+			DECLARE inHttpStatusCode INTEGER CAST(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code" AS INTEGER);
+
+			IF inHttpStatusCode = API_HTTP_STATUS_CODE_UNAUTHORIZED OR -- 401
+				inHttpStatusCode = API_HTTP_STATUS_CODE_FORBIDDEN THEN -- 403 
+			
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_REMOTE_SECURITY_EXCEPTION, 
+					TRUE);
+
+					-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+					SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+			ELSE
+
+				IF EXISTS(InputRoot.Collection.Input[]) AND NOT EXISTS(InputRoot.Collection.Res[]) THEN 
+					SET OutputRoot.JSON.Data = Environment.Variables.eCollection.mh.API.Request.Message;
+					PROPAGATE TO TERMINAL QUERYBACK_CHECKER_TERMINAL DELETE NONE;
+
+					CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+						API_COMPLETION_CODE_ERROR, API_REASON_CODE_CLIENT_SERVICE_TIMEOUT_ERROR ,TRUE);
+					RETURN TRUE;	
+				ELSE
+					DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+					
+					IF COALESCE(chTargetMessageDomain, '') = '' THEN
+						-- Neither XMLNSC nor JSON domain. We do not support anything other than these domains.
+						-- Hence prepare a suitable response from the request itself and send it back.
+						DECLARE serverHttpStatusCode INTEGER CAST(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code" AS INTEGER);
+						IF serverHttpStatusCode = API_HTTP_STATUS_CODE_BAD_REQUEST THEN
+							-- Client API returned an HTTP Status Code 400 - Bad Request. We need to examine our eCollection API to client API transformation for possible errors.
+							CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+								API_COMPLETION_CODE_ERROR, API_REASON_CODE_CLIENT_END_BAD_REQUEST ,TRUE);
+						ELSE
+							-- Trusting HTTP Status Code returned by the client API to determine the reason for the error.
+							CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+								API_COMPLETION_CODE_ERROR, com.icici.xpress_connect.common.api.mapReasonCode(serverHttpStatusCode), 
+								TRUE);
+						END IF;	
+						-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+						SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+	
+					ELSEIF COALESCE(chTargetMessageDomain, '') = 'SOAP' THEN 	-- Handling SOAP 1.1 Faults.
+						CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+						API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_VALID, 
+						TRUE);
+	
+						SET chTargetTerminal = RESPONSE_READY_TERMINAL;	
+					ELSE
+						-- We are looking at either a JSON or an XML message.
+						SET OutputRoot = InputRoot;
+						CREATE LASTCHILD OF OutputRoot DOMAIN(chTargetMessageDomain) 
+							PARSE(OutputRoot.BLOB.BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);		-- [20-May-2020] : Removed FORMAT 'FolderBitStream'. This was incorrect.
+		
+						DELETE FIELD OutputRoot.BLOB;
+		--				SET chTargetTerminal = RESPONSE_REHANDLE_TERMINAL;
+						SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+					END IF;
+	
+				END IF;		-- Client is not using our eCollection API.
+						
+			END IF;
+			
+
+		END IF;
+
+		IF chTargetTerminal = RESPONSE_READY_TERMINAL THEN
+
+		END IF;
+	
+		PROPAGATE TO TERMINAL chTargetTerminal FINALIZE NONE DELETE NONE;		-- RESPONSE_READY_TERMINAL or RESPONSE_REHANDLE_TERMINAL
+
+		RETURN FALSE;
+	END;
+	
+	CREATE FUNCTION prepareReqTxnWindowExpiryErrorResponse (IN refAPIRequest REFERENCE,  INOUT refAPIResponse REFERENCE,  
+											IN completionCode INTEGER,  IN reasonCode CHARACTER, IN apiOptimization BOOLEAN) 
+		BEGIN
+
+			CALL com.icici.xpress_connect.common.api.buildAPIResponse(refAPIRequest, refAPIResponse, apiOptimization);
+			-- Augment the response with Completion Code, Reason Code, Message.
+			CALL addResponseStatus(refAPIResponse,
+						completionCode,
+						reasonCode,
+						lookupExtendedReasonMessage(reasonCode));		-- Using extended reason message instead of base reason message lookup. Extended delegates to base first.
+		END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+END MODULE;
+

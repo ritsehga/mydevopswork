@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:APIInputFailureHandler.subflow="APIInputFailureHandler.subflow" xmlns:APIResponseTimeoutHandler.subflow="APIResponseTimeoutHandler.subflow" xmlns:BatchIntimation.subflow="BatchIntimation.subflow" xmlns:BatchRefundIntimation.subflow="BatchRefundIntimation.subflow" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:ComIbmRouteToLabel.msgnode="ComIbmRouteToLabel.msgnode" xmlns:ComIbmWSInput.msgnode="ComIbmWSInput.msgnode" xmlns:ComIbmWSReply.msgnode="ComIbmWSReply.msgnode"
+    xmlns:Intimation.subflow="Intimation.subflow" xmlns:RefundIntimation.subflow="RefundIntimation.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="gen/eCollection_MISIntimation_API.msgflow" nsPrefix="gen_eCollection_MISIntimation_API.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.APPLICATION_VERSION_TAG" name="APPLICATION_VERSION_TAG">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.APPLICATION_BUILD_TAG" name="APPLICATION_BUILD_TAG">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="eCollection_MISIntimation_API" bundleName="gen/eCollection_MISIntimation_API" pluginId="eCollection_MISIntimation_API"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj16/eCollection_MISIntimation_API.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj30/eCollection_MISIntimation_API.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmWSInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="81,319" URLSpecifier="/api/eCollection/mis*" parseQueryString="true" messageDomainProperty="JSON" validateTiming="complete" timeoutForClient="30" faultFormat="HTML" validateMaster="contentAndValue">
+        <translation xmi:type="utility:ConstantString" string="AcceptAPIRequest"/>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="AcceptAPIRequest.terminal.out" eventIdentity="AcceptAPIRequest.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptAPIRequest.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="AcceptAPIRequest.terminal.failure" eventIdentity="AcceptAPIRequest.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptAPIRequest.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Catch terminal" eventSourceName="AcceptAPIRequest.terminal.catch" eventIdentity="AcceptAPIRequest.CatchTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptAPIRequest.CatchTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="HTTP Timeout terminal" eventSourceName="AcceptAPIRequest.terminal.timeout" eventIdentity="AcceptAPIRequest.HTTP TimeoutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptAPIRequest.HTTP TimeoutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmRouteToLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="432,316">
+        <translation xmi:type="utility:ConstantString" string="RouteAPIRequest"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSReply.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="800,326">
+        <translation xmi:type="utility:ConstantString" string="ReturnAPIReply"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="ReturnAPIReply.terminal.in" eventIdentity="ReturnAPIReply.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment/TransactionMarker" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="ReturnAPIReply.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="83,455" labelName="Batch-Intimation">
+        <translation xmi:type="utility:ConstantString" string="Batch-Intimation"/>
+      </nodes>
+      <nodes xmi:type="BatchIntimation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="419,455">
+        <translation xmi:type="utility:ConstantString" string="Batch-Intimation_SF"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="52,560" labelName="Batch-Refund-Intimation">
+        <translation xmi:type="utility:ConstantString" string="Batch-Refund-Intimation"/>
+      </nodes>
+      <nodes xmi:type="BatchRefundIntimation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="386,560">
+        <translation xmi:type="utility:ConstantString" string="Batch-Refund-Intimation_SF"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="104,666" labelName="Intimation">
+        <translation xmi:type="utility:ConstantString" string="Intimation"/>
+      </nodes>
+      <nodes xmi:type="Intimation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_10" location="438,666" API_SUBSCRIPTION="true" API_SUBSCRIPTION_CLIENT_CODE="ACME">
+        <translation xmi:type="utility:ConstantString" string="Intimation_SF"/>
+      </nodes>
+      <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="73,772" labelName="Refund-Intimation">
+        <translation xmi:type="utility:ConstantString" string="Refund-Intimation"/>
+      </nodes>
+      <nodes xmi:type="RefundIntimation.subflow:FCMComposite_1" xmi:id="FCMComposite_1_12" location="413,772">
+        <translation xmi:type="utility:ConstantString" string="Refund-Intimation_SF"/>
+      </nodes>
+      <nodes xmi:type="APIResponseTimeoutHandler.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="375,218">
+        <translation xmi:type="utility:ConstantString" string="APIResponseTimeoutHandler"/>
+      </nodes>
+      <nodes xmi:type="APIInputFailureHandler.subflow:FCMComposite_1" xmi:id="FCMComposite_1_13" location="181,218">
+        <translation xmi:type="utility:ConstantString" string="APIInputFailureHandler"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.AcceptTransactionIntimation"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.ReturnTransactionIntimation" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.AcceptTransactionIntimation"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.ReturnTransactionIntimation" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.Output_1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.Output_1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.timeout" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.Output_1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output_1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.Input_1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.APPLICATION_VERSION_TAG">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.APPLICATION_VERSION_TAG" bundleName="gen/eCollection_MISIntimation_API" pluginId="eCollection_MISIntimation_API"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.APPLICATION_BUILD_TAG">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.APPLICATION_BUILD_TAG" bundleName="gen/eCollection_MISIntimation_API" pluginId="eCollection_MISIntimation_API"/>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <stickyBoard>
+      <stickyNote location="25,25">
+        <body xmi:type="utility:ConstantString" string="This message flow is automatically generated.&#xA;Do not edit this message flow.&#xA;If you edit the message flow, your changes will be overwritten without a warning.&#xA;"/>
+      </stickyNote>
+    </stickyBoard>
+  </eClassifiers>
+</ecore:EPackage>

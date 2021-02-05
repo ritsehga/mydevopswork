@@ -1,0 +1,105 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback
+
+
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION genValidateSecureAPIResponse(
+																		IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		IN refAPIRequest REFERENCE,
+																		IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	-- rest encryption --
+
+	-- rest checksum --
+
+
+END;
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION genValidateSecureWSResponse(
+																			IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																			INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																			IN refAPIRequest REFERENCE, 
+																			IN refClientAPISOAPHeader REFERENCE, 
+																			IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	-- soap checksum --
+
+	-- soap encryption --
+
+END;
+
+-- Perform business data validation.
+CREATE FUNCTION genPerformResponseBusinessDataValidation(IN refAPIRequest REFERENCE, IN refClientAPIResponse REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+
+-- Map / Build API response body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION genMapAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	-- Code --
+	
+
+END;
+
+
+-- Map the Reason Code with the HTTP Status Code.
+CREATE FUNCTION mapHTTPStatusCode (IN chReasonCode CHARACTER)  RETURNS INTEGER
+BEGIN
+	-- Default.
+	DECLARE intMappedHTTPStatusCode INTEGER com.icici.xpress_connect.common.api.mapHTTPStatusCode(chReasonCode);
+	
+	-- Override defaults. 
+	-- Uses HTTP Status Code to Customer Error Code map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		RETURN API_HTTP_STATUS_CODE_OK;
+	END IF;
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		RETURN API_HTTP_STATUS_CODE_UNPROCESSABLE_ENTITY;
+	END IF;
+
+	RETURN intMappedHTTPStatusCode;
+END;
+
+--  Returns a descriptive message for the given code.
+CREATE FUNCTION lookupReasonMessage (IN reasonCode CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE chReasonMessage CHARACTER  NULL;
+	
+	IF reasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		SET chReasonMessage = API_REASON_MESSAGE_REQUEST_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_REQUEST_REJECTED;
+	END IF;
+	
+	IF reasonCode = API_REASON_CODE_TRANSACTION_ACCEPTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_TRANSACTION_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_REJECTED;
+	END IF;
+	
+	-- Fallback on the common reason codes and messages. Applies when API_OPTIMIZATION is true.
+	RETURN COALESCE(chReasonMessage, 	com.icici.xpress_connect.common.api.lookupExtendedReasonMessage(reasonCode));
+END;

@@ -1,0 +1,71 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection
+
+-- [06-Feb-2020]: Redeclaration.
+DECLARE API_COMPLETION_CODE_ERROR 						CONSTANT INTEGER 2 ;
+DECLARE API_REASON_CODE_REQUEST_NOT_VALID 	CONSTANT CHARACTER 'XC00101E';
+DECLARE API_REASON_CODE_UNEXPECTED_FAILURE CONSTANT CHARACTER 'XC00500E';
+-- Reason Message override.
+DECLARE API_REASON_MESSAGE_REQUEST_NOT_VALID 	CONSTANT CHARACTER 'Invalid message. Parsing failure.';
+
+CREATE COMPUTE MODULE HandleAPIInputFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE reasonCode CHARACTER API_REASON_CODE_UNEXPECTED_FAILURE;
+		DECLARE flagParsingError BOOLEAN FALSE;
+
+		-- BIPMsg 5705: JSON parsing issue.
+		IF EXISTS(InputExceptionList.*[]) THEN
+			IF com.icici.xpress_connect.common.api.isMessageParsingException(InputExceptionList)	OR
+				com.icici.xpress_connect.common.api.isMessageFieldValueConversionException(InputExceptionList) THEN
+				SET reasonCode = API_REASON_CODE_REQUEST_NOT_VALID;
+				SET flagParsingError = true;
+			END IF;
+		END IF;
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object);
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+		
+		
+		-- IF EXISTS(InputRoot.JSON.Data.*[]) THEN
+		IF EXISTS(Environment.Variables.eCollection.API.Request.Message .*[]) THEN
+		--	DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+			DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.API.Request.Message ;
+			-- Fortunately we have the request to build an error response from.
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				API_COMPLETION_CODE_ERROR, reasonCode, TRUE);
+				
+		ELSE		
+			CALL com.icici.xpress_connect.common.api.buildBareAPIResponse(refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, reasonCode);
+		END IF;
+		
+		-- Override message text.
+		IF flagParsingError THEN
+			SET refAPIResponse.message = API_REASON_MESSAGE_REQUEST_NOT_VALID;
+		ELSE 	
+			SET refAPIResponse.message = com.icici.xpress_connect.common.api.lookupExtendedReasonMessage(reasonCode);
+		END IF;
+				
+		-- Set the HTTP Status Code.
+		SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = 
+				com.icici.xpress_connect.common.api.mapHTTPStatusCode(refAPIResponse.reason_code);
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

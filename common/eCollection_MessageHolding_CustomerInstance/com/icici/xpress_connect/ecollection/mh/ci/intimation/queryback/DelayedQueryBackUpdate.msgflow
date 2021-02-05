@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmFlowOrder.msgnode="ComIbmFlowOrder.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:com_icici_xpress_connect_common_retry_RetrySF.subflow="com/icici/xpress_connect/common/retry/RetrySF.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/icici/xpress_connect/ecollection/mh/ci/intimation/queryback/DelayedQueryBackUpdate.msgflow" nsPrefix="com_icici_xpress_connect_ecollection_mh_ci_intimation_queryback_DelayedQueryBackUpdate.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="DelayedQueryBackUpdate" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/queryback/DelayedQueryBackUpdate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MessageHolding_CustomerInstance/icons/full/obj16/DelayedQueryBackUpdate.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MessageHolding_CustomerInstance/icons/full/obj30/DelayedQueryBackUpdate.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="73,97" queueName="IXC.ECOLL.MH.PARK.ACME.TIMEOUT.IN_">
+        <translation xmi:type="utility:ConstantString" string="PostQueryBackTimeOutIn"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="539,100" URLSpecifier="http://localhost:7801/customer/queryback/ACME">
+        <translation xmi:type="utility:ConstantString" string="CallCustomerQueryBackInternalService"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="1190,90" queueName="IXC.ECOLLECTION.MH.VALIDATOR.IN">
+        <translation xmi:type="utility:ConstantString" string="ValidatorHandlerOut"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="284,97" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="CopyInputData"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="981,87" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_Compute1.Main">
+        <translation xmi:type="utility:ConstantString" string="MapQueryBackResponse"/>
+      </nodes>
+      <nodes xmi:type="com_icici_xpress_connect_common_retry_RetrySF.subflow:FCMComposite_1" xmi:id="FCMComposite_1_7" location="891,101" COOLING_OF_Q="IXC.ECOLL.MH.PARK.ACME.TIMEOUT.RETRY" RETRY_Q="IXC.ECOLL.MH.PARK.ACME.TIMEOUT.IN" HEALTH_CHECK_ENDPOINT_URI="NA" PING_INTERVAL="NA" CB_POLICY_NAME="NA" API_CALLBACK_URI="NA" RETRY_POLICY_NAME="{common-retry-policies}:PostTracsactionTimeoutQueryBack" SUCCESS_HTTP_CODES="NA" CLIENT_CODE="NA">
+        <translation xmi:type="utility:ConstantString" string="RetrySF"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFlowOrder.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="438,99">
+        <translation xmi:type="utility:ConstantString" string="Flow Order"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="632,216" URLSpecifier="http://localhost:7801/customer/queryback/ACME">
+        <translation xmi:type="utility:ConstantString" string="CallProfundsQueryBackService"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="449,215" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="CreateQueryBackReq"/>
+      </nodes>
+      <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="887,216" filterExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_isIPSFileCreationRequired.Main">
+        <translation xmi:type="utility:ConstantString" string="isIPSFileCreationRequired"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="1286,228" queueName="IXC.ECOLL.MH.IPS.OUT">
+        <translation xmi:type="utility:ConstantString" string="IPSFileOut"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="791,1" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="HandleQueryBackError"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="1108,227" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback#DelayedQueryBackUpdate_Compute.Main">
+        <translation xmi:type="utility:ConstantString" string="CreateIPSFileContent"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_7" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.first" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_6" sourceTerminalName="OutTerminal.second" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_15" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_7" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_17" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_18" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_12" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_19" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_20" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_21" targetNode="FCMComposite_1_13" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_22" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_23" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

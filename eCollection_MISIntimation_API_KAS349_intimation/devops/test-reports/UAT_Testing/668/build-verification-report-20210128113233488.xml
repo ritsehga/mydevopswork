@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="990" it="0" lt="987" ct="82" ts="1611833554839" s="true" lb="New-Request-KAS349-${test_case_id}" rc="200" rm="OK" tn="Intimation-MainThreadGroup 1-1" dt="text" de="" by="1533" sby="1459" ng="1" na="1">
+  <responseHeader class="java.lang.String">HTTP/1.1 200 OK
+Content-Type: application/json
+IXC-Client-API-Type: WS-SOAP1.1/HTTP
+X-Original-HTTP-Status-Code: 200
+Server: IBM App Connect Enterprise
+Date: Thu, 28 Jan 2021 11:32:34 GMT
+Content-Length: 1218
+Set-Cookie: dbf95e5836264a955eac40c5454c07c6=258d6e8c6bd914258a5a322620e18a9e; path=/; HttpOnly
+</responseHeader>
+  <requestHeader class="java.lang.String">Connection: keep-alive
+Content-Type: application/json
+Accept: application/json
+IXC-DevOps-Test-Indicator: true
+IXC-DevOps-Test-Run-Id: &lt;ixc_test_run_id&gt;
+IXC-DevOps-Test-Sample-Id: Success 1
+Content-Length: 1060
+Host: ace-uat-ecollection.ixc-dev.apps.nonprod.iciciltd.com
+User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_242)
+</requestHeader>
+  <responseData class="java.lang.String">{&quot;api_version&quot;:&quot;1.2.0&quot;,&quot;response_id&quot;:&quot;843ABC0C-615C-11EB-A594-0A8200210000&quot;,&quot;response_datetime&quot;:&quot;2021-01-28T17:02:34.824+05:30&quot;,&quot;request_id&quot;:&quot;72068ed0-615c-11eb-ae96-1d1988bede39&quot;,&quot;request_datetime&quot;:&quot;2021-01-28T11:32:33.849Z&quot;,&quot;sender_system_id&quot;:&quot;DevOps&quot;,&quot;sender_system_user_id&quot;:&quot;DevOps&quot;,&quot;request_priority&quot;:&quot;3&quot;,&quot;test_indicator&quot;:&quot;true&quot;,&quot;client_code&quot;:&quot;KAS349&quot;,&quot;virtual_account_number&quot;:&quot;KAS349OM101&quot;,&quot;transaction_amount&quot;:1E+3,&quot;currency_code&quot;:&quot;INR&quot;,&quot;payment_mode&quot;:&quot;RTGS&quot;,&quot;transaction_id&quot;:&quot;N266451234399214&quot;,&quot;transaction_id_type&quot;:&quot;UTR&quot;,&quot;transaction_datetime&quot;:&quot;2021-01-28T11:27:23.850&quot;,&quot;sender_name&quot;:&quot;KAJAL&quot;,&quot;sender_mobile_communication_number&quot;:&quot;9856325211&quot;,&quot;sender_account_number&quot;:&quot;985632521101&quot;,&quot;sender_bank_name&quot;:&quot;BOB&quot;,&quot;sender_ifsc_code&quot;:&quot;BOB00000001&quot;,&quot;client_account_name&quot;:&quot;&quot;,&quot;client_mobile_communication_number&quot;:&quot;&quot;,&quot;client_account_number&quot;:&quot;985632521102&quot;,&quot;client_bank_name&quot;:&quot;&quot;,&quot;client_ifsc_code&quot;:&quot;&quot;,&quot;payer_code&quot;:&quot;&quot;,&quot;cms_reference_number&quot;:&quot;&quot;,&quot;narration_1&quot;:&quot;&quot;,&quot;narration_2&quot;:&quot;&quot;,&quot;informational_message&quot;:&quot;SUCCESS&quot;,&quot;completion_code&quot;:0,&quot;reason_code&quot;:&quot;XC00441I&quot;,&quot;message&quot;:&quot;Client has confirmed this transaction to be a valid one.&quot;,&quot;client_completion_code&quot;:&quot;0&quot;,&quot;client_reason_code&quot;:&quot;XC00202I&quot;,&quot;client_informational_message&quot;:&quot;OK.&quot;}</responseData>
+  <cookies class="java.lang.String"></cookies>
+  <method class="java.lang.String">POST</method>
+  <queryString class="java.lang.String">{&#xd;
+  &quot;api_version&quot;: &quot;1.2.0&quot;,&#xd;
+  &quot;request_id&quot;: &quot;72068ed0-615c-11eb-ae96-1d1988bede39&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;2021-01-28T11:32:33.849Z&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;DevOps&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;DevOps&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;3&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;client_code&quot;: &quot;KAS349&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;KAS349OM101&quot;,&#xd;
+  &quot;transaction_amount&quot;: 1000.00,&#xd;
+  &quot;currency_code&quot;: &quot;INR&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;RTGS&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;N266451234399214&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;UTR&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;2021-01-28T11:27:23.850&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;KAJAL&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;9856325211&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;985632521101&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;BOB&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;BOB00000001&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;985632521102&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;&quot;,&#xd;
+  &quot;payer_code&quot;: &quot;&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;SUCCESS&quot;&#xd;
+}&#xd;
+</queryString>
+  <java.net.URL>http://ace-uat-ecollection.ixc-dev.apps.nonprod.iciciltd.com/api/eCollection/mis/KAS349/intimation/intimate</java.net.URL>
+</httpSample>
+
+</testResults>

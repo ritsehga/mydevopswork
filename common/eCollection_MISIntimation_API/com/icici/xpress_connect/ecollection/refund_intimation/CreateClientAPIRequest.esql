@@ -1,0 +1,721 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.refund_intimation
+
+DECLARE OPTIMIZE_FOR_UNIFIED_API EXTERNAL BOOLEAN FALSE;
+-- DECLARE ENABLE_DEBUG_MODE EXTERNAL BOOLEAN FALSE;
+
+-- [24-Jan-2020]: Retry / Redelivery Default / Constants.
+DECLARE NO_REDELIVERY_RULE												CONSTANT CHARACTER 		'redelivery-none'; 							-- default: None.
+DECLARE DEFAULT_REDELIVERY_INTERVAL							CONSTANT INTEGER 				600;								-- default: 10 mins;
+DECLARE FOREVER_REDELIVERY_COUNT_MAX 					CONSTANT INTEGER 				-1;								-- default: forever.
+DECLARE UNRELEASED_APPLICATION_VERSION_TAG	 	CONSTANT CHARACTER 		'UNRELEASED';		-- default: Version Unrealeased
+DECLARE DEFAULT_REDELIVERY_BLOCK_START_TIME 	CONSTANT CHARACTER 		'22:00:00';					-- default: 10 PM
+DECLARE DEFAULT_REDELIVERY_BLOCK_END_TIME 		CONSTANT CHARACTER 		'08:00:00';					-- default: 8 AM
+
+-- [24-Jan-2020]: Retry / Redelivery Configuration Parameters.
+DECLARE REDELIVERY_RULE_NAME 										EXTERNAL 	CHARACTER 		NO_REDELIVERY_RULE;
+-- [24-Jan-2020]: REDELIVERY_INTERVAL deprecates API_MANAGED_RETRY_AFTER_INTERVAL_SECONDS
+DECLARE REDELIVERY_INTERVAL 											EXTERNAL 	INTEGER 				DEFAULT_REDELIVERY_INTERVAL;		
+-- TODO: Not accepting constant FOREVER_REDELIVERY_COUNT_MAX
+DECLARE REDELIVERY_COUNT_MAX 										EXTERNAL 	INTEGER 				-1;
+DECLARE REDELIVERY_BLOCK_START_TIME 						EXTERNAL 	CHARACTER 		NULL;
+DECLARE REDELIVERY_BLOCK_END_TIME 							EXTERNAL 	CHARACTER 		NULL;
+DECLARE FALLBACK_REDELIVERY_RULE_NAME 				EXTERNAL 	CHARACTER 		NO_REDELIVERY_RULE;
+
+-- [08-Jun-2020]: Using Policies [Redelivery]. If policy namespace and name are configured in the .bar file, the redelivery properties will be ignored.
+DECLARE REDELIVERY_POLICY_NAMESPACE 						EXTERNAL 	CHARACTER 		NULL;
+DECLARE REDELIVERY_POLICY_NAME 									EXTERNAL 	CHARACTER 		NULL;
+
+-- [24-Jan-2020]: 
+DECLARE APPLICATION_VERSION_TAG									EXTERNAL 	CHARACTER  		UNRELEASED_APPLICATION_VERSION_TAG;
+
+-- [14-Feb-2020]: Redelivery management optimization.
+--	User Agent  (Type: String)*
+-- Example: eCollection/<Client-Code>/<Version ID> 
+DECLARE 	IXC_USER_AGENT 														CONSTANT CHARACTER 		'IXC-User-Agent';
+
+--	# Integration Applications (API implementations on IBM ACE) will disallow operations that the client 
+--	# does not have a valid subscription for. The "disallow" part is implemented through externalized
+-- # configuration parameters INTIMATION_API_SUBSCRIPTION and REFUND_INTIMATION_API_SUBSCRIPTION
+
+-- We have a API request / response boilerplate handler. 
+-- Hence both the application (business scenarios) have been defined in the same ESQL.
+--DECLARE INTIMATION_API_SUBSCRIPTION 							EXTERNAL BOOLEAN TRUE;					-- default value.
+--DECLARE REFUND_INTIMATION_API_SUBSCRIPTION 		EXTERNAL BOOLEAN FALSE;				-- default value.
+
+DECLARE ERROR_TERMINAL 															CONSTANT CHARACTER 		'out1';
+-- [06-May-2020]: REST XML and SOAP Web Services.
+DECLARE SUCCESS_TERMINAL_REST 											CONSTANT CHARACTER 		'out';
+DECLARE SUCCESS_TERMINAL_WS												CONSTANT CHARACTER 		'out2';
+
+-- TODO: Below constants are also declared in the CommonAPIMessageBuilder.esql shared library component.
+-- Need to check if these can be defined in only one place and referenced from the rest of the application.
+-- Currently these constants are being duplicated for the deployment to succeed.
+
+-- [06-May-2020]: REST XML and SOAP Web Services.
+-- 	Field Name changes.
+DECLARE CONTENT_TYPE_MIME_JSON 										CONSTANT CHARACTER 		'application/json';
+DECLARE CONTENT_TYPE_MIME_XML 										CONSTANT CHARACTER 		'application/xml';
+DECLARE CONTENT_TYPE_MIME_SOAP_1_1 								CONSTANT CHARACTER 		'text/xml';
+DECLARE CONTENT_TYPE_MIME_SOAP_1_2 								CONSTANT CHARACTER 		'application/soap+xml';
+
+-- [06-May-2020]: REST XML and SOAP Web Services.
+-- 	Field Name changes.
+DECLARE API_TYPE_REST_JSON 														CONSTANT CHARACTER 		'REST-JSON/HTTP';
+DECLARE API_TYPE_REST_XML 														CONSTANT CHARACTER 		'REST-XML/HTTP';
+DECLARE API_TYPE_WS_SOAP_V11 												CONSTANT CHARACTER 		'WS-SOAP1.1/HTTP';
+DECLARE API_TYPE_WS_SOAP_V12 												CONSTANT CHARACTER 		'WS-SOAP1.2/HTTP';
+
+-- [06-May-2020]: REST XML and SOAP Web Services.
+-- 	Constant field refactored.
+-- @@IXC.OverrideConfigurationParameter
+DECLARE CLIENT_API_TYPE 															EXTERNAL CHARACTER  		API_TYPE_REST_JSON;
+
+-- [06-May-2020]: REST XML and SOAP Web Services.
+-- Web Services Properties.
+DECLARE 	CLIENT_API_MESSAGE_REQUEST_ROOT 					EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_REQUEST_NAMESPACE 						EXTERNAL CHARACTER 		NULL;
+
+DECLARE 	CLIENT_API_MESSAGE_RESPONSE_ROOT 				EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_RESPONSE_NAMESPACE 						EXTERNAL CHARACTER 		NULL;
+
+DECLARE WS_SOAP_CTX_OPERATION_NAME 							EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_CTX_PORT_TYPE 											EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_CTX_PORT_NAME 										EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_CTX_SERVICE_NAME 									EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_CTX_NAMESPACE_PREFIX 						EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_CTX_XML_DECLARATION 						EXTERNAL CHARACTER 		NULL;
+DECLARE WS_SOAP_HTTP_HDR_SOAPACTION						EXTERNAL CHARACTER 		NULL;
+
+DECLARE NS_SOAP_V11 																	NAMESPACE 		'http://schemas.xmlsoap.org/soap/envelope/';
+DECLARE NS_SOAP_V12 																	NAMESPACE 		'http://www.w3.org/2003/05/soap-envelope';
+
+DECLARE API_COMPLETION_CODE_SUCCESSFUL 					CONSTANT INTEGER 		0;
+DECLARE API_COMPLETION_CODE_WARNING 						CONSTANT INTEGER 		1;
+DECLARE API_COMPLETION_CODE_ERROR 								CONSTANT INTEGER 		2;
+
+DECLARE API_REASON_CODE_UNKNOWN 													CONSTANT CHARACTER 		'XC000201';
+DECLARE API_REASON_CODE_OK 																	CONSTANT CHARACTER 		'XC000202';
+DECLARE API_REASON_CODE_UNSUPPORTED_API_VERSION 				CONSTANT CHARACTER 		'XC00001E';
+DECLARE API_REASON_CODE_REQUEST_ID_NOT_FOUND 						CONSTANT CHARACTER 		'XC00002E';
+DECLARE API_REASON_CODE_REQUEST_DATETIME_NOT_FOUND 		CONSTANT CHARACTER 		'XC00003E';
+DECLARE API_REASON_CODE_PRIORITY_CODE_NOT_VALID 				CONSTANT CHARACTER 		'XC00004E';
+DECLARE API_REASON_CODE_RESENT_INDICATOR_INCONSISTENT CONSTANT CHARACTER 		'XC00005E';
+DECLARE API_REASON_CODE_REQUEST_NOT_VALID 								CONSTANT CHARACTER 		'XC00101E';
+DECLARE API_REASON_CODE_RESPONSE_NOT_VALID 							CONSTANT CHARACTER 		'XC00102E';
+
+DECLARE API_REASON_CODE_API_VERSION_MISMATCH 						CONSTANT CHARACTER 		'XC00031E';
+DECLARE API_REASON_CODE_REQUEST_ID_MISMATCH 						CONSTANT CHARACTER 		'XC00032E';
+DECLARE API_REASON_CODE_REQUEST_DATETIME_MISMATCH 		CONSTANT CHARACTER 		'XC00033E';
+DECLARE API_REASON_CODE_PRIORITY_CODE_MISMATCH 					CONSTANT CHARACTER 		'XC00034E';
+DECLARE API_REASON_CODE_RESENT_INDICATOR_MISMATCH 		CONSTANT CHARACTER 		'XC00035E';
+
+DECLARE API_REASON_CODE_COMMUNICATION_ERROR 						CONSTANT CHARACTER 		'XC00091E';
+DECLARE API_REASON_CODE_CLIENT_SERVICE_TIMEOUT_ERROR 		CONSTANT CHARACTER 		'XC0092E';
+DECLARE API_REASON_CODE_CLIENT_SERVICE_UNAVAILABLE_ERROR CONSTANT CHARACTER 'XC0093E';
+
+DECLARE API_REASON_CODE_REQUEST_ACCEPTED 								CONSTANT CHARACTER 		'XC00203I';
+DECLARE API_REASON_CODE_OBJECT_CREATED 										CONSTANT CHARACTER 		'XC00204I';
+
+DECLARE API_REASON_MESSAGE_REQUEST_ACCEPTED 							CONSTANT CHARACTER 		'Request accepted.';
+DECLARE API_REASON_MESSAGE_OBJECT_CREATED 								CONSTANT CHARACTER 		'Resource created.';
+
+-- HTTP Status Codes.
+DECLARE API_HTTP_STATUS_CODE_OK 									 					CONSTANT INTEGER 		200;
+DECLARE API_HTTP_STATUS_CODE_CREATED  					 					CONSTANT INTEGER 		201;
+DECLARE API_HTTP_STATUS_CODE_ACCEPTED  					 					CONSTANT INTEGER 		202;
+DECLARE API_HTTP_STATUS_CODE_NOT_MODIFIED 		 					CONSTANT INTEGER 		304;
+DECLARE API_HTTP_STATUS_CODE_BAD_REQUEST 			 					CONSTANT INTEGER 		400;
+DECLARE API_HTTP_STATUS_CODE_UNAUTHORIZED 		 					CONSTANT INTEGER 		401;
+DECLARE API_HTTP_STATUS_CODE_REQUEST_TIMEOUT  					CONSTANT INTEGER 		408;
+DECLARE API_HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR 		CONSTANT INTEGER 		500;
+DECLARE API_HTTP_STATUS_CODE_BAD_GATEWAY 							CONSTANT INTEGER 		502;
+DECLARE API_HTTP_STATUS_CODE_SERVICE_UNAVAILABLE 			CONSTANT INTEGER 		503;
+DECLARE API_HTTP_STATUS_CODE_GATEWAY_TIMEOUT 					CONSTANT INTEGER 		504;
+DECLARE API_HTTP_STATUS_CODE_MULTI_STATUS 							CONSTANT INTEGER 		207;
+-- Used for plugging in Reason Code to HTTP Status Code where reason codes are customer defined (extended).
+DECLARE API_HTTP_STATUS_CODE_UNKNOWN 									CONSTANT INTEGER 		-1;
+-- [20-Jan-2020]
+DECLARE API_HTTP_STATUS_CODE_FORBIDDEN 									CONSTANT INTEGER 		403;
+
+-- [12-Jun-2020]: Client API Authentication.
+-- Valid Values: Basic-Auth, WSSE-UserNameToken
+-- 	Basic-Auth: User Name and Password are set in the HTTP Header for the HTTP requests sent to the client. 
+-- WSSE-UserNameToken: User Name and Password are set in the SOAP Header for the SOAP / HTTP requests sent to the client.
+
+DECLARE CLIENT_API_AUTH_TYPE															EXTERNAL CHARACTER NULL;
+
+DECLARE API_AUTH_TYPE_BASIC_AUTH												CONSTANT CHARACTER 'Basic-Auth';
+DECLARE API_AUTH_TYPE_WSSE_BASIC_AUTH									CONSTANT CHARACTER 'WSSE-UserNameToken';
+
+-- Option 1: Configure within the .bar file.
+DECLARE CLIENT_API_AUTH_IDENTITY_TOKEN									EXTERNAL CHARACTER NULL;		-- Username 
+DECLARE CLIENT_API_AUTH_IDENTITY_PWD										EXTERNAL CHARACTER NULL;		-- Password
+DECLARE	CLIENT_API_AUTH_DOMAIN													EXTERNAL CHARACTER NULL;		-- Authorization Domain
+
+-- Option 2: Configure using mqsivault and mqsicredentials (IBM ACE 11.0.0.6+) or mqsisetdbparms
+-- Authenticating incoming requests by using credentials stored in the vault.
+-- https://www.ibm.com/support/knowledgecenter/SSTTDS_11.0.0/com.ibm.etools.mft.doc/bp28500_.html
+DECLARE CLIENT_API_AUTH_POLICY_NAMESPACE							EXTERNAL CHARACTER NULL;		-- Policy Project name (not .bar file name or policy XML file name).
+DECLARE CLIENT_API_AUTH_POLICY_NAME										EXTERNAL CHARACTER NULL;		-- Policy Name (not the policy XML file name). 
+
+CREATE COMPUTE MODULE CreateClientAPIRequest
+
+	DECLARE API_SUBSCRIPTION EXTERNAL BOOLEAN FALSE;							-- default value.
+	-- [15-Jan-2020]: 
+	DECLARE API_SUBSCRIPTION_CLIENT_CODE EXTERNAL CHARACTER '';	-- default value.
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+
+		-- Set message headers.
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.Properties.Encoding = InputRoot.Properties.Encoding;
+
+		-- [06-May-2020]: REST XML and SOAP Web Services.
+		-- Moved this to a new function.
+		--		-- Content-Type depends upon the target (Client) service.
+		--		SET OutputRoot.Properties.ContentType = CLIENT_API_REQUEST_CONTENT_TYPE_MIME;
+		--
+		--		-- Set HTTP Headers.
+		--		-- HTTP Headers depend upon the target (Client) service.
+		--		SET OutputRoot.HTTPRequestHeader."Content-Type" 			= CLIENT_API_REQUEST_CONTENT_TYPE_MIME;
+		--		-- SET OutputRoot.HTTPRequestHeader."Content-Encoding" 	= 'UTF-8';
+		--		SET OutputRoot.HTTPRequestHeader."Accept" 						= CLIENT_API_REQUEST_CONTENT_TYPE_MIME;
+		--
+		
+		CREATE FIELD OutputRoot.HTTPRequestHeader;
+
+		-- Set up the Redelivery Configuration in case this request ends up failing.
+		CALL buildRedeliveryConfiguration();	
+
+		-- CALL CopyEntireMessage();
+		-- Map API request to target / client API request.
+		DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+		
+		-- [12-Jun-2020]: Gather Analytics Data.
+		CALL gatherAnalyticsData(refAPIRequest);
+		
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+		DECLARE chClientCode CHARACTER COALESCE(refAPIRequest.client_code, '');
+		
+
+		-- [10-Jan-2020]:  API subscription validation. If not valid, return an HTTP Status Code 403 (Forbidden).
+		IF NOT (API_SUBSCRIPTION AND 
+			chClientCode = API_SUBSCRIPTION_CLIENT_CODE) THEN
+			CALL com.icici.xpress_connect.common.api.buildAPIRequestForbiddenResponse(refAPIRequest, refAPIResponse);
+
+			-- Set the HTTP Status Code.
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_FORBIDDEN;
+			-- [20-Jan-2020]
+			--		com.icici.xpress_connect.ecollection.refund_intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);
+
+			-- [06-May-2020]: REST XML and SOAP Web Services.
+			-- HTTP response headers for content-type.
+			CALL addHTTPResponseHeaders();
+			
+			PROPAGATE TO TERMINAL ERROR_TERMINAL;
+			RETURN FALSE;
+		END IF;	
+		
+		-- Preserve the request received from the sender (ICICI system / application).
+		-- Used during the client response assertion if the client has adopted our API 
+		-- (the one we expose to the ICICI systems / applications).
+		CREATE LASTCHILD OF Environment.Variables.eCollection.API.Request DOMAIN ('JSON') NAME 'Message';
+		SET Environment.Variables.eCollection.API.Request.Message = refAPIRequest;
+
+		-- Validation results collector.
+		CREATE FIELD Environment.Variables.eCollection.API.Request.ValidationResult;
+		DECLARE refAPIValidationReport REFERENCE TO Environment.Variables.eCollection.API.Request.ValidationResult;
+		
+		-- [15-Jan-2020]: Validation-Departure:  Pre-hygiene checks.  
+		-- TODO: None for now.
+		
+		-- API validation check.
+		-- [15-Feb-2020]: Checking datatypes is moot when the values conform to the original datatypes.
+		-- Example: A priority value of 3 (integer) or "3" (string) does not have any impact on the validation even if XMLNSC validation is used.
+		-- Explicit type casting and converting the values to their downgraded types is the way ahead.
+		CALL performBaseAPIRequestValidation_Downgrade(refAPIRequest, refAPIValidationReport);
+		
+		-- Common hygience check.
+		CALL com.icici.xpress_connect.common.api.performBaseAPIRequestValidation(refAPIRequest, refAPIValidationReport);
+
+		IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport) THEN
+			-- Validation failure.
+			-- Prepare API error response.
+			-- CREATE FIELD OutputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+			
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				refAPIValidationReport.completion_code, API_REASON_CODE_REQUEST_NOT_VALID, 
+				TRUE);
+
+			-- Set the HTTP Status Code. 
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_BAD_REQUEST;
+			-- [20-Jan-2020]
+			-- com.icici.xpress_connect.ecollection.refund_intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);	
+			
+			-- [06-May-2020]: REST XML and SOAP Web Services.
+			-- HTTP response headers for content-type.
+			CALL addHTTPResponseHeaders();
+
+			-- Return failure response.
+			PROPAGATE TO TERMINAL ERROR_TERMINAL;
+			RETURN FALSE;
+			
+		ELSE
+			-- Clear the earlier validation results.
+--			DELETE FIELD refAPIValidationReport;
+--			CREATE FIELD Environment.Variables.eCollection.API.Request.ValidationResult;
+--			SET refAPIValidationReport = Environment.Variables.eCollection.API.Request.ValidationResult;
+			
+			SET refAPIValidationReport VALUE = NULL;
+			 
+			-- Hygiene checks cleared. We now perform business data validations.
+			CALL performBusinessDataValidation(refAPIRequest, refAPIValidationReport);
+
+		END IF;
+
+		IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport)  THEN
+			-- Validation failure.
+			-- Prepare API error response.
+			-- CREATE FIELD OutputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+			-- Using the first reason code in the validation report instead of a generic API_REASON_CODE_REQUEST_NOT_VALID
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				refAPIValidationReport.completion_code, refAPIValidationReport.Assertion[1].reason_code, 
+				TRUE);
+
+			-- Set the HTTP Status Code.
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_BAD_REQUEST;
+			-- [20-Jan-2020]
+			-- com.icici.xpress_connect.ecollection.refund_intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);
+	
+			-- [06-May-2020]: REST XML and SOAP Web Services.
+			-- HTTP response headers for content-type.
+			CALL addHTTPResponseHeaders();
+
+			-- Return failure response.
+			PROPAGATE TO TERMINAL ERROR_TERMINAL;
+			RETURN FALSE;
+
+		ELSE
+			-- Build the client request.
+			-- [06-May-2020]: REST XML and SOAP Web Services.
+			-- HTTP client request headers for content-type.
+			CALL addHTTPClientRequestHeaders();
+
+			-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+			DECLARE refAPIRequestHeader 			REFERENCE TO InputRoot.HTTPInputHeader;
+			DECLARE refClientAPIRequestHeader 	REFERENCE TO OutputRoot.HTTPRequestHeader;
+			
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+				CREATE FIELD OutputRoot.JSON.Data;
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.JSON.Data;
+
+				-- Map API request fields to client/target API fields.
+				-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+				
+			ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				DELETE FIELD OutputRoot.JSON;
+				IF COALESCE(CLIENT_API_REQUEST_NAMESPACE, '') = '' THEN	-- No Namespace
+					CREATE FIELD OutputRoot.XMLNSC.{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				ELSE -- Namespace
+					CREATE FIELD OutputRoot.XMLNSC.{CLIENT_API_REQUEST_NAMESPACE}:{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				END IF;
+				
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.XMLNSC.*:{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				
+				-- Map API request fields to client/target API fields.
+				-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+				
+			ELSEIF 	CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR 
+							CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+				DELETE FIELD OutputRoot.JSON;
+				CALL initWebServiceContext();
+				IF COALESCE(CLIENT_API_REQUEST_NAMESPACE, '') = '' THEN	-- No Namespace
+					CREATE FIELD OutputRoot.SOAP.Body.{CLIENT_API_MESSAGE_REQUEST_ROOT};
+				ELSE -- Namespace
+					CREATE FIELD OutputRoot.SOAP.Body.{CLIENT_API_REQUEST_NAMESPACE}:{CLIENT_API_MESSAGE_REQUEST_ROOT};
+				END IF;
+
+				-- [20-Jun-2020]: Build Web Services SOAP Header.
+				CREATE FIELD OutputRoot.SOAP.Header;
+				DECLARE refClientWSSOAPHeader REFERENCE TO OutputRoot.SOAP.Header;
+				
+	            CALL mapWSRequestHeader(refAPIRequest, refClientWSSOAPHeader, refAPIRequestHeader);
+				
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.SOAP.Body.*:{CLIENT_API_MESSAGE_REQUEST_ROOT};
+
+				-- Map API request fields to client/target API fields.
+				-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+
+			END IF;
+			
+
+			-- [05-Apr-2020]: Inject HTTP headers for traceablilty in APIC.
+			DECLARE refAPIMessageTransportHeader REFERENCE TO OutputRoot.HTTPRequestHeader;
+			CALL injectReferenceDataTransportHeaders('eCollection', ApplicationLabel, 
+						refAPIRequest, refAPIMessageTransportHeader);
+
+			-- [06-May-2020]: REST XML and SOAP Web Services.
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON OR
+				CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				
+				-- Return client API request.
+				PROPAGATE TO TERMINAL SUCCESS_TERMINAL_REST;
+			ELSE
+				-- Return client API request.
+				PROPAGATE TO TERMINAL SUCCESS_TERMINAL_WS;
+			END IF;
+			
+			RETURN FALSE;
+		END IF;
+
+	END;
+
+	-- Perform business data validation.
+	CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refAPIValidationReport REFERENCE) BEGIN
+		-- Validate default / common fields.
+		-- [12-Feb-2020] IF condition removed. Lets validate anyway.
+		-- IF OPTIMIZE_FOR_UNIFIED_API THEN	
+			CALL com.icici.xpress_connect.common.api.performDefaultRequestBusinessDataValidation(refAPIRequest, refAPIValidationReport);
+		-- END IF;	
+
+		-- Validate rest of the message fields.
+		-- @@IXC.AutoGenerateESQL
+		CALL com.icici.xpress_connect.ecollection.refund_intimation.gen.performBusinessDataValidation(refAPIRequest, refAPIValidationReport);
+	END;
+
+	-- [20-Jun-2020]: Build Web Services SOAP Header.
+	CREATE PROCEDURE mapWSRequestHeader(IN refAPIRequest REFERENCE, 
+												INOUT refClientWSSOAPHeader REFERENCE, IN refAPIRequestHeader REFERENCE) 
+	BEGIN
+            CALL com.icici.xpress_connect.ecollection.refund_intimation.gen.mapWSRequestHeader(refAPIRequest, refClientWSSOAPHeader, refAPIRequestHeader);
+	END;
+	
+	-- Map / Build API request body (data / payload).
+	-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+	CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																		  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+	BEGIN
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+			SET refClientAPIRequest.*[] = refAPIRequest.*[];
+		ELSE	
+			-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+			-- @@IXC.AutoGenerateESQL
+			-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+			CALL com.icici.xpress_connect.ecollection.refund_intimation.gen.mapAPIRequest(refAPIRequest, refClientAPIRequest, 
+																																					refAPIRequestHeader, refClientAPIRequestHeader);
+			-- [12-Jun-2020]: Gather Analytics Data.																																	
+			DECLARE refAnalyticsDataCollector REFERENCE TO Environment.Analytics.Data;
+			CALL com.icici.xpress_connect.ecollection.refund_intimation.gen.gatherAnalyticsData_ClientAPIRequest(refClientAPIRequest, 
+																																							refClientAPIRequestHeader, refAnalyticsDataCollector);																														
+		END IF;
+
+	END;
+
+	-- [24-Jan-2020]: Initialize the Redelivery Configuration for downstream PrepareAPIRequest to take appropriate decisions.	
+	-- TODO: Can this be moved to CommonAPIRedeliverySupport ESQL module ? 
+	-- Roadblock: Access to User Defined Properties (including promoted ones) in the common library modules.
+	CREATE FUNCTION buildRedeliveryConfiguration()
+	BEGIN
+		-- IXC_REDELIVERY_ENDPOINT_URI
+		SET Environment.Variables.eCollection.HostEndpointURI 	= InputLocalEnvironment.REST.Input.URI;
+		SET Environment.Variables.eCollection.APIRequestContentType = InputRoot.HTTPInputHeader."Content-Type";
+		
+		SET Environment.Variables.eCollection.APISubscriptionClientCode = API_SUBSCRIPTION_CLIENT_CODE;
+		SET Environment.Variables.eCollection.ApplicationVersionTag = APPLICATION_VERSION_TAG;
+		
+		CREATE FIELD Environment.Variables.eCollection.Redelivery;
+		DECLARE refRedeliveryParameters REFERENCE TO Environment.Variables.eCollection.Redelivery;
+		
+		-- [08-Jun-2020]: Introduced the use of Policy files for properties.
+		IF COALESCE(REDELIVERY_POLICY_NAMESPACE, '') <> '' AND 
+			 COALESCE(REDELIVERY_POLICY_NAME, '') <> ''  THEN 
+			DECLARE REDELIVERY_POLICY_FILE CHARACTER '{' || REDELIVERY_POLICY_NAMESPACE || '}:' || REDELIVERY_POLICY_NAME;
+	
+			SET refRedeliveryParameters.RedeliveryRuleName =  
+					com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'REDELIVERY_RULE_NAME');
+			SET refRedeliveryParameters.RedeliveryInterval =  
+					com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'REDELIVERY_INTERVAL');
+			SET refRedeliveryParameters.MaximumRedeliveryAttemptCount =  
+					com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'REDELIVERY_COUNT_MAX');
+			 SET refRedeliveryParameters.RedeliveryBlockStartTime =  
+			 		com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'REDELIVERY_BLOCK_START_TIME');
+			SET refRedeliveryParameters.RedeliveryBlockEndTime =  
+			      	com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'REDELIVERY_BLOCK_END_TIME');
+			SET refRedeliveryParameters.FallbackRedeliveryRuleName =  
+					com.icici.xpress_connect.common.api.getPolicyProperty(REDELIVERY_POLICY_FILE, 'FALLBACK_REDELIVERY_RULE_NAME');
+		ELSE
+			SET refRedeliveryParameters.RedeliveryRuleName = REDELIVERY_RULE_NAME;
+			SET refRedeliveryParameters.RedeliveryInterval = REDELIVERY_INTERVAL;
+			SET refRedeliveryParameters.MaximumRedeliveryAttemptCount = REDELIVERY_COUNT_MAX;
+			SET refRedeliveryParameters.RedeliveryBlockStartTime = REDELIVERY_BLOCK_START_TIME;
+			SET refRedeliveryParameters.RedeliveryBlockEndTime = REDELIVERY_BLOCK_END_TIME;
+			SET refRedeliveryParameters.FallbackRedeliveryRuleName = FALLBACK_REDELIVERY_RULE_NAME; -- [20200508]
+		END IF;
+
+		SET refRedeliveryParameters.UserAgent = COALESCE(InputRoot.HTTPInputHeader.{IXC_USER_AGENT}, 'NA'); 			-- [14-Feb-2020]
+	END;
+	
+
+	-- [15-Feb-2020]: Validation specific to API spec downgrade.
+	-- 4 field modified to suit Profunds limitations.
+	-- request_priority, original_request_priority, resent_indicator, test_indicator.
+	-- Data-Types of these fields were modified to string.
+	CREATE FUNCTION performBaseAPIRequestValidation_Downgrade(INOUT refAPIRequest REFERENCE,
+	INOUT refAPIValidationReport REFERENCE)
+	BEGIN
+		DECLARE EXIT HANDLER FOR  SQLSTATE LIKE '%'  
+		BEGIN
+			-- Jumping hoops to send a consistent response. Consequences of the API downgrade.
+			DECLARE API_DUMMY_VALUE_API_ORIGINAL_REQUEST_ID CONSTANT CHARACTER '00000000-0000-0000-0000-000000000000';
+			DECLARE API_DUMMY_VALUE_API_ORIGINAL_REQUEST_DATETIME CONSTANT CHARACTER '1970-01-01T00:00:00.000+00:00'; 	-- Unix Epoc.
+
+			SET refAPIRequest.request_priority = NULL;
+			SET refAPIRequest.original_request_priority = NULL;
+
+			IF COALESCE(refAPIRequest.original_request_id, '') <> '' THEN
+				SET refAPIRequest.resent_indicator = CAST(TRUE AS CHARACTER);
+				SET refAPIRequest.original_request_id = COALESCE(refAPIRequest.original_request_id, API_DUMMY_VALUE_API_ORIGINAL_REQUEST_ID);
+				SET refAPIRequest.original_request_datetime = COALESCE(refAPIRequest.original_request_datetime, API_DUMMY_VALUE_API_ORIGINAL_REQUEST_DATETIME);
+			ELSE
+				SET refAPIRequest.resent_indicator = CAST(FALSE AS CHARACTER);
+				CALL com.icici.xpress_connect.common.api.unsetResentMessageFields(refAPIRequest);
+			END IF;
+			SET refAPIRequest.test_indicator = NULL;
+			
+			-- We have corrected a few field values so that the API response from Xpress Connect does not fail validation at the client (e.g. Profund) end.
+			SET Environment.Variables.eCollection.API.Request.Message = refAPIRequest;
+			
+			-- Rethrow Parsing Error.
+			RESIGNAL;
+		END;
+
+		-- Typecasting the downgraded fields to pre-empt bad values.
+		IF CAST(COALESCE(refAPIRequest.request_priority, '-1') AS INTEGER) <> -1 THEN
+			-- If priority is set to value other than -1, it implies that the client application has set a value explicitly.
+			SET refAPIRequest.request_priority = CAST (refAPIRequest.request_priority AS CHARACTER);
+		END IF;
+		-- Typecasting the downgraded fields to pre-empt bad values.
+		IF CAST(COALESCE(refAPIRequest.original_request_priority, '-1') AS INTEGER) <> -1 THEN
+			-- If priority is set to value other than -1, it implies that the client application has set a value explicitly.
+			SET refAPIRequest.original_request_priority = CAST (refAPIRequest.original_request_priority AS CHARACTER);
+		END IF;
+	
+		IF LENGTH(CAST(refAPIRequest.resent_indicator AS CHARACTER)) > 0 THEN
+			-- The field has some value, so lets validate if its a boolean one.
+			SET refAPIRequest.resent_indicator = CAST(CAST(refAPIRequest.resent_indicator AS BOOLEAN) AS CHARACTER);
+		END IF;	
+					
+		IF LENGTH(CAST(refAPIRequest.test_indicator AS CHARACTER)) > 0 THEN
+			-- The field has some value, so lets validate if its a boolean one.
+			SET refAPIRequest.test_indicator = CAST(CAST(refAPIRequest.test_indicator AS BOOLEAN) AS CHARACTER);
+		END IF;	
+	END;
+
+	-- [05-Apr-2020]: APIC request tracing. 
+	-- This method is also present com.icici.xpress_connect.common.api.CommonAPIMessageBuilder.esql. Here its a bit concised.
+	CREATE FUNCTION injectReferenceDataTransportHeaders(IN ApplicationLabel CHARACTER, IN MessageFlowLabel CHARACTER,
+					 IN refAPIMessage REFERENCE, INOUT refAPIMessageHeader REFERENCE) 
+	BEGIN
+		
+		-- End-to-end traceability.
+		-- refAPIMessageHeader will reference User ("usr" folder).
+--		SET refAPIMessageHeader."IXC_Initiating_Application" 					= ApplicationLabel;
+--		SET refAPIMessageHeader."IXC_Initiating_Business_Scenario" 		= MessageFlowLabel;
+		SET refAPIMessageHeader."IXC_Initiating_Application_Channel_Id" 
+																																= COALESCE(refAPIMessage.sender_system_id, 
+																																		refAPIMessage.channel_id);
+		SET refAPIMessageHeader."IXC_Initiating_Request_Id" 					= refAPIMessage.request_id;
+		SET refAPIMessageHeader."IXC_Initiating_Request_Datetime" 		= refAPIMessage.request_datetime;
+--		SET refAPIMessageHeader."IXC_Request_Priority" 							= CAST(COALESCE(refAPIMessage.request_priority, '3') AS INTEGER);
+		SET refAPIMessageHeader."IXC_Initiating_Original_Request_Id"	= refAPIMessage.original_request_id;
+		SET refAPIMessageHeader."IXC_Initiating_Original_Request_Datetime" 
+																																= refAPIMessage.original_request_datetime;
+--		SET refAPIMessageHeader."IXC_Original_Request_Priority" 			= CAST(COALESCE(refAPIMessage.original_request_priority, '3') AS INTEGER);
+		SET refAPIMessageHeader."IXC_Initiating_Test_Indicator" 				= CAST(COALESCE(refAPIMessage.test_indicator, 'FALSE') AS BOOLEAN);
+		SET refAPIMessageHeader."IXC_Client_Code" 									= refAPIMessage.client_code;
+--		SET refAPIMessageHeader."IXC_Virtual_Account_Number" 			= refAPIMessage.virtual_account_number;
+--		SET refAPIMessageHeader."IXC_Transaction_Amount" 					= CAST(refAPIMessage.transaction_amount AS CHARACTER);
+--		SET refAPIMessageHeader."IXC_Currency_Code" 								= refAPIMessage.currency_code;
+--		SET refAPIMessageHeader."IXC_Payment_Mode" 								= refAPIMessage.payment_mode;
+--		SET refAPIMessageHeader."IXC_Transaction_Datetime" 					= refAPIMessage.transaction_datetime;
+--		SET refAPIMessageHeader."IXC_Beneficiary_IFSC_Code" 				= refAPIMessage.sender_ifsc_code;
+		
+	END;
+	
+	-- [06-May-2020]: REST XML and SOAP Web Services.	
+	CREATE FUNCTION  addHTTPResponseHeaders() 
+	BEGIN
+		SET OutputRoot.Properties.ContentType = COALESCE(InputRoot.HTTPInputHeader."Content-Type",  CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.Properties.Encoding = InputRoot.Properties.Encoding;
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+		
+		SET OutputRoot.HTTPRequestHeader."Content-Type" 			= COALESCE(InputRoot.HTTPInputHeader."Content-Type",  CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" 	= InputRoot.HTTPInputHeader."Content-Encoding";
+		
+	END;
+
+	-- [06-May-2020]: REST XML and SOAP Web Services.
+	CREATE FUNCTION  addHTTPClientRequestHeaders() 
+	BEGIN
+		-- Content-Type depends upon the target (Client) service.
+		DECLARE chClientAPIRequestContentType CHARACTER getClientAPIRequestContentType(CLIENT_API_TYPE);
+		
+		SET OutputRoot.Properties.ContentType = chClientAPIRequestContentType;
+		SET OutputRoot.Properties.Encoding = InputRoot.Properties.Encoding;
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+
+		-- HTTP Headers depend upon the target (Client) service.
+		SET OutputRoot.HTTPRequestHeader."Content-Type" 			= chClientAPIRequestContentType;
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" 	= InputRoot.HTTPInputHeader."Content-Encoding";
+		SET OutputRoot.HTTPRequestHeader."Accept" 						= chClientAPIRequestContentType;
+		
+		IF COALESCE(CLIENT_API_AUTH_TYPE, '') = API_AUTH_TYPE_BASIC_AUTH OR
+			COALESCE(CLIENT_API_AUTH_TYPE, '') = API_AUTH_TYPE_WSSE_BASIC_AUTH THEN
+			CALL addHTTPBasicAuthenticationHeaders();
+		END IF;		
+
+	END;
+
+	-- [01-Jun-2020]: API -SECURITY: Basic Authentication for REST API and SOAP Web Services.
+	-- https://www.ibm.com/support/knowledgecenter/SSTTDS_11.0.0/com.ibm.etools.mft.doc/bp28500_.html
+	-- https://www.ibm.com/support/pages/ace-11-how-set-basic-authentication-header-httprequest-or-soaprequest-node-using-security-identity
+	CREATE FUNCTION  addHTTPBasicAuthenticationHeaders() 
+	BEGIN
+		-- Basic Authentication
+		-- SET OutputRoot.HTTPRequestHeader."Authorization" 			= 'Basic ' || BASE64ENCODE(apiUserName || ':' || apiPassword);
+
+		IF COALESCE(CLIENT_API_AUTH_POLICY_NAMESPACE, '') = '' AND 
+			COALESCE(CLIENT_API_AUTH_POLICY_NAME, '') = '' THEN
+			SET OutputRoot.Properties.IdentitySourceType 			= 'usernameAndPassword';
+			SET OutputRoot.Properties.IdentitySourceToken 		= CLIENT_API_AUTH_IDENTITY_TOKEN;
+			SET OutputRoot.Properties.IdentitySourcePassword 	= CLIENT_API_AUTH_IDENTITY_PWD;
+
+			IF COALESCE(CLIENT_API_AUTH_DOMAIN, '') <> '' THEN
+				SET OutputRoot.Properties.IdentitySourceIssuedBy = CLIENT_API_AUTH_DOMAIN;
+			END IF;
+		END IF;
+	END;
+
+	-- [01-Jun-2020]: API -SECURITY: WSSE SOAP Web Services.
+	CREATE FUNCTION  addWSSEHeaders(IN apiUserName CHARACTER, IN apiPassword CHARACTER) 
+	BEGIN
+		-- Basic Authentication
+		--	SET OutputRoot.HTTPRequestHeader."Authorization" 			= 'Basic ' || BASE64ENCODE(apiUserName || ':' || apiPassword);
+	END;
+	
+	-- [06-May-2020]: REST XML and SOAP Web Services.
+	CREATE FUNCTION getClientAPIRequestContentType(IN clientAPIType CHARACTER) RETURNS CHARACTER
+	BEGIN
+		IF clientAPIType = API_TYPE_REST_JSON THEN
+			RETURN CONTENT_TYPE_MIME_JSON;
+		ELSEIF clientAPIType = API_TYPE_REST_XML THEN
+			RETURN CONTENT_TYPE_MIME_XML;
+		ELSEIF clientAPIType = API_TYPE_WS_SOAP_V11 THEN
+			RETURN CONTENT_TYPE_MIME_SOAP_1_1;
+		ELSEIF clientAPIType = API_TYPE_WS_SOAP_V12 THEN
+			RETURN CONTENT_TYPE_MIME_SOAP_1_2;
+		END IF;
+		
+		RETURN NULL;
+	END;
+	
+	-- [06-May-2020]: REST XML and SOAP Web Services.
+	-- Refer https://www.ibm.com/support/knowledgecenter/SSMKHH_10.0.0/com.ibm.etools.mft.doc/ac64020_.html
+	CREATE FUNCTION  initWebServiceContext() 
+	BEGIN
+			-- The WSDL operation name. In Gateway mode, the operation is assumed to be the name of the 
+			-- element that is the first child of the SOAP Body element, if present, otherwise it is the constant 
+			-- name ‘ComIbmBrokerGenericGatewayOperation’.
+			-- This should be automatically set by the SOAP Request node configured as Gateway.
+			-- SET OutputRoot.SOAP.Context.operation  = WS_SOAP_CTX_OPERATION_NAME;
+			
+			-- The WSDL port type name. In Gateway mode, this item is empty.
+			-- SET OutputRoot.SOAP.Context.portType  = WS_SOAP_CTX_PORT_TYPE;
+			
+			-- The WSDL port name (if known). In Gateway mode, this item is empty.
+			-- SET OutputRoot.SOAP.Context.port  = WS_SOAP_CTX_PORT_NAME;
+			
+			-- The WSDL service name (if known). In Gateway mode, the service has the constant name 
+			-- ‘ComIbmBrokerGenericGatewayService’. 
+			-- This should be automatically set by the SOAP Request node configured as Gateway.
+			-- SET OutputRoot.SOAP.Context.service = WS_SOAP_CTX_SERVICE_NAME;
+
+			-- One of ‘REQUEST_RESPONSE’, ‘ONE_WAY’, ‘SOLICIT_RESPONSE’, ‘NOTIFICATION’. In Gateway mode, 
+			-- without WSDL, this field contains ‘GATEWAY’. This means ‘REQUEST_RESPONSE’ or ‘GATEWAY_ONE_WAY’, 
+			-- which means that the node has detected the operation type to be one-way.
+			-- This should be automatically set by the SOAP Request node configured as Gateway.
+			-- SET OutputRoot.SOAP.Context.operationType  = 'GATEWAY';
+			
+			-- One of  '1.1' or  '1.2'.
+			IF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+				SET OutputRoot.SOAP.Context.SOAP_Version  = '1.2';
+				-- SOAPAction HTTP header is not required for SOAP 1.2
+			ELSEIF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 THEN
+				SET OutputRoot.SOAP.Context.SOAP_Version  = '1.1';
+				SET OutputRoot.HTTPRequestHeader.SOAPAction = WS_SOAP_HTTP_HDR_SOAPACTION;
+			END IF;
+			
+			
+			--	Contains nameValue child elements that define the namespace prefix (the name) to be used for a specified 
+			-- namespace URI (the value). An output message uses the namespace prefixes defined here to qualify any 
+			-- elements in the corresponding namespaces.
+			--	
+			--	If the SOAP.Context was originally created at an input node, it might already contain all the namespace 
+			-- prefix definitions that you need.
+			--	
+			--	If SOAP.Context does not exist, or the outgoing message uses additional namespaces, the SOAP parser 
+			-- generates any required namespace prefixes automatically.
+			--	
+			--	Alternatively, you can specify your own namespace prefix; the specific name of a namespace prefix does not 
+			-- usually affect the meaning of a message, with one important exception. If the message content contains a 
+			-- qualified name, the message must contain a matching namespace prefix definition.
+			
+			-- Example: SET OutputRoot.SOAP.Context.Namespace.(SOAP.NamespaceDecl)xmlns:tns='http://www.icicibank.com/api/acme';
+			
+			-- SET OutputRoot.SOAP.Context.Namespace.(SOAP.NamespaceDecl)xmlns:{WS_SOAP_CTX_NAMESPACE_PREFIX} = WS_SOAP_CTX_XML_DECLARATION;
+			
+			IF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+					SET OutputRoot.SOAP.Context.Namespace.(SOAP.NamespaceDecl)xmlns:soap12= NS_SOAP_V12;
+			ELSEIF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 THEN
+					SET OutputRoot.SOAP.Context.Namespace.(SOAP.NamespaceDecl)xmlns:soap11 = NS_SOAP_V11;
+			END IF;
+			
+			--  Represents the standard XML declaration.
+			-- SET OutputRoot.SOAP.Context.XmlDeclaration  = WS_SOAP_CTX_XML_DECLARATION;
+			
+	END;
+	
+	CREATE FUNCTION gatherAnalyticsData(IN refMessage REFERENCE) 
+	BEGIN
+			SET Environment.Analytics.Data.Context.client_code = refMessage.client_code;
+			SET Environment.Analytics.Data.Context.virtual_account_number = refMessage.virtual_account_number;
+	END;
+	
+END MODULE;

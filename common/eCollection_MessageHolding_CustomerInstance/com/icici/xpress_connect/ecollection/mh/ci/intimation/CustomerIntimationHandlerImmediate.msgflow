@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmHTTPHeader.msgnode="ComIbmHTTPHeader.msgnode" xmlns:ComIbmMQInput.msgnode="ComIbmMQInput.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:com_icici_xpress_connect_common_retry_RetrySF.subflow="com/icici/xpress_connect/common/retry/RetrySF.subflow" xmlns:com_icici_xpress_connect_ecollection_mh_ci_intimation_QueryBack.subflow="com/icici/xpress_connect/ecollection/mh/ci/intimation/QueryBack.subflow"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate.msgflow" nsPrefix="com_icici_xpress_connect_ecollection_mh_ci_intimation_CustomerIntimationHandlerImmediate.msgflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_TYPE" name="CLIENT_API_TYPE" lowerBound="1" defaultValueLiteral="REST-JSON/HTTP">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_SUBSCRIPTION_CLIENT_CODE" name="API_SUBSCRIPTION_CLIENT_CODE" lowerBound="1" defaultValueLiteral="NA">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_ENCODING" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_ENCODING" defaultValueLiteral="BASE64">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_MAC" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_MAC">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION" defaultValueLiteral="C14N1-WithComments-Exclusive">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM" defaultValueLiteral="XMLSIG20">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION" name="CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION" defaultValueLiteral="XML-Document-Fragment">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME" name="CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_SUBSCRIPTION" name="API_SUBSCRIPTION" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.OPTIMIZE_FOR_UNIFIED_API" name="OPTIMIZE_FOR_UNIFIED_API" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_MANAGED_RETRIES" name="API_MANAGED_RETRIES" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_RESPONSE_DEFAULT_MAP" name="API_RESPONSE_DEFAULT_MAP" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_RULE_NAME" name="REDELIVERY_RULE_NAME" defaultValueLiteral="retry-none">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_INTERVAL" name="REDELIVERY_INTERVAL" lowerBound="1" defaultValueLiteral="600">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_COUNT_MAX" name="REDELIVERY_COUNT_MAX" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FALLBACK_REDELIVERY_RULE_NAME" name="FALLBACK_REDELIVERY_RULE_NAME" defaultValueLiteral="retry-none">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_BLOCK_START_TIME" name="REDELIVERY_BLOCK_START_TIME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_BLOCK_END_TIME" name="REDELIVERY_BLOCK_END_TIME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_POLICY_NAMESPACE" name="REDELIVERY_POLICY_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_POLICY_NAME" name="REDELIVERY_POLICY_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_REQUEST_ROOT" name="CLIENT_API_MESSAGE_REQUEST_ROOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_REQUEST_NAMESPACE" name="CLIENT_API_REQUEST_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_OPERATION_NAME" name="WS_SOAP_CTX_OPERATION_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_PORT_NAME" name="WS_SOAP_CTX_PORT_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_PORT_TYPE" name="WS_SOAP_CTX_PORT_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_SERVICE_NAME" name="WS_SOAP_CTX_SERVICE_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_NAMESPACE_PREFIX" name="WS_SOAP_CTX_NAMESPACE_PREFIX">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_XML_DECLARATION" name="WS_SOAP_CTX_XML_DECLARATION">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_HTTP_HDR_SOAPACTION" name="WS_SOAP_HTTP_HDR_SOAPACTION">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT" name="CLIENT_API_MESSAGE_RESPONSE_ROOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_RESPONSE_NAMESPACE" name="CLIENT_API_RESPONSE_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_IDENTITY_TOKEN" name="CLIENT_API_AUTH_IDENTITY_TOKEN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_IDENTITY_PWD" name="CLIENT_API_AUTH_IDENTITY_PWD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_TYPE" name="CLIENT_API_AUTH_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_DOMAIN" name="CLIENT_API_AUTH_DOMAIN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_POLICY_NAME" name="CLIENT_API_AUTH_POLICY_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_POLICY_NAMESPACE" name="CLIENT_API_AUTH_POLICY_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE" name="CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE" defaultValueLiteral="jks">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME" name="CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH" name="CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD" name="CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD" name="CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME" name="CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD" name="CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME" name="CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_INDICATOR" name="CLIENT_API_MESSAGE_SECURITY_INDICATOR" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE" name="CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO" name="CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING" defaultValueLiteral="0x00s">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN" defaultValueLiteral="STATIC">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING" name="CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING" defaultValueLiteral="BASE64">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO" name="CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE" name="CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING" name="CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING" name="CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MESSAGE_SECURITY_POLICY_NAMESPACE" name="MESSAGE_SECURITY_POLICY_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.MESSAGE_SECURITY_POLICY_NAME" name="MESSAGE_SECURITY_POLICY_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK" name="CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MODE" name="CLIENT_API_MODE" lowerBound="1" defaultValueLiteral="SYNC">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.UPI_TXN_REQ_WINDOW" name="UPI_TXN_REQ_WINDOW" lowerBound="1" defaultValueLiteral="6">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FT_TXN_REQ_WINDOW" name="FT_TXN_REQ_WINDOW" lowerBound="1" defaultValueLiteral="6">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IMPS_TXN_REQ_WINDOW" name="IMPS_TXN_REQ_WINDOW" lowerBound="1" defaultValueLiteral="6">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_SUBSCRIBED_MODEL" name="CLIENT_SUBSCRIBED_MODEL" lowerBound="1" defaultValueLiteral="MODEL-1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_SUBSCRIBED_API_MODEL" name="CLIENT_SUBSCRIBED_API_MODEL" lowerBound="1" defaultValueLiteral="MODEL-1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="CustomerIntimationHandlerImmediate" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MessageHolding_CustomerInstance/icons/full/obj16/CustomerIntimationHandlerImmediate.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MessageHolding_CustomerInstance/icons/full/obj30/CustomerIntimationHandlerImmediate.gif"/>
+    <composition>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_9" location="767,218" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation#CreateAPIResponse.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="HandleClientAPIResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_10" location="187,231" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation#CreateClientAPIRequest.Main">
+        <translation xmi:type="utility:ConstantString" string="CreateClientAPIRequest"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_11" location="415,233" URLSpecifier="http://localhost:7801/customer/api/sync" httpVersion="1.1" protocol="TLS" messageDomainProperty="BLOB">
+        <translation xmi:type="utility:ConstantString" string="InvokePartnerAPI"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="InvokePartnerAPI.terminal.in" eventIdentity="InvokePartnerAPI.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokePartnerAPI.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="InvokePartnerAPI.terminal.out" eventIdentity="InvokePartnerAPI.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokePartnerAPI.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="InvokePartnerAPI.terminal.failure" eventIdentity="InvokePartnerAPI.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokePartnerAPI.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Error terminal" eventSourceName="InvokePartnerAPI.terminal.error" eventIdentity="InvokePartnerAPI.ErrorTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokePartnerAPI.ErrorTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_12" location="1091,223" queueName="IXC.ECOLL.MH.IMDT.ACME.REPLY">
+        <translation xmi:type="utility:ConstantString" string="ImmediateResponseOut"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="ImmediateResponseOut.terminal.in" eventIdentity="ImmediateResponseOut.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="ImmediateResponseOut.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_13" location="-82,230" queueName="IXC.ECOLL.MH.IMDT.ACME.IN" messageDomainProperty="JSON">
+        <translation xmi:type="utility:ConstantString" string="AcceptimmediateIntimationRequest"/>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="AcceptimmediateIntimationRequest.terminal.out" eventIdentity="AcceptimmediateIntimationRequest.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptimmediateIntimationRequest.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="AcceptimmediateIntimationRequest.terminal.failure" eventIdentity="AcceptimmediateIntimationRequest.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptimmediateIntimationRequest.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Catch terminal" eventSourceName="AcceptimmediateIntimationRequest.terminal.catch" eventIdentity="AcceptimmediateIntimationRequest.CatchTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator dataLocation="$Root/JSON/Data/request_id" eventCorrelation="dataLocation"/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="AcceptimmediateIntimationRequest.CatchTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="579,87" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.mh.ci.intimation#CustomerIntimationHandlerPending_Error.Main">
+        <translation xmi:type="utility:ConstantString" string="HandlerError"/>
+      </nodes>
+      <nodes xmi:type="com_icici_xpress_connect_common_retry_RetrySF.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="677,231" COOLING_OF_Q="IXC.ECOLL.MH.IMDT.ACME.RETRY" COOLING_OF_QM="ACEQM1" RETRY_Q="IXC.ECOLL.MH.IMDT.ACME.IN" RETRY_QM="ACEQM1" HEALTH_CHECK_ENDPOINT_URI="http://localhost:7801/customer/api/sync" PING_INTERVAL="2" CB_POLICY_NAME="{common-circuitbreaker-policies}:eCollectionMessageHolding" API_CALLBACK_URI="http://localhost:7801/clientgateway/circuitcontrol/ACME" RETRY_POLICY_NAME="{common-retry-policies}:SyncTracsactionType"
+          SUCCESS_HTTP_CODES="200" CLIENT_CODE="ACME">
+        <translation xmi:type="utility:ConstantString" string="RetrySF"/>
+      </nodes>
+      <nodes xmi:type="ComIbmHTTPHeader.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="978,219" httpInputHeader="DeleteHeader" httpResponseHeader="DeleteHeader" httpRequestHeader="DeleteHeader" httpReplyHeader="DeleteHeader">
+        <translation xmi:type="utility:ConstantString" string="HTTP Header"/>
+      </nodes>
+      <nodes xmi:type="com_icici_xpress_connect_ecollection_mh_ci_intimation_QueryBack.subflow:FCMComposite_1" xmi:id="FCMComposite_1_8" location="545,164">
+        <translation xmi:type="utility:ConstantString" string="QueryBack"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_10" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_13" sourceTerminalName="OutTerminal.catch" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_21" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_23" targetNode="FCMComposite_1_11" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out2" targetTerminalName="InTerminal.in">
+        <bendPoints>102,-40,-101,-42</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_9" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_10" sourceTerminalName="OutTerminal.out3" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_9" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_12" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_25" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.Output1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_26" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.QueryResponseOut" targetTerminalName="InTerminal.Input2"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_27" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_8" sourceTerminalName="OutTerminal.QueryBackNotApplicable" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_28" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.Input1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_29" targetNode="FCMComposite_1_8" sourceNode="FCMComposite_1_11" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.FailureIn1"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_TYPE">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+        <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_SUBSCRIPTION_CLIENT_CODE">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.API_SUBSCRIPTION_CLIENT_CODE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+          <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+            <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_ENCODING">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_ENCODING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+              <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_MAC">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_MAC" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                  <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                    <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                      <propertyDescriptor groupName="Group.Client-API-Security-XMLSignature" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                        <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                          <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                            <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                              <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                  <propertyDescriptor groupName="Group.Client-API-Security-Key-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME">
+                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                    <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_SUBSCRIPTION">
+                                      <propertyName xmi:type="utility:TranslatableString" key="Property.API_SUBSCRIPTION" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                      <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.OPTIMIZE_FOR_UNIFIED_API">
+                                        <propertyName xmi:type="utility:TranslatableString" key="Property.OPTIMIZE_FOR_UNIFIED_API" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                        <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_MANAGED_RETRIES">
+                                          <propertyName xmi:type="utility:TranslatableString" key="Property.API_MANAGED_RETRIES" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                          <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_RESPONSE_DEFAULT_MAP">
+                                            <propertyName xmi:type="utility:TranslatableString" key="Property.API_RESPONSE_DEFAULT_MAP" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                            <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_RULE_NAME">
+                                              <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_RULE_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                              <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_INTERVAL">
+                                                <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_INTERVAL" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_COUNT_MAX">
+                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_COUNT_MAX" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                  <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.FALLBACK_REDELIVERY_RULE_NAME">
+                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.FALLBACK_REDELIVERY_RULE_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                    <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_BLOCK_START_TIME">
+                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_BLOCK_START_TIME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                      <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_BLOCK_END_TIME">
+                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_BLOCK_END_TIME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                        <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_POLICY_NAMESPACE">
+                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_POLICY_NAMESPACE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                          <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_POLICY_NAME">
+                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_POLICY_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                            <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_REQUEST_ROOT">
+                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_REQUEST_ROOT" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                              <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_REQUEST_NAMESPACE">
+                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_REQUEST_NAMESPACE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_OPERATION_NAME">
+                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_OPERATION_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                  <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_PORT_NAME">
+                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_PORT_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                    <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_PORT_TYPE">
+                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_PORT_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                      <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_SERVICE_NAME">
+                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_SERVICE_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                        <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_NAMESPACE_PREFIX">
+                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_NAMESPACE_PREFIX" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                          <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_XML_DECLARATION">
+                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_XML_DECLARATION" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                            <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_HTTP_HDR_SOAPACTION">
+                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_HTTP_HDR_SOAPACTION" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                              <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT">
+                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                <propertyDescriptor groupName="Group.Client-WebServices" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_RESPONSE_NAMESPACE">
+                                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_RESPONSE_NAMESPACE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                  <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_IDENTITY_TOKEN">
+                                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_IDENTITY_TOKEN" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                    <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_IDENTITY_PWD">
+                                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_IDENTITY_PWD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                      <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_TYPE">
+                                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                        <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_DOMAIN">
+                                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_DOMAIN" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                          <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_POLICY_NAME">
+                                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_POLICY_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                            <propertyDescriptor groupName="Group.Client-API-Security-Authentication" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_POLICY_NAMESPACE">
+                                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_POLICY_NAMESPACE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                              <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE">
+                                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME">
+                                                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                  <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH">
+                                                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                    <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD">
+                                                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                      <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD">
+                                                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                        <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME">
+                                                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                          <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD">
+                                                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                            <propertyDescriptor groupName="Group.Client-API-Security-KeyStore" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME">
+                                                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                              <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_INDICATOR">
+                                                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_INDICATOR" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE">
+                                                                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                  <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE">
+                                                                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                    <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO">
+                                                                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                      <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO">
+                                                                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                        <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE">
+                                                                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                          <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING">
+                                                                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                            <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING">
+                                                                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                              <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN">
+                                                                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE">
+                                                                                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                  <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING">
+                                                                                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                    <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO">
+                                                                                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                      <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE">
+                                                                                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                        <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING">
+                                                                                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                          <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING">
+                                                                                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                            <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.MESSAGE_SECURITY_POLICY_NAMESPACE">
+                                                                                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.MESSAGE_SECURITY_POLICY_NAMESPACE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                              <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.MESSAGE_SECURITY_POLICY_NAME">
+                                                                                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.MESSAGE_SECURITY_POLICY_NAME" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                <propertyDescriptor groupName="Group.Client-API-Security-Checksum-Encryption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK">
+                                                                                                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                  <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MODE">
+                                                                                                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MODE" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                    <propertyDescriptor groupName="Group.TransactionWindow" configurable="true" userDefined="true" describedAttribute="Property.UPI_TXN_REQ_WINDOW">
+                                                                                                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.UPI_TXN_REQ_WINDOW" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                      <propertyDescriptor groupName="Group.TransactionWindow" configurable="true" userDefined="true" describedAttribute="Property.FT_TXN_REQ_WINDOW">
+                                                                                                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.FT_TXN_REQ_WINDOW" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                        <propertyDescriptor groupName="Group.TransactionWindow" configurable="true" userDefined="true" describedAttribute="Property.IMPS_TXN_REQ_WINDOW">
+                                                                                                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.IMPS_TXN_REQ_WINDOW" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                          <propertyDescriptor groupName="Group.Client-API-Model-Subsciption" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_SUBSCRIBED_MODEL">
+                                                                                                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_SUBSCRIBED_MODEL" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                            <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_SUBSCRIBED_API_MODEL">
+                                                                                                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_SUBSCRIBED_API_MODEL" bundleName="com/icici/xpress_connect/ecollection/mh/ci/intimation/CustomerIntimationHandlerImmediate" pluginId="eCollection_MessageHolding_CustomerInstance"/>
+                                                                                                                                                            </propertyDescriptor>
+                                                                                                                                                          </propertyDescriptor>
+                                                                                                                                                        </propertyDescriptor>
+                                                                                                                                                      </propertyDescriptor>
+                                                                                                                                                    </propertyDescriptor>
+                                                                                                                                                  </propertyDescriptor>
+                                                                                                                                                </propertyDescriptor>
+                                                                                                                                              </propertyDescriptor>
+                                                                                                                                            </propertyDescriptor>
+                                                                                                                                          </propertyDescriptor>
+                                                                                                                                        </propertyDescriptor>
+                                                                                                                                      </propertyDescriptor>
+                                                                                                                                    </propertyDescriptor>
+                                                                                                                                  </propertyDescriptor>
+                                                                                                                                </propertyDescriptor>
+                                                                                                                              </propertyDescriptor>
+                                                                                                                            </propertyDescriptor>
+                                                                                                                          </propertyDescriptor>
+                                                                                                                        </propertyDescriptor>
+                                                                                                                      </propertyDescriptor>
+                                                                                                                    </propertyDescriptor>
+                                                                                                                  </propertyDescriptor>
+                                                                                                                </propertyDescriptor>
+                                                                                                              </propertyDescriptor>
+                                                                                                            </propertyDescriptor>
+                                                                                                          </propertyDescriptor>
+                                                                                                        </propertyDescriptor>
+                                                                                                      </propertyDescriptor>
+                                                                                                    </propertyDescriptor>
+                                                                                                  </propertyDescriptor>
+                                                                                                </propertyDescriptor>
+                                                                                              </propertyDescriptor>
+                                                                                            </propertyDescriptor>
+                                                                                          </propertyDescriptor>
+                                                                                        </propertyDescriptor>
+                                                                                      </propertyDescriptor>
+                                                                                    </propertyDescriptor>
+                                                                                  </propertyDescriptor>
+                                                                                </propertyDescriptor>
+                                                                              </propertyDescriptor>
+                                                                            </propertyDescriptor>
+                                                                          </propertyDescriptor>
+                                                                        </propertyDescriptor>
+                                                                      </propertyDescriptor>
+                                                                    </propertyDescriptor>
+                                                                  </propertyDescriptor>
+                                                                </propertyDescriptor>
+                                                              </propertyDescriptor>
+                                                            </propertyDescriptor>
+                                                          </propertyDescriptor>
+                                                        </propertyDescriptor>
+                                                      </propertyDescriptor>
+                                                    </propertyDescriptor>
+                                                  </propertyDescriptor>
+                                                </propertyDescriptor>
+                                              </propertyDescriptor>
+                                            </propertyDescriptor>
+                                          </propertyDescriptor>
+                                        </propertyDescriptor>
+                                      </propertyDescriptor>
+                                    </propertyDescriptor>
+                                  </propertyDescriptor>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

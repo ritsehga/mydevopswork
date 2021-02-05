@@ -1,0 +1,1227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.1.1 r1855137">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="IXC-eCollectionAPI-DevOps" enabled="true">
+      <stringProp name="TestPlan.comments">Original pristine API. Before API was downgraded with changes to the boolean and integer datatypes for certain fields to suit Profunds were made. [13-Feb-2020]</stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP-Header-Manager" enabled="true">
+        <collectionProp name="HeaderManager.headers">
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Content-Type</stringProp>
+            <stringProp name="Header.value">application/json</stringProp>
+          </elementProp>
+          <elementProp name="" elementType="Header">
+            <stringProp name="Header.name">Accept</stringProp>
+            <stringProp name="Header.value">application/json</stringProp>
+          </elementProp>
+          <elementProp name="IXC-DevOps-Test-Indicator" elementType="Header">
+            <stringProp name="Header.name">IXC-DevOps-Test-Indicator</stringProp>
+            <stringProp name="Header.value">true</stringProp>
+          </elementProp>
+          <elementProp name="IXC-DevOps-Test-Run-Id" elementType="Header">
+            <stringProp name="Header.name">IXC-DevOps-Test-Run-Id</stringProp>
+            <stringProp name="Header.value">${__P(ixc_test_run_id, ${internal_test_run_id})}</stringProp>
+          </elementProp>
+          <elementProp name="IXC-DevOps-Test-Sample-Id" elementType="Header">
+            <stringProp name="Header.name">IXC-DevOps-Test-Sample-Id</stringProp>
+            <stringProp name="Header.value">${test_sample_id}</stringProp>
+          </elementProp>
+        </collectionProp>
+      </HeaderManager>
+      <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User-Defined-Variables-Environment" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="ixc_api_endpoint_hostname" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_endpoint_hostname</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_endpoint_hostname, localhost)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_endpoint_port_number" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_endpoint_port_number</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_endpoint_port_number,7800)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Node: Local: 8080, Container: 8835 (V 3.5), 8834 (V 3.4), 8833 (V 3.3), IBM ACE Local: 7800</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_base_uri" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_base_uri</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_base_uri, /api/eCollection/mis)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_intimation_uri" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_intimation_uri</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_intimation_uri, /api/eCollection/mis/3044/intimation/intimate)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Example: /api/eCollection/mis/ACME/remitter-validation-intermediary-account/intimate</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_refund_intimation_uri" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_refund_intimation_uri</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_refund_intimation_uri, /api/eCollection/mis/3044/intimation/intimate)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Example: /api/eCollection/mis/ACME/remitter-validation-intermediary-account/refund-intimate</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_organization_code" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_organization_code</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_organization_code, RNVP)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_code" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_code</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_code, 3044)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_subscription_product_name" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_subscription_product_name</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_subscription_product_name, eCollection)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_subscription_business_scenario_name" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_subscription_business_scenario_name</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_subscription_business_scenario_name, Intimation)}</stringProp>
+            <stringProp name="Argument.desc">Valid Values: Intimation, Remitter-Validation-Current-Account, Remitter-Validation-Intermediary-Account, Remitter-Validation-2-Levels, Refund-Intimation</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_virtual_account_number" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_virtual_account_number</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_virtual_account_number, 0000000000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_deployment_build_id" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_deployment_build_id</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_deployment_build_id, 00000000-0000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_deployment_target_env" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_deployment_target_env</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_deployment_target_env, uat)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">Valid Values: sit, uat, prod</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_deployment_validation_userId" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_deployment_validation_userId</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_deployment_validation_userId, ixc_system)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_concurrent_user_count" elementType="Argument">
+            <stringProp name="Argument.name">ixc_concurrent_user_count</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_concurrent_user_count, 1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_user_loading_seconds" elementType="Argument">
+            <stringProp name="Argument.name">ixc_user_loading_seconds</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_user_loading_seconds, 1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_record_count_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_record_count_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_record_count_intimation, 1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_record_count_refund_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_record_count_refund_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_record_count_refund_intimation, 1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_test_data_filename_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_test_data_filename_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_test_data_filename_intimation, C:\Workspaces\ACE11-Xpress-Connect\eCollection_MISIntimation_API\devops\test-resources\eCollection-jmeter-build-verification-testdata-intimation.csv)}</stringProp>
+            <stringProp name="Argument.desc">eCollection-jmeter-build-verification-testdata-intimation.csv</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_test_data_filename_refund_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_test_data_filename_refund_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_test_data_filename_refund_intimation, eCollection-jmeter-build-verification-testdata-refund-intimation.csv)}</stringProp>
+            <stringProp name="Argument.desc">eCollection-jmeter-build-verification-testdata-refund-intimation.csv</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_test_report_name_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_test_report_name_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_test_report_name_intimation, C:\Workspaces\ACE11-Xpress-Connect\eCollection_MISIntimation_API\devops\test-reports\20200306\build-verification-report)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+            <stringProp name="Argument.desc">C:\Workspaces\ACE11-Xpress-Connect\eCollection_MISIntimation_API\devops\test-reports\</stringProp>
+          </elementProp>
+          <elementProp name="ixc_test_report_name_refund_intimation" elementType="Argument">
+            <stringProp name="Argument.name">ixc_test_report_name_refund_intimation</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_test_report_name_refund_intimation, 1)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_intimation_timeout_secs" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_intimation_timeout_secs</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_intimation_timeout_secs, 10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_refund_intimation_timeout_secs" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_refund_intimation_timeout_secs</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_refund_intimation_timeout_secs, 10)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_build_git_commit_id" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_build_git_commit_id</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_build_git_commit_id, )}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ixc_api_client_project_id" elementType="Argument">
+            <stringProp name="Argument.name">ixc_api_client_project_id</stringProp>
+            <stringProp name="Argument.value">${__P(ixc_api_client_project_id, 00000000)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User-Defined-Variables-Setup" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="iso8601_datetime_format" elementType="Argument">
+            <stringProp name="Argument.name">iso8601_datetime_format</stringProp>
+            <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSXXX</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="rfc822_datetime_format" elementType="Argument">
+            <stringProp name="Argument.name">rfc822_datetime_format</stringProp>
+            <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="timeshift_datetime_format" elementType="Argument">
+            <stringProp name="Argument.name">timeshift_datetime_format</stringProp>
+            <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="payment_mode_neft" elementType="Argument">
+            <stringProp name="Argument.name">payment_mode_neft</stringProp>
+            <stringProp name="Argument.value">NEFT</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="payment_mode_rtgs" elementType="Argument">
+            <stringProp name="Argument.name">payment_mode_rtgs</stringProp>
+            <stringProp name="Argument.value">RTGS</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="payment_mode_ft" elementType="Argument">
+            <stringProp name="Argument.name">payment_mode_ft</stringProp>
+            <stringProp name="Argument.value">FT</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="payment_mode_imps" elementType="Argument">
+            <stringProp name="Argument.name">payment_mode_imps</stringProp>
+            <stringProp name="Argument.value">IMPS</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="transaction_id_type_utr" elementType="Argument">
+            <stringProp name="Argument.name">transaction_id_type_utr</stringProp>
+            <stringProp name="Argument.value">UTR</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="transaction_id_type_rrn" elementType="Argument">
+            <stringProp name="Argument.name">transaction_id_type_rrn</stringProp>
+            <stringProp name="Argument.value">RRN</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="transaction_id_type_tranId" elementType="Argument">
+            <stringProp name="Argument.name">transaction_id_type_tranId</stringProp>
+            <stringProp name="Argument.value">TRANID</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="transaction_id_datetime_format" elementType="Argument">
+            <stringProp name="Argument.name">transaction_id_datetime_format</stringProp>
+            <stringProp name="Argument.value">yyMMddHHmmss00</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="internal_test_run_id" elementType="Argument">
+            <stringProp name="Argument.name">internal_test_run_id</stringProp>
+            <stringProp name="Argument.value">${__time(yyMMdd-HHmm,)}-${__RandomString(8,ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,)}</stringProp>
+            <stringProp name="Argument.desc">${__RandomString(20,ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789,)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Intimation-MainThreadGroup" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${ixc_concurrent_user_count}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${ixc_user_loading_seconds}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User-Defined-Variables-Defaults" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="api_version" elementType="Argument">
+              <stringProp name="Argument.name">api_version</stringProp>
+              <stringProp name="Argument.value">1.2.0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_system_id" elementType="Argument">
+              <stringProp name="Argument.name">sender_system_id</stringProp>
+              <stringProp name="Argument.value">Profunds</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_system_user_id" elementType="Argument">
+              <stringProp name="Argument.name">sender_system_user_id</stringProp>
+              <stringProp name="Argument.value">raman.kumar@icicibank.com</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="request_priority" elementType="Argument">
+              <stringProp name="Argument.name">request_priority</stringProp>
+              <stringProp name="Argument.value">3</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="original_request_priority" elementType="Argument">
+              <stringProp name="Argument.name">original_request_priority</stringProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="original_sender_system_user_id" elementType="Argument">
+              <stringProp name="Argument.name">original_sender_system_user_id</stringProp>
+              <stringProp name="Argument.value">prachi.j@icicibank.com</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="test_indicator" elementType="Argument">
+              <stringProp name="Argument.name">test_indicator</stringProp>
+              <stringProp name="Argument.value">false</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_code" elementType="Argument">
+              <stringProp name="Argument.name">client_code</stringProp>
+              <stringProp name="Argument.value">ADAN</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="unsubscribed_client_code" elementType="Argument">
+              <stringProp name="Argument.name">unsubscribed_client_code</stringProp>
+              <stringProp name="Argument.value">CIGN</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="currency_code" elementType="Argument">
+              <stringProp name="Argument.name">currency_code</stringProp>
+              <stringProp name="Argument.value">INR</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="invalid_currency_code" elementType="Argument">
+              <stringProp name="Argument.name">invalid_currency_code</stringProp>
+              <stringProp name="Argument.value">USD</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">payment_mode</stringProp>
+              <stringProp name="Argument.value">NEFT</stringProp>
+              <stringProp name="Argument.desc">NEFT, RTGS, IMPS, FT</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="invalid_payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">invalid_payment_mode</stringProp>
+              <stringProp name="Argument.value">CASH</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="unsubscribed_payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">unsubscribed_payment_mode</stringProp>
+              <stringProp name="Argument.value">RTGS</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="virtual_account_number" elementType="Argument">
+              <stringProp name="Argument.name">virtual_account_number</stringProp>
+              <stringProp name="Argument.value">ADANX031192399</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_amount" elementType="Argument">
+              <stringProp name="Argument.name">transaction_amount</stringProp>
+              <stringProp name="Argument.value">28800.00</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_id" elementType="Argument">
+              <stringProp name="Argument.name">transaction_id</stringProp>
+              <stringProp name="Argument.value">${__time(yyyyMMdd,)}${__counter(FALSE,)}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_id_type" elementType="Argument">
+              <stringProp name="Argument.name">transaction_id_type</stringProp>
+              <stringProp name="Argument.value">UTR</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_name" elementType="Argument">
+              <stringProp name="Argument.name">sender_name</stringProp>
+              <stringProp name="Argument.value">Tryion Lannister</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_account_number" elementType="Argument">
+              <stringProp name="Argument.name">sender_account_number</stringProp>
+              <stringProp name="Argument.value">0710107844276</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_bank_name" elementType="Argument">
+              <stringProp name="Argument.name">sender_bank_name</stringProp>
+              <stringProp name="Argument.value">SBI</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_ifsc_code" elementType="Argument">
+              <stringProp name="Argument.name">sender_ifsc_code</stringProp>
+              <stringProp name="Argument.value">SBIN0000710</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_account_name" elementType="Argument">
+              <stringProp name="Argument.name">client_account_name</stringProp>
+              <stringProp name="Argument.value">Adani Petrochemicals</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_account_number" elementType="Argument">
+              <stringProp name="Argument.name">client_account_number</stringProp>
+              <stringProp name="Argument.value">0081202280775</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_bank_name" elementType="Argument">
+              <stringProp name="Argument.name">client_bank_name</stringProp>
+              <stringProp name="Argument.value">ICICI</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_ifsc_code" elementType="Argument">
+              <stringProp name="Argument.name">client_ifsc_code</stringProp>
+              <stringProp name="Argument.value">ICIC0000008</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="narration_1" elementType="Argument">
+              <stringProp name="Argument.name">narration_1</stringProp>
+              <stringProp name="Argument.value">Narration 1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="narration_2" elementType="Argument">
+              <stringProp name="Argument.name">narration_2</stringProp>
+              <stringProp name="Argument.value">Narration 2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="informational_message" elementType="Argument">
+              <stringProp name="Argument.name">informational_message</stringProp>
+              <stringProp name="Argument.value">A quick brown fox jumped over the lazy dog !</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="payer_code" elementType="Argument">
+              <stringProp name="Argument.name">payer_code</stringProp>
+              <stringProp name="Argument.value">318301</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="cms_reference_number" elementType="Argument">
+              <stringProp name="Argument.name">cms_reference_number</stringProp>
+              <stringProp name="Argument.value">0003837123914</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_1" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_1</stringProp>
+              <stringProp name="Argument.value">${__time(yyyyMMdd,)}${__counter(FALSE,)}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_name_1" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_name_1</stringProp>
+              <stringProp name="Argument.value">PGW-TXREF</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_2" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_2</stringProp>
+              <stringProp name="Argument.value">33039191</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_name_2" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_name_2</stringProp>
+              <stringProp name="Argument.value">AUTH-ID</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_3" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_3</stringProp>
+              <stringProp name="Argument.value">${__time(${transaction_id_datetime_format},)}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="external_system_reference_name_3" elementType="Argument">
+              <stringProp name="Argument.name">external_system_reference_name_3</stringProp>
+              <stringProp name="Argument.value">AUTH-DT</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Intimation-Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">${ixc_record_count_intimation}</stringProp>
+        </LoopController>
+        <hashTree>
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Intimation-Test-Data-Source-Configuration" enabled="true">
+            <stringProp name="delimiter">,</stringProp>
+            <stringProp name="fileEncoding">UTF-8</stringProp>
+            <stringProp name="filename">${ixc_test_data_filename_intimation}</stringProp>
+            <boolProp name="ignoreFirstLine">false</boolProp>
+            <boolProp name="quotedData">true</boolProp>
+            <boolProp name="recycle">false</boolProp>
+            <stringProp name="shareMode">shareMode.group</stringProp>
+            <boolProp name="stopThread">true</boolProp>
+            <stringProp name="variableNames"></stringProp>
+          </CSVDataSet>
+          <hashTree/>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="First Request" enabled="true">
+            <stringProp name="IfController.condition">&quot;${__changeCase(${resent_indicator},UPPER,)}&quot; == &quot;FALSE&quot;</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="New-Request-${client_code}-${test_case_id}" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+  &quot;api_version&quot;: &quot;${api_version}&quot;,&#xd;
+  &quot;request_id&quot;: &quot;${request_id}&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;${__time(${iso8601_datetime_format},)}&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;${sender_system_user_id}&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;${request_priority}&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;${__changeCase(${test_indicator},LOWER,)}&quot;,&#xd;
+  &quot;client_code&quot;: &quot;${client_code}&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;${virtual_account_number}&quot;,&#xd;
+  &quot;transaction_amount&quot;: ${transaction_amount},&#xd;
+  &quot;currency_code&quot;: &quot;${currency_code}&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;${payment_mode}&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;${transaction_id}&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;${transaction_id_type}&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-0H-5m-10s,,)}&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;${sender_name}&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;${sender_mobile_communication_number}&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;${sender_account_number}&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;${sender_bank_name}&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;${sender_ifsc_code}&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;${client_account_name}&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;${client_mobile_communication_number}&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;${client_account_number}&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;${client_bank_name}&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;${client_ifsc_code}&quot;,&#xd;
+  &quot;payer_code&quot;: &quot;${payer_code}&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;${cms_reference_number}&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;${narration_1}&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;${narration_2}&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;${informational_message}&quot;&#xd;
+}&#xd;
+</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${ixc_api_endpoint_hostname}</stringProp>
+              <stringProp name="HTTPSampler.port">${ixc_api_endpoint_port_number}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${ixc_api_intimation_uri}</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout">${__BeanShell(${ixc_api_intimation_timeout_secs} * 1000,)}</stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree/>
+          </hashTree>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Resent Request" enabled="true">
+            <stringProp name="IfController.condition">&quot;${__changeCase(${resent_indicator},UPPER,)}&quot; == &quot;TRUE&quot;</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Resent-Request-${client_code}-${test_case_id}" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+  &quot;api_version&quot;: &quot;${api_version}&quot;,&#xd;
+  &quot;request_id&quot;: &quot;${request_id}&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;${__time(${iso8601_datetime_format},)}&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;${sender_system_user_id}&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;${request_priority}&quot;,&#xd;
+  &quot;resent_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;original_request_id&quot;: &quot;${__changeCase(${__UUID},UPPER,)}&quot;,&#xd;
+  &quot;original_request_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-1H,,)}&quot;,&#xd;
+  &quot;original_sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;original_sender_system_user_id&quot;: &quot;${original_sender_system_user_id}&quot;,&#xd;
+  &quot;original_request_priority&quot;: &quot;${original_request_priority}&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;${test_indicator}&quot;,&#xd;
+  &quot;client_code&quot;: &quot;${client_code}&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;${virtual_account_number}&quot;,&#xd;
+  &quot;transaction_amount&quot;: ${transaction_amount},&#xd;
+  &quot;currency_code&quot;: &quot;${currency_code}&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;${payment_mode}&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;${transaction_id}&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;${transaction_id_type}&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-0H-5m-10s,,)}&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;${sender_name}&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;${sender_mobile_communication_number}&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;${sender_account_number}&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;${sender_bank_name}&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;${sender_ifsc_code}&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;${client_account_name}&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;${client_mobile_communication_number}&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;${client_account_number}&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;${client_bank_name}&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;${client_ifsc_code}&quot;,&#xd;
+  &quot;payer_code&quot;: &quot;${payer_code}&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;${cms_reference_number}&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;${narration_1}&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;${narration_2}&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;${informational_message}&quot;&#xd;
+}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${ixc_api_endpoint_hostname}</stringProp>
+              <stringProp name="HTTPSampler.port">${ixc_api_endpoint_port_number}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${ixc_api_intimation_uri}</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout">${__BeanShell(${ixc_api_intimation_timeout_secs} * 1000,)}</stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View-Results-Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>true</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>true</responseData>
+              <samplerData>true</samplerData>
+              <xml>true</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>true</responseHeaders>
+              <requestHeaders>true</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename">${ixc_test_report_name_intimation}-${__time(yyyyMMddHHmmssSSS,)}.xml</stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary-Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <BackendListener guiclass="BackendListenerGui" testclass="BackendListener" testname="Test Results-Collator" enabled="false">
+          <elementProp name="arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="ixc_api_endpoint_hostname" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_endpoint_hostname</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_endpoint_hostname, localhost)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_elasticsearch_endpoint_uri_jmeter_testreport" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_elasticsearch_endpoint_uri_jmeter_testreport</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_elasticsearch_endpoint_uri_jmeter_testreport, http://localhost:port/path/index)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_subscription_product_name" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_subscription_product_name</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_subscription_product_name, eCollection)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_elasticsearch_endpoint_uri_operational" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_elasticsearch_endpoint_uri_operational</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_elasticsearch_endpoint_uri_operational, http://localhost:port/path/index)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_test_report_name" elementType="Argument">
+                <stringProp name="Argument.name">ixc_test_report_name</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_test_report_name_intimation, C:\Workspaces\ACE11-Xpress-Connect\eCollection_MISIntimation_API\devops\test-reports\20200306\build-verification-report)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_gateway_mode" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_gateway_mode</stringProp>
+                <stringProp name="Argument.value">false</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_virtual_account_number" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_virtual_account_number</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_virtual_account_number, 0000000000)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_deployment_target_env" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_deployment_target_env</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_deployment_target_env, NA)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_subscription_business_scenario_name" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_subscription_business_scenario_name</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_subscription_business_scenario_name, remitter-validation-intermediary-account)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_concurrent_user_count" elementType="Argument">
+                <stringProp name="Argument.name">ixc_concurrent_user_count</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_concurrent_user_count, 1)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_user_loading_seconds" elementType="Argument">
+                <stringProp name="Argument.name">ixc_user_loading_seconds</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_user_loading_seconds, 1)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_deployment_build_id" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_deployment_build_id</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_deployment_build_id, NA)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_endpoint_port_number" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_endpoint_port_number</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_endpoint_port_number, 7800)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_base_uri" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_base_uri</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_base_uri, api/eCollection/mis)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_organization_code" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_organization_code</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_organization_code, ADAN)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_elasticsearch_endpoint_uri_business" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_elasticsearch_endpoint_uri_business</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_elasticsearch_endpoint_uri_business, http://localhost:port/path/index)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_code" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_code</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_code, ADAN)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_build_git_commit_id" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_build_git_commit_id</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_build_git_commit_id, )}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_project_id" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_project_id</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_project_id, 00000000)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ixc_api_client_deployment_validation_userId" elementType="Argument">
+                <stringProp name="Argument.name">ixc_api_client_deployment_validation_userId</stringProp>
+                <stringProp name="Argument.value">${__P(ixc_api_client_deployment_validation_userId, ixc_system)}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="classname">com.icici.xpress_connect.api.jmeter.test.IXC_HTTP_API_CommonJMeterBackendListener</stringProp>
+        </BackendListener>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Refund Intimation-MainThreadGroup" enabled="false">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${ixc_concurrent_user_count}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${ixc_user_loading_seconds}</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User-Defined-Variables-Defaults" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="api_version" elementType="Argument">
+              <stringProp name="Argument.name">api_version</stringProp>
+              <stringProp name="Argument.value">1.2.0</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_system_id" elementType="Argument">
+              <stringProp name="Argument.name">sender_system_id</stringProp>
+              <stringProp name="Argument.value">Profunds</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_system_user_id" elementType="Argument">
+              <stringProp name="Argument.name">sender_system_user_id</stringProp>
+              <stringProp name="Argument.value">raman.kumar@icicibank.com</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="request_priority" elementType="Argument">
+              <stringProp name="Argument.name">request_priority</stringProp>
+              <stringProp name="Argument.value">3</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="original_request_priority" elementType="Argument">
+              <stringProp name="Argument.name">original_request_priority</stringProp>
+              <stringProp name="Argument.value">4</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="original_sender_system_user_id" elementType="Argument">
+              <stringProp name="Argument.name">original_sender_system_user_id</stringProp>
+              <stringProp name="Argument.value">prachi.j@icicibank.com</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="test_indicator" elementType="Argument">
+              <stringProp name="Argument.name">test_indicator</stringProp>
+              <stringProp name="Argument.value">false</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_code" elementType="Argument">
+              <stringProp name="Argument.name">client_code</stringProp>
+              <stringProp name="Argument.value">ADAN</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="unsubscribed_client_code" elementType="Argument">
+              <stringProp name="Argument.name">unsubscribed_client_code</stringProp>
+              <stringProp name="Argument.value">CIGN</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="currency_code" elementType="Argument">
+              <stringProp name="Argument.name">currency_code</stringProp>
+              <stringProp name="Argument.value">INR</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="invalid_currency_code" elementType="Argument">
+              <stringProp name="Argument.name">invalid_currency_code</stringProp>
+              <stringProp name="Argument.value">USD</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">payment_mode</stringProp>
+              <stringProp name="Argument.value">NEFT</stringProp>
+              <stringProp name="Argument.desc">NEFT, RTGS, IMPS, FT</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="invalid_payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">invalid_payment_mode</stringProp>
+              <stringProp name="Argument.value">CASH</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="unsubscribed_payment_mode" elementType="Argument">
+              <stringProp name="Argument.name">unsubscribed_payment_mode</stringProp>
+              <stringProp name="Argument.value">RTGS</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="virtual_account_number" elementType="Argument">
+              <stringProp name="Argument.name">virtual_account_number</stringProp>
+              <stringProp name="Argument.value">ADANX031192399</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_amount" elementType="Argument">
+              <stringProp name="Argument.name">transaction_amount</stringProp>
+              <stringProp name="Argument.value">28800.00</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_id" elementType="Argument">
+              <stringProp name="Argument.name">transaction_id</stringProp>
+              <stringProp name="Argument.value">${__time(yyyyMMdd,)}${__counter(FALSE,)}</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="transaction_id_type" elementType="Argument">
+              <stringProp name="Argument.name">transaction_id_type</stringProp>
+              <stringProp name="Argument.value">UTR</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_name" elementType="Argument">
+              <stringProp name="Argument.name">sender_name</stringProp>
+              <stringProp name="Argument.value">Tryion Lannister</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_account_number" elementType="Argument">
+              <stringProp name="Argument.name">sender_account_number</stringProp>
+              <stringProp name="Argument.value">0710107844276</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_bank_name" elementType="Argument">
+              <stringProp name="Argument.name">sender_bank_name</stringProp>
+              <stringProp name="Argument.value">SBI</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="sender_ifsc_code" elementType="Argument">
+              <stringProp name="Argument.name">sender_ifsc_code</stringProp>
+              <stringProp name="Argument.value">SBIN0000710</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_account_name" elementType="Argument">
+              <stringProp name="Argument.name">client_account_name</stringProp>
+              <stringProp name="Argument.value">Adani Petrochemicals</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_account_number" elementType="Argument">
+              <stringProp name="Argument.name">client_account_number</stringProp>
+              <stringProp name="Argument.value">0081202280775</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_bank_name" elementType="Argument">
+              <stringProp name="Argument.name">client_bank_name</stringProp>
+              <stringProp name="Argument.value">ICICI</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="client_ifsc_code" elementType="Argument">
+              <stringProp name="Argument.name">client_ifsc_code</stringProp>
+              <stringProp name="Argument.value">ICIC0000008</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="narration_1" elementType="Argument">
+              <stringProp name="Argument.name">narration_1</stringProp>
+              <stringProp name="Argument.value">Narration 1</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="narration_2" elementType="Argument">
+              <stringProp name="Argument.name">narration_2</stringProp>
+              <stringProp name="Argument.value">Narration 2</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="informational_message" elementType="Argument">
+              <stringProp name="Argument.name">informational_message</stringProp>
+              <stringProp name="Argument.value">A quick brown fox jumped over the lazy dog !</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="iso8601_datetime_format" elementType="Argument">
+              <stringProp name="Argument.name">iso8601_datetime_format</stringProp>
+              <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSXXX</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="rfc822_datetime_format" elementType="Argument">
+              <stringProp name="Argument.name">rfc822_datetime_format</stringProp>
+              <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSZ</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="timeshift_datetime_format" elementType="Argument">
+              <stringProp name="Argument.name">timeshift_datetime_format</stringProp>
+              <stringProp name="Argument.value">yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="remitter_account_number" elementType="Argument">
+              <stringProp name="Argument.name">remitter_account_number</stringProp>
+              <stringProp name="Argument.value">01802204033366</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="cms_reference_number" elementType="Argument">
+              <stringProp name="Argument.name">cms_reference_number</stringProp>
+              <stringProp name="Argument.value">CMS-202001-3899</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="refund_payment_status_paid" elementType="Argument">
+              <stringProp name="Argument.name">refund_payment_status_paid</stringProp>
+              <stringProp name="Argument.value">P</stringProp>
+              <stringProp name="Argument.desc">P if the refund was Paid. C if the refund was Cancelled.</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="refund_payment_status_cancelled" elementType="Argument">
+              <stringProp name="Argument.name">refund_payment_status_cancelled</stringProp>
+              <stringProp name="Argument.value">C</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="refund_code" elementType="Argument">
+              <stringProp name="Argument.name">refund_code</stringProp>
+              <stringProp name="Argument.value">ADANR</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="refund_rejection_code" elementType="Argument">
+              <stringProp name="Argument.name">refund_rejection_code</stringProp>
+              <stringProp name="Argument.value">XC00701I</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="RefundIntimation-Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">true</boolProp>
+          <stringProp name="LoopController.loops">${ixc_record_count_refund_intimation}</stringProp>
+        </LoopController>
+        <hashTree>
+          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Refund-Intimation-Test-Data-Configuration" enabled="true">
+            <stringProp name="delimiter">,</stringProp>
+            <stringProp name="fileEncoding">UTF-8</stringProp>
+            <stringProp name="filename">${ixc_test_data_filename_refund_intimation}</stringProp>
+            <boolProp name="ignoreFirstLine">false</boolProp>
+            <boolProp name="quotedData">true</boolProp>
+            <boolProp name="recycle">false</boolProp>
+            <stringProp name="shareMode">shareMode.group</stringProp>
+            <boolProp name="stopThread">true</boolProp>
+            <stringProp name="variableNames"></stringProp>
+          </CSVDataSet>
+          <hashTree/>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="First Request" enabled="true">
+            <stringProp name="IfController.condition">&quot;${__changeCase(${resent_indicator},UPPER,)}&quot; == &quot;FALSE&quot;</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="New-Request-${client_code}-${test_case_id}" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+  &quot;api_version&quot;: &quot;${api_version}&quot;,&#xd;
+  &quot;request_id&quot;: &quot;${__changeCase(${__UUID},UPPER,)}&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;${__time(${iso8601_datetime_format},)}&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;${sender_system_user_id}&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;${request_priority}&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;${__changeCase(${test_indicator},LOWER,)}&quot;,&#xd;
+  &quot;client_code&quot;: &quot;${client_code}&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;${virtual_account_number}&quot;,&#xd;
+  &quot;transaction_amount&quot;: ${transaction_amount},&#xd;
+  &quot;currency_code&quot;: &quot;${currency_code}&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;${payment_mode}&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;${__time(${transaction_id_datetime_format},)}${__Random(1001,9999,)}&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;${transaction_id_type}&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-0H-5m-10s,,)}&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;${sender_name}&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;${sender_mobile_communication_number}&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;${sender_account_number}&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;${sender_bank_name}&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;${sender_ifsc_code}&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;${client_account_name}&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;${client_mobile_communication_number}&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;${client_account_number}&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;${client_bank_name}&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;${client_ifsc_code}&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;${narration_1}&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;${narration_2}&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;${informational_message}&quot;,&#xd;
+  &quot;remitter_account_number&quot;: &quot;${remitter_account_number}&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;${cms_reference_number}&quot;,&#xd;
+  &quot;refund_payment_status&quot;: &quot;${refund_payment_status_paid}&quot;,&#xd;
+  &quot;refund_code&quot;: &quot;${client_code}R&quot;,&#xd;
+  &quot;refund_rejection_code&quot;: &quot;${refund_rejection_code}&quot;  &#xd;
+}&#xd;
+</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${ixc_api_endpoint_hostname}</stringProp>
+              <stringProp name="HTTPSampler.port">${ixc_api_endpoint_port_number}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${ixc_api_refund_intimation_uri}</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout">${__BeanShell(${ixc_api_refund_intimation_timeout_secs} * 1000,)}</stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree/>
+          </hashTree>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Resent Request" enabled="true">
+            <stringProp name="IfController.condition">&quot;${__changeCase(${resent_indicator},UPPER,)}&quot; == &quot;TRUE&quot;</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
+          <hashTree>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Resent-Request-${client_code}-${test_case_id}" enabled="true">
+              <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">{&#xd;
+  &quot;api_version&quot;: &quot;${api_version}&quot;,&#xd;
+  &quot;request_id&quot;: &quot;${__changeCase(${__UUID},UPPER,)}&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;${__time(${iso8601_datetime_format},)}&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;${sender_system_user_id}&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;${request_priority}&quot;,&#xd;
+  &quot;resent_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;original_request_id&quot;: &quot;${__changeCase(${__UUID},UPPER,)}&quot;,&#xd;
+  &quot;original_request_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-1H,,)}&quot;,&#xd;
+  &quot;original_sender_system_id&quot;: &quot;${sender_system_id}&quot;,&#xd;
+  &quot;original_sender_system_user_id&quot;: &quot;${original_sender_system_user_id}&quot;,&#xd;
+  &quot;original_request_priority&quot;: &quot;${original_request_priority}&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;${test_indicator}&quot;,&#xd;
+  &quot;client_code&quot;: &quot;${client_code}&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;${virtual_account_number}&quot;,&#xd;
+  &quot;transaction_amount&quot;: ${transaction_amount},&#xd;
+  &quot;currency_code&quot;: &quot;${currency_code}&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;${payment_mode}&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;${__time(${transaction_id_datetime_format},)}${__Random(1001,9999,)}&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;${transaction_id_type}&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;${__timeShift(${timeshift_datetime_format},,P0DT-0H-5m-10s,,)}&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;${sender_name}&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;${sender_mobile_communication_number}&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;${sender_account_number}&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;${sender_bank_name}&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;${sender_ifsc_code}&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;${client_account_name}&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;${client_mobile_communication_number}&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;${client_account_number}&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;${client_bank_name}&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;${client_ifsc_code}&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;${narration_1}&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;${narration_2}&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;${informational_message}&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;${informational_message}&quot;,&#xd;
+  &quot;remitter_account_number&quot;: &quot;${remitter_account_number}&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;${cms_reference_number}&quot;,&#xd;
+  &quot;refund_payment_status&quot;: &quot;${refund_payment_status_paid}&quot;,&#xd;
+  &quot;refund_code&quot;: &quot;${client_code}R&quot;,&#xd;
+  &quot;refund_rejection_code&quot;: &quot;${refund_rejection_code}&quot;  &#xd;
+}</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${ixc_api_endpoint_hostname}</stringProp>
+              <stringProp name="HTTPSampler.port">${ixc_api_endpoint_port_number}</stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">${ixc_api_refund_intimation_uri}</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout">${__BeanShell(${ixc_api_refund_intimation_timeout_secs} * 1000,)}</stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View-Results-Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>true</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>true</responseData>
+              <samplerData>true</samplerData>
+              <xml>true</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>true</responseHeaders>
+              <requestHeaders>true</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename">${ixc_test_report_name_refund_intimation}-${__time(yyyyMMddHHmmssSSS,)}.log</stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary-Report" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

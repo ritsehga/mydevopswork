@@ -1,0 +1,104 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation
+
+
+-- Perform business data validation.
+CREATE FUNCTION genPerformBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API request body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION genMapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+	-- Code --
+	DECLARE chClientAPIType CHARACTER refClientAPIRequestHeader."IXC-Client-API-Type";
+	
+	IF chClientAPIType = API_TYPE_REST_JSON THEN
+		CALL mapAPIRequest_ACME(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+	ELSEIF  chClientAPIType = API_TYPE_REST_XML THEN
+--		CALL mapAPIRequest_ACME_XML(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+	ELSEIF	(chClientAPIType = API_TYPE_WS_SOAP_V11)  OR 
+				(chClientAPIType = API_TYPE_WS_SOAP_V12) THEN
+--		CALL mapAPIRequest_ACME_SOAP(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+	END IF;	
+END;
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption)
+-- Use secureWSRequest for securing SOAP Web Service calls to the customer.
+CREATE FUNCTION genSecureAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE,
+																	  	  IN refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	-- rest checksum --
+	
+	-- rest encryption --
+
+END;
+
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption). 
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE genSecureWSRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,  
+																		  	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE, 
+																		  	INOUT refClientWSSOAPHeader REFERENCE,
+																		  	IN refMessageSecurityConfiguration REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+
+	-- soap checksum --
+	
+	-- soap encryption --
+
+END;
+
+
+-- [20-Jun-2020]: User Authentication
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE genSecureWSRequestAuthenticate(IN refAPIRequest REFERENCE, IN refAPIRequestHeader REFERENCE, 
+																			INOUT refClientWSSOAPHeader REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+        -- authentication soap-header --
+
+END;
+
+-- [20-Jan-2020]: ACME API : JSON representation.
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIRequest_ACME(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		IF CLIENT_API_AUTH_TYPE = 'Basic-Auth' THEN
+			DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+			SET policyList = policyList || '|UserAuthentication';
+			SET  refClientAPIRequestHeader."enforced-policy-list" = policyList;
+			SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-only';
+		END IF;
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+		SET refClientAPIRequest.*[] = refAPIRequest.*[];
+		-- [22-Aug-2020]: Number format leading to checksum mismatch in the response.
+		SET refClientAPIRequest.transaction_amount = CAST(refAPIRequest.transaction_amount AS DECIMAL);
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority = CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator = CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+			
+		SET refClientAPIRequest.api_version = NULL;	
+END;
+
+

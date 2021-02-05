@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmMQOutput.msgnode="ComIbmMQOutput.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/icici/xpress_connect/ecollection/PaymentHandler.subflow" nsPrefix="com_icici_xpress_connect_ecollection_PaymentHandler.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_HONOR_REQUEST_PRIORITY" name="API_HONOR_REQUEST_PRIORITY" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT" name="API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT" name="API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT" lowerBound="1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY" name="PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.PAYMENT_INSTRUCTION_FILE_NAME" name="PAYMENT_INSTRUCTION_FILE_NAME" lowerBound="1" defaultValueLiteral="PAYINSTR">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FILE_NAME_SEPARATOR_CHAR" name="FILE_NAME_SEPARATOR_CHAR" lowerBound="1" defaultValueLiteral="_">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI" name="NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI" lowerBound="1" defaultValueLiteral="AQ.IXC.ECO.PAYINSTR.ISSUE.NEFT.REQ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI" name="RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI" lowerBound="1" defaultValueLiteral="AQ.IXC.ECO.PAYINSTR.ISSUE.RTGS.REQ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI" name="IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI" lowerBound="1" defaultValueLiteral="AQ.IXC.ECO.PAYINSTR.ISSUE.IMPS.REQ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FT_PAYMENT_INSTRUCTION_ENDPOINT_URI" name="FT_PAYMENT_INSTRUCTION_ENDPOINT_URI" lowerBound="1" defaultValueLiteral="AQ.IXC.ECO.PAYINSTR.ISSUE.FT.REQ">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="PaymentHandler" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj16/PaymentHandler.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj30/PaymentHandler.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="117,105">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.APIResponse" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="882,107">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.ReturnVoid" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="535,103" destinationMode="list" persistenceMode="yes" newMsgId="true">
+        <translation xmi:type="utility:ConstantString" string="QueuePaymentInstruction"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="QueuePaymentInstruction.terminal.in" eventIdentity="QueuePaymentInstruction.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment/TransactionMarker" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary" bitstreamContent="body"/>
+            <eventName literal="QueuePaymentInstruction.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="QueuePaymentInstruction.terminal.failure" eventIdentity="QueuePaymentInstruction.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment/TransactionMarker" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary" bitstreamContent="body"/>
+            <eventName literal="QueuePaymentInstruction.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="QueuePaymentInstruction.terminal.out" eventIdentity="QueuePaymentInstruction.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment/TransactionMarker" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary" bitstreamContent="body"/>
+            <eventName literal="QueuePaymentInstruction.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="260,105" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.common.payment#PreparePaymentInstruction.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="PreparePaymentInstruction"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in">
+        <bendPoints>255,-60,-250,-65</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in">
+        <bendPoints>236,-64,-283,-70</bendPoints>
+      </connections>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.API_HONOR_REQUEST_PRIORITY">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.API_HONOR_REQUEST_PRIORITY" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+              <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.PAYMENT_INSTRUCTION_FILE_NAME">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.PAYMENT_INSTRUCTION_FILE_NAME" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FILE_NAME_SEPARATOR_CHAR">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.FILE_NAME_SEPARATOR_CHAR" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                  <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                    <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.FT_PAYMENT_INSTRUCTION_ENDPOINT_URI">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.FT_PAYMENT_INSTRUCTION_ENDPOINT_URI" bundleName="com/icici/xpress_connect/ecollection/PaymentHandler" pluginId="eCollection_MISIntimation_API"/>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

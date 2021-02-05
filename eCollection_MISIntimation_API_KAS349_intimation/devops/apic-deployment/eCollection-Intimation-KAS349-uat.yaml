@@ -1,0 +1,48 @@
+swagger: '2.0'
+info:
+  title: ecollectionKAS349UAT
+  x-ibm-name: ecollectionkas349uat
+  version: 1.0.0
+schemes:
+  - https
+basePath: /api/ecollection/mis/uat/KAS349
+produces:
+  - application/xml
+consumes:
+  - text/xml
+security: []
+securityDefinitions: {}
+x-ibm-configuration:
+  cors:
+    enabled: true
+  gateway: datapower-gateway
+  type: rest
+  phase: realized
+  enforced: true
+  testable: true
+  application-authentication:
+    certificate: false
+  assembly:
+    execute:
+      - proxy:
+          version: 1.0.0
+          title: proxy
+          timeout: 60
+          verb: POST
+          cache-response: protocol
+          cache-ttl: 900
+          target-url: >-
+            http://ixc-ecoll-configrity-non-production.apps.nonprod.iciciltd.com/ixc-ecollection-profunds-api-v3.6-java-soap-webservice-2.0.0-configrity/ws/simple/eCollection/ACME
+    catch: []
+paths:
+  /intimation:
+    post:
+      parameters:
+        - name: ReqBody
+          in: body
+          required: false
+          schema:
+            type: object
+      responses:
+        '200':
+          description: 200 OK

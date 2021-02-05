@@ -1,0 +1,121 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci
+PATH com.icici.xpress_connect.common.api;
+
+
+CREATE COMPUTE MODULE ClientGateway_Error
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+ 		DECLARE chTargetTerminal CHARACTER RESPONSE_READY_TERMINAL;
+		CREATE FIELD OutputRoot.HTTPRequestHeader;
+		
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.mh.API.Request.Message;
+		
+		IF EXISTS (InputExceptionList.*[]) THEN
+	  		-- These are different from 5XX HTTP status codes that we might receive from the remote client.
+	  		IF com.icici.xpress_connect.common.api.isAPIRequestBuildingException(InputExceptionList) THEN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_UNEXPECTED_FAILURE, 
+					TRUE); 
+	  		ELSE 
+				IF EXISTS(refAPIRequest.Environment.Variables.eCollection.mh.API.Request.Message[]) THEN
+					CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_COMMUNICATION_ERROR, 
+					TRUE);
+				ELSE
+					SET refAPIRequest = InputRoot.JSON.Data;
+					CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_UNEXPECTED_FAILURE, 
+					TRUE);
+				END IF;
+	  		END IF;
+	
+			SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+		ELSEIF NOT cbflag THEN
+			CREATE FIELD OutputRoot.HTTPRequestHeader;
+			DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+			CALL prepareDataHandlingErrorResponse(refAPIRequest, refAPIResponse, API_COMPLETION_CODE_ERROR , API_REASON_CODE_CLIENT_SERVICE_UNAVAILABLE_ERROR, TRUE);
+			
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_FORBIDDEN;
+			CALL addHTTPResponseHeaders();
+			RETURN TRUE;
+			
+		ELSEIF Environment.Variable.isReqModelMisMatch THEN
+			CREATE FIELD OutputRoot.HTTPRequestHeader;
+			DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+			CALL prepareDataHandlingErrorResponse(refAPIRequest, refAPIResponse, API_COMPLETION_CODE_ERROR, API_REASON_CODE_REQUEST_FORBIDDEN, TRUE);
+			
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_FORBIDDEN;
+			CALL addHTTPResponseHeaders();
+			RETURN TRUE;
+
+		ELSE
+
+			CREATE FIELD OutputRoot.HTTPRequestHeader;
+			DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+			CALL prepareDataHandlingErrorResponse(refAPIRequest, refAPIResponse, API_COMPLETION_CODE_ERROR , API_REASON_CODE_COMMUNICATION_ERROR, TRUE);
+			
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_COMPLETION_CODE_ERROR;
+			CALL addHTTPResponseHeaders();
+			RETURN TRUE;
+
+		END IF;
+
+		SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = com.icici.xpress_connect.ecollection.mh.ci.intimation.mapHTTPStatusCode(refAPIResponse.reason_code);
+				
+		PROPAGATE TO TERMINAL chTargetTerminal FINALIZE NONE DELETE NONE;		-- RESPONSE_READY_TERMINAL or RESPONSE_REHANDLE_TERMINAL
+		
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	CREATE FUNCTION prepareDataHandlingErrorResponse (IN refAPIRequest REFERENCE,  INOUT refAPIResponse REFERENCE,  
+											IN completionCode INTEGER,  IN reasonCode CHARACTER, IN apiOptimization BOOLEAN) 
+		BEGIN
+
+			CALL com.icici.xpress_connect.common.api.buildAPIResponse(refAPIRequest, refAPIResponse, apiOptimization);
+			-- Augment the response with Completion Code, Reason Code, Message.
+			CALL addResponseStatus(refAPIResponse,
+						completionCode,
+						reasonCode,
+						lookupExtendedReasonMessage(reasonCode));		-- Using extended reason message instead of base reason message lookup. Extended delegates to base first.
+		END;
+
+
+		-- REST XML
+	CREATE FUNCTION addHTTPResponseHeaders()
+	BEGIN
+		SET OutputRoot.Properties.ContentType = COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.Properties.Encoding = InputRoot.Properties.Encoding; 
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+
+		SET OutputRoot.HTTPRequestHeader."Content-Type" = COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" = InputRoot.HTTPInputHeader."Content-Encoding";
+
+	END;
+	
+
+END MODULE;
+

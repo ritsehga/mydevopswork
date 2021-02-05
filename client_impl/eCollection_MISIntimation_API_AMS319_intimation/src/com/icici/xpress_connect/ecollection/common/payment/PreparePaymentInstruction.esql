@@ -1,0 +1,380 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.common.payment
+
+-- [10-Jan-2020]: Configuring the values of these parameters at deployment time will suffice the requirement
+-- for Intimation (both indicators FALSE), Remitter Validation Current Account (ACCEPT false, REJECT true),
+-- Remitter Validation Intermediary Account (ACCEPT true, REJECT true).
+--
+-- In case of Remitter Two-Level Validation, will these indicators apply as follows.
+-- First leg (ACCEPT false, REJECT true).
+-- Second leg (ACCEPT true, REJECT true).
+-- 
+
+DECLARE API_COMPLETION_CODE_SUCCESSFUL CONSTANT INTEGER 0;
+DECLARE API_COMPLETION_CODE_WARNING CONSTANT INTEGER 1;
+DECLARE API_COMPLETION_CODE_ERROR CONSTANT INTEGER 2;
+
+DECLARE API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT EXTERNAL BOOLEAN FALSE;
+DECLARE API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT 	EXTERNAL BOOLEAN FALSE;
+
+-- [21-Jan-2020]
+DECLARE CASE_TRANSACTION_ACCEPTED 	CONSTANT INTEGER 1;
+DECLARE CASE_TRANSACTION_REJECTED 	CONSTANT INTEGER 2;
+DECLARE CASE_TRANSACTION_IGNORED 	CONSTANT INTEGER -1;
+
+
+DECLARE API_HONOR_REQUEST_PRIORITY EXTERNAL BOOLEAN FALSE;
+
+-- These two reason codes in conjunction with the configuration will decide if payment instruction will be issued.
+DECLARE API_REASON_CODE_TRANSACTION_ACCEPTED CONSTANT CHARACTER 'XC00441I';									-- [20-Jan-2020]
+DECLARE API_REASON_CODE_TRANSACTION_REJECTED CONSTANT CHARACTER 'XC00442E';									-- [20-Jan-2020]
+
+
+
+-- Client Transaction Status
+DECLARE API_CLIENT_TRANSACTION_ACCEPT CONSTANT CHARACTER  'accept';
+DECLARE API_CLIENT_TRANSACTION_REJECT CONSTANT CHARACTER  'reject';
+
+-- For using meaningful Terminal labels instead of default terminal names.
+DECLARE ISSUE_PAYMENT_INSTRUCTION_TERMINAL CONSTANT CHARACTER 'out';
+DECLARE NO_ACTION_TERMINAL 										CONSTANT CHARACTER 'out1';
+
+DECLARE API_BANKING_TRANSACTIONS_TRANSFER_API_VERSION CONSTANT CHARACTER '1.0.0';
+
+-- [06-Feb-2020]: Payment Mode specific endpoint routing.
+DECLARE NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI   	EXTERNAL 	CHARACTER 		'AQ.IXC.ECO.PAYINSTR.ISSUE.NEFT.REQ';
+DECLARE RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI   	EXTERNAL 	CHARACTER 		'AQ.IXC.ECO.PAYINSTR.ISSUE.RTGS.REQ';
+DECLARE FT_PAYMENT_INSTRUCTION_ENDPOINT_URI   		EXTERNAL 	CHARACTER 		'AQ.IXC.ECO.PAYINSTR.ISSUE.FT.REQ';
+DECLARE IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI   	EXTERNAL 	CHARACTER 		'AQ.IXC.ECO.PAYINSTR.ISSUE.IMPS.REQ';
+
+-- [06-Feb-2020]: Payment Mode specific endpoint routing.
+DECLARE API_PAYMENT_MODE_NEFT   		EXTERNAL 	CHARACTER 		'NEFT';
+DECLARE API_PAYMENT_MODE_RTGS   		EXTERNAL 	CHARACTER 		'RTGS';
+DECLARE API_PAYMENT_MODE_FT   			EXTERNAL 	CHARACTER 		'FT';
+DECLARE API_PAYMENT_MODE_IMPS   		EXTERNAL 	CHARACTER 		'IMPS';
+
+CREATE COMPUTE MODULE PreparePaymentInstruction
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE refAPIMessage REFERENCE TO InputRoot.JSON.Data;
+		
+		SET OutputRoot.MQMD.PutApplName = 'eCollection';
+		SET OutputRoot.MQMD.PutApplType = MQAT_BROKER;
+	-- SET OutputRoot.MQMD.MsgType = MQMT_;
+		SET OutputRoot.MQMD.Persistence = MQPER_PERSISTENT;
+		
+	-- SET OutputRoot.MQMD.Encoding = InputRoot.Properties.Encoding;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;	 -- TODO: Use constant.
+		SET OutputRoot.MQMD.Format = MQFMT_STRING; 
+		SET OutputRoot.MQMD.Expiry = MQEI_UNLIMITED;
+		
+		IF API_HONOR_REQUEST_PRIORITY AND 
+			(COALESCE(refAPIMessage.request_priority, '' ) <> '') THEN
+			SET OutputRoot.MQMD.Priority  = CAST(refAPIMessage.request_priority AS INTEGER);
+		END IF;	
+		
+		DECLARE transactionStatus 	INTEGER  getTransactionStatus(refAPIMessage);
+	
+		IF ((transactionStatus = CASE_TRANSACTION_ACCEPTED) AND 
+			API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_ACCEPT) OR 
+			-- Transaction is Accepted and the business usecase (application configuration) requires accepted 
+			-- transaction to be forwarded to the payment system.
+			-- Use-case: Remitter Validation Intermediary Account
+
+			((transactionStatus = CASE_TRANSACTION_REJECTED) AND 
+			API_ISSUE_PAYMENT_INSTRUCTION_ON_TRANSACTION_REJECT) THEN
+			
+			-- Transaction is Rejected and the business usecase (application configuration) requires rejected 
+			-- transactions to be forwarded to the payment system.
+			-- Use-case: Remitter Validation Current Account
+			-- Use-case: Remitter Validation Intermediary Account
+
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Version 						= MQRFH_VERSION_2;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)Format 						= MQFMT_STRING;
+			SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID 	= 1208;
+			
+			-- Message Content Descriptor ("mcd" folder)
+			SET OutputRoot.MQRFH2.mcd.Msd = 'json';
+			
+			CREATE FIELD OutputRoot.MQRFH2.usr;
+			DECLARE refAPIMessageTransportHeader REFERENCE TO OutputRoot.MQRFH2.usr;
+			
+			CALL com.icici.xpress_connect.common.api.injectReferenceDataTransportHeaders('eCollection', ApplicationLabel, 
+						refAPIMessage, refAPIMessageTransportHeader);
+
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object)Data;
+			DECLARE refPaymentInstruction REFERENCE TO OutputRoot.JSON.Data;
+		
+			CALL buildPaymentInstruction(refAPIMessage, refPaymentInstruction);
+			-- [06-Feb-2020]: Routing to payment mode specific queues.
+			CALL setPaymentInstructionDestinationQueue(refPaymentInstruction.payment_instruction);
+			
+			PROPAGATE  TO TERMINAL ISSUE_PAYMENT_INSTRUCTION_TERMINAL;
+		END IF;	
+		
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	-- Validate whether the transaction was accepted or rejected.
+	-- Decision cannot be made on HTTP Status Code as the method has access only to the API message.
+	-- Also the right approach is to make the decision on Completion Code and Reason Code combination.
+	CREATE FUNCTION getTransactionStatus(IN refAPIMessage REFERENCE) RETURNS INTEGER
+	BEGIN
+		-- [20-Jan-2020]
+		IF refAPIMessage.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED THEN
+			RETURN CASE_TRANSACTION_ACCEPTED;
+		ELSEIF refAPIMessage.reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			-- TODO: [Reserved]
+			-- In case, the API were to return a API_COMPLETION_CODE_WARNING then this is the place
+			-- where the Reason Code (message field "reason_code") should be consulted to determine if this
+			-- still requires to be considered as an "acceptable" transaction.
+			RETURN CASE_TRANSACTION_REJECTED;
+		ELSE 
+			RETURN CASE_TRANSACTION_IGNORED;	
+		END IF;
+	END;
+	
+
+	-- Build Payment Instruction using the API Banking's Single Transaction (Transfer) API
+	--		{
+	--		  "api_version": "1.0.0"
+	--		  "request_id": "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+	--		  "request_datetime": "2019-11-26T12:28:56.321+05:30"
+	--		  "channel_id": "Profunds"
+	--		  "sender_system_id": "Profunds"
+	--		  "sender_system_user_id": "raman.kumar@icicibank.com"
+	--		  "sender_system_user_id_type": "email"
+	--		  "request_priority": 1,
+	--		  "resent_indicator": true,
+	--		  "original_request_id": "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+	--		  "original_request_datetime": "2019-11-26T12:28:56.321+05:30"
+	--		  "original_channel_id": "Profunds"
+	--		  "original_sender_system_id": "profunds"
+	--		  "original_sender_system_user_id": "raman.kumar@icicibank.com"
+	--		  "original_sender_system_user_id_type": "email"
+	--		  "original_request_priority": 1,
+	--		  "test_indicator": false,
+	--		  "client_code": "ARNC"
+	--		  "payment_instruction": {
+	--		    "client_reference_number": "",
+	--		    "debit_account_number": "01073057033",
+	--		    "credit_account_number": "01073057033",
+	--		    "beneficiary_code": "",
+	--		    "payment_mode": "NEFT",
+	--		    "transaction_amount": 110,
+	--		    "currency_code": "INR"
+	--		    "credit_narration": "",
+	--		    "debit_narration": "",
+	--		    "debit_ifsc_code": "HDFC0000001",
+	--		    "debit_notification_communication_mobile_number": "+918800000000",
+	--		    "debit_notification_communication_email": "john.doe@nobody.mail.com",
+	--		    "credit_notification_communication_mobile_number": "+918800000000",
+	--		    "credit_notification_communication_email": "jane.doe@nobody.mail.com",
+	--		    "transaction_id": "N266190934399380",
+	--		    "transaction_id_type": "UTR",
+	--		    "payer_vpa": "jane.doe@icici",
+	--		    "payee_vpa": "john.doe@icici",
+	--		    "channel_code": "",
+	--		    "mpin": "HDFC",
+	--		    "upi_transaction_type": "PayGlobal",
+	--		    "informational_message": "string",
+	--		    "additional_informational_messages": [
+	--		      {
+	--		        "message_type": "",
+	--		        "message": ""
+	--		      }
+	--		    ]
+	--		  }
+	--		}
+		
+	CREATE FUNCTION buildPaymentInstruction(IN refAPIMessage REFERENCE, INOUT refPaymentInstruction REFERENCE)
+	BEGIN
+		-- Meta-Data.
+		SET refPaymentInstruction.api_version 	= API_BANKING_TRANSACTIONS_TRANSFER_API_VERSION; 		-- "1.0.0"
+		
+		SET refPaymentInstruction.request_id 				= UCASE(UUIDASCHAR); 																	-- "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+		SET refPaymentInstruction.request_datetime 	= CAST(CURRENT_TIMESTAMP AS 
+																											CHARACTER FORMAT 'IU'); 												-- "2019-11-26T12:28:56.321+05:30"
+		
+		-- Hook this payment instruction with the eCollection intimation that was either Accepted (Fund Transfer) or Rejected (Refund).
+		-- TODO: Should we hook this up with the Request ID, Original Request ID or the Response (Accepted / Rejected) ID ?
+		-- [10-Jan-2020]: Choosing Request ID.
+		
+		SET refPaymentInstruction.parent_request_id = refAPIMessage.request_id;																	-- "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+		SET refPaymentInstruction.parent_request_datetime 	= refAPIMessage.request_datetime; 										-- "2019-11-26T12:28:56.321+05:30"
+				
+		SET refPaymentInstruction.channel_id 	= refAPIMessage.channel_id; 																			-- "Profunds"
+		SET refPaymentInstruction.sender_system_id 	= refAPIMessage.sender_system_id; 													-- "Profunds"
+		SET refPaymentInstruction.sender_system_user_id 	= refAPIMessage.sender_system_user_id; 								-- "raman.kumar@icicibank.com"
+		SET refPaymentInstruction.sender_system_user_id_type 	= refAPIMessage.sender_system_user_id_type; 			-- "email"
+		
+		IF COALESCE(refAPIMessage.request_priority, '') <> '' THEN
+			SET refPaymentInstruction.request_priority = CAST(refAPIMessage.request_priority AS INTEGER);							-- "1"
+		END IF;
+		
+		-- TODO: What should we set the resent_indicator to ? Default to false or take it from the initial request ? 
+		SET refPaymentInstruction.resent_indicator	= FALSE;																									-- "FALSE"	
+		
+--		SET refPaymentInstruction.original_request_id 	= refAPIMessage.original_request_id; 										-- "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+--		SET refPaymentInstruction.original_request_datetime 	= refAPIMessage.original_request_datetime; 				-- "2019-11-26T12:28:56.321+05:30"
+--		SET refPaymentInstruction.original_channel_id 	= refAPIMessage.original_channel_id; 										-- "Profunds"
+--		SET refPaymentInstruction.original_sender_system_id 	= refAPIMessage.original_sender_system_id; 				-- "Profunds"
+--		SET refPaymentInstruction.original_sender_system_user_id 	= 
+--														 refAPIMessage.original_sender_system_user_id; 															-- "raman.kumar@icicibank.com"
+--		SET refPaymentInstruction.original_sender_system_user_id_type 	= 
+--														 refAPIMessage.original_sender_system_user_id_type; 													-- "email"
+
+--		IF COALESCE(refAPIMessage.original_request_priority, '') <> '' THEN
+--			SET refPaymentInstruction.original_request_priority = CAST(refAPIMessage.original_request_priority AS INTEGER); 			-- "1"
+--		END IF;
+
+		-- If the eCollection request was in test mode, this too shall be in test mode.
+		SET refPaymentInstruction.test_indicator	= refAPIMessage.test_indicator;																-- "FALSE"
+
+		-- Application Context.
+		-- [14-Jan-2020] Using "Application Context" section to place data that would in some way influence 
+		-- the processing of the payment instruction in the downstream service / application.
+		
+		SET refPaymentInstruction.application_context.sender_name 							= refAPIMessage.sender_name;
+		SET refPaymentInstruction.application_context.sender_bank_name 				= refAPIMessage.sender_bank_name;
+		SET refPaymentInstruction.application_context.sender_ifsc_code 					= refAPIMessage.sender_ifsc_code;
+		SET refPaymentInstruction.application_context.virtual_account_number 		= refAPIMessage.virtual_account_number;
+		SET refPaymentInstruction.application_context.transaction_datetime 			= refAPIMessage.transaction_datetime;
+		
+		
+		IF getTransactionStatus(refAPIMessage) = CASE_TRANSACTION_ACCEPTED THEN
+			SET refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_ACCEPT;
+		ELSE
+			SET refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_REJECT;
+		END IF;
+		
+		-- Business Data.
+		SET refPaymentInstruction.client_code 											= refAPIMessage.client_code; 									-- "ADAN"
+
+		CREATE FIELD refPaymentInstruction.payment_instruction;
+		DECLARE refPaymentInstructionData REFERENCE TO refPaymentInstruction.payment_instruction;
+
+		SET refPaymentInstructionData.client_reference_number 		= refAPIMessage.transaction_id; 								-- ""
+
+		-- TODO: Need to confirm.
+		IF refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_ACCEPT THEN		
+			-- Accept: Fund Transfer.
+			SET refPaymentInstructionData.debit_account_number 			= refAPIMessage.sender_account_number; 		-- "01073057033"
+			SET refPaymentInstructionData.credit_account_number 			= refAPIMessage.client_account_number; 			-- "01073057033"
+		ELSE -- IF refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_REJECT	
+			-- Reject: Refund.
+			SET refPaymentInstructionData.debit_account_number 			= refAPIMessage.client_account_number; 				-- "01073057033"
+			SET refPaymentInstructionData.credit_account_number 			= refAPIMessage.sender_account_number; 			-- "01073057033"
+		END IF;
+		
+--		SET refPaymentInstructionData.beneficiary_code 				
+--								= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 												-- ""
+
+		SET refPaymentInstructionData.payment_mode 	= refAPIMessage.payment_mode; 													-- "NEFT"
+		SET refPaymentInstructionData.transaction_amount = refAPIMessage.transaction_amount;  									-- "33919.00"	
+		SET refPaymentInstructionData.currency_code = refAPIMessage.currency_code; 														-- "INR"
+
+		SET refPaymentInstructionData.debit_narration = refAPIMessage.narration_1; 															-- ""
+		SET refPaymentInstructionData.credit_narration 	= refAPIMessage.narration_2; 														-- ""
+		
+		-- TODO: Need to confirm.
+		IF refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_ACCEPT THEN		
+			-- Accept: Fund Transfer.
+			SET refPaymentInstructionData.debit_ifsc_code 						= refAPIMessage.sender_ifsc_code; 						-- "HDFC0000001"
+			SET refPaymentInstructionData.credit_ifsc_code 					= refAPIMessage.client_ifsc_code; 							-- "HDFC0000001"
+			SET refPaymentInstructionData.beneficiary_account_name  =  refAPIMessage.client_account_name; 				-- "Adani Petrochemicals Ltd."
+		ELSE -- IF refPaymentInstruction.application_context.client_transaction_status 	= API_CLIENT_TRANSACTION_REJECT	
+			-- Reject: Refund.
+			SET refPaymentInstructionData.debit_ifsc_code 						= refAPIMessage.client_ifsc_code; 							-- "ICIC0000001"
+			SET refPaymentInstructionData.credit_ifsc_code 					= refAPIMessage.sender_ifsc_code; 						-- "HDFC0000001"
+			SET refPaymentInstructionData.beneficiary_account_name  =  refAPIMessage.sender_name; 								-- "John Doe"
+		END IF;
+		
+		 -- [24-Feb-2020] Debit notifiction communication mobile number
+		IF refPaymentInstruction.application_context.client_transaction_status = API_CLIENT_TRANSACTION_ACCEPT THEN
+		  SET refPaymentInstructionData.debit_notification_communication_mobile_number = refAPIMessage.sender_mobile_communication_number; -- "+918800000000"
+		ELSE -- IF refPaymentInstruction.application_context.client_transaction_status = API_CLIENT_TRANSACTION_REJECT
+		  SET refPaymentInstructionData.debit_notification_communication_mobile_number = refAPIMessage.client_mobile_communication_number; -- "+918800000000"
+		END IF;
+		
+		 -- [24-Feb-2020] Credit notifiction communication mobile number
+		IF refPaymentInstruction.application_context.client_transaction_status = API_CLIENT_TRANSACTION_ACCEPT THEN
+			SET refPaymentInstructionData.credit_notification_communication_mobile_number = refAPIMessage.client_mobile_communication_number; -- "+918800000000"
+		ELSE -- IF refPaymentInstruction.application_context.client_transaction_status = API_CLIENT_TRANSACTION_REJECT
+			SET refPaymentInstructionData.credit_notification_communication_mobile_number = refAPIMessage.sender_mobile_communication_number; -- "+918800000000"
+		END IF;
+		
+--		SET refPaymentInstructionData.debit_notification_communication_mobile_number
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API";											-- "+918800000000"
+--		SET refPaymentInstructionData.debit_notification_communication_email 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "john.doe@nobody.mail.com"
+--		SET refPaymentInstructionData.credit_notification_communication_mobile_number 
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "+918800000000"
+--		SET refPaymentInstructionData.credit_notification_communication_email 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "jane.doe@nobody.mail.com"
+									
+		SET refPaymentInstructionData.transaction_id = refAPIMessage.transaction_id; 														-- "N266190934399380"
+		SET refPaymentInstructionData.transaction_id_type 	= refAPIMessage.transaction_id_type; 									-- "UTR"
+
+--		SET refPaymentInstructionData.payer_vpa 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API";											-- "jane.doe@icici"
+--		SET refPaymentInstructionData.payee_vpa 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "john.doe@icici"
+									
+		SET refPaymentInstructionData.channel_code 	
+									= COALESCE(refAPIMessage.sender_system_id, refAPIMessage.channel_id); 									-- "Profunds"
+--		SET refPaymentInstructionData.mpin 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "HDFC"
+--		SET refPaymentInstructionData.upi_transaction_type 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "PayGlobal"
+									
+--		SET refPaymentInstructionData.additional_informational_messages[1].message 		
+--									= refAPIMessage.informational_message; 																									-- "string"
+--		SET refPaymentInstructionData.additional_informational_messages[2].message 		
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "string"
+--		SET refPaymentInstructionData.additional_informational_messages[3].message 		
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API"; 											-- "string"
+
+--		SET refPaymentInstructionData.bank_reference_number 	
+--									= refAPIMessage."FIELD_NOT_AVAILABLE_IN_ECOLLECTION_API";											-- ""
+
+	END;
+	
+	-- Payment mode specific endpoint routing.
+	CREATE FUNCTION setPaymentInstructionDestinationQueue(IN refPaymentInstruction REFERENCE) BEGIN
+--		SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueManagerName = '';
+		IF refPaymentInstruction.payment_mode = API_PAYMENT_MODE_NEFT 			THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = 
+																	NEFT_PAYMENT_INSTRUCTION_ENDPOINT_URI;
+		ELSEIF refPaymentInstruction.payment_mode = API_PAYMENT_MODE_RTGS 	THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = 
+																	RTGS_PAYMENT_INSTRUCTION_ENDPOINT_URI;
+		ELSEIF refPaymentInstruction.payment_mode = API_PAYMENT_MODE_IMPS 	THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = 
+																	IMPS_PAYMENT_INSTRUCTION_ENDPOINT_URI;
+		ELSEIF refPaymentInstruction.payment_mode = API_PAYMENT_MODE_FT 			THEN
+			SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].queueName = 
+																	FT_PAYMENT_INSTRUCTION_ENDPOINT_URI;
+		END IF;
+		
+		SET OutputLocalEnvironment.Destination.MQ.DestinationData[1].persistenceMode = 'yes';
+		
+	END;
+	
+END MODULE;

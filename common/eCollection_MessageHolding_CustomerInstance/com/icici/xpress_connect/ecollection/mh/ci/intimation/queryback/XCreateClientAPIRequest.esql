@@ -1,0 +1,63 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback
+
+
+-- Perform business data validation.
+CREATE FUNCTION genPerformBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API request body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION genMapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+	-- Code --
+	
+END;
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption)
+-- Use secureWSRequest for securing SOAP Web Service calls to the customer.
+CREATE FUNCTION genSecureAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE,
+																	  	  IN refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	-- rest checksum --
+	
+	-- rest encryption --
+
+END;
+
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption). 
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE genSecureWSRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,  
+																		  	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE, 
+																		  	INOUT refClientWSSOAPHeader REFERENCE,
+																		  	IN refMessageSecurityConfiguration REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+
+	-- soap checksum --
+	
+	-- soap encryption --
+
+END;
+
+
+-- [20-Jun-2020]: User Authentication
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE genSecureWSRequestAuthenticate(IN refAPIRequest REFERENCE, IN refAPIRequestHeader REFERENCE, 
+																			INOUT refClientWSSOAPHeader REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+        -- authentication soap-header --
+
+END;
+
+
+

@@ -1,0 +1,10 @@
+oc delete template  mq-server-template
+oc create -f Mqtemplate.yaml
+oc get template mq-app -o yaml
+oc delete template mq-app
+oc create -f mq.yaml
+oc get template mq-app -o yaml
+oc get statefulset
+oc describe statefulset mq-app
+oc new-app  mq-server-template --param=NAME=mq --param=MQ_QMGR_NAME=ACEQM1
+oc delete all -l app=mq-app

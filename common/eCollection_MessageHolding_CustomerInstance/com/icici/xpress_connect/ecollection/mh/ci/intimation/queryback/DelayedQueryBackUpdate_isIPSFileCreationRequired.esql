@@ -1,0 +1,10 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback
+
+
+CREATE FILTER MODULE DelayedQueryBackUpdate_isIPSFileCreationRequired
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		RETURN TRUE;
+	END;
+
+END MODULE;

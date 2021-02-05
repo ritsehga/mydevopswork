@@ -1,0 +1,518 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation
+PATH com.icici.xpress_connect.common.api;
+
+
+CREATE COMPUTE MODULE CreateClientAPIRequest
+
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		 SET Environment.Variables.MQMD 			= InputRoot.MQMD;
+		 SET Environment.Variables.MQRFH2 			= InputRoot.MQRFH2;		 
+		 SET Environment.Variables.InputMsg.JSON 	= InputRoot.JSON;
+
+
+
+		-- Set message headers.
+		SET OutputRoot.Properties.CodedCharSetId 	= InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.Properties.Encoding 			= InputRoot.Properties.Encoding;
+		CREATE FIELD OutputRoot.HTTPRequestHeader;
+	
+
+		-- Map API request to target / client API request.
+		DECLARE refAPIRequest REFERENCE TO InputRoot.JSON.Data;
+		-- Preserve the request received from the sender (ICICI system / application).
+		-- Used during the client response assertion if the client has adopted our API
+		-- (the one we expose to the ICICI systems / applications).
+		CREATE LASTCHILD OF Environment.Variables.eCollection.mh.API.Request DOMAIN ('JSON') NAME 'Message';
+		SET Environment.Variables.eCollection.mh.API.Request.Message = refAPIRequest;
+
+		IF UPPER(refAPIRequest.payment_mode) = API_PAYMENT_MODE_FT THEN
+			SET Environment.Variables.RetryPolicyName = '{common-retry-policies}:FTTracsactionType';	
+		END IF;
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+		DECLARE chClientCode CHARACTER COALESCE(refAPIRequest.client_code, '');
+
+		-- Validation results collector.
+		CREATE FIELD Environment.Variables.eCollection.mh.API.Request.ValidationResult;
+		DECLARE refAPIValidationReport REFERENCE TO Environment.Variables.eCollection.mh.API.Request.ValidationResult;
+
+		-- API validation check.
+		-- Checking datatypes is moot when the values conform to the original datatypes.
+		-- Example: A priority value of 3 (integer) or "3" (string) does not have any impact on the validation even if XMLNSC validation is used.
+		-- Explicit type casting and converting the values to their downgraded types is the way ahead.
+		CALL performBaseAPIRequestValidation_Downgrade(refAPIRequest, refAPIValidationReport);
+	
+		CALL genPerformBusinessDataValidation(refAPIRequest, refAPIValidationReport);
+		
+
+		IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport) THEN
+			-- Validation failure.
+			-- Prepare API error response.
+			-- CREATE FIELD OutputRoot.JSON.Data;
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+			-- Using the first reason code in the validation report instead of a generic API_REASON_CODE_REQUEST_NOT_VALID
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse,
+			refAPIValidationReport.completion_code, refAPIValidationReport.Assertion[1].reason_code,
+			TRUE);
+			-- Set the HTTP Status Code.
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_BAD_REQUEST;
+			-- com.icici.xpress_connect.ecollection.intimation.mapHTTPStatusCode(refAPIResponse.reason_code);
+			-- REST XML and SOAP Web Services.
+			-- HTTP response headers for content-type.
+			CALL addHTTPResponseHeaders();
+			-- Return failure response.
+			PROPAGATE TO TERMINAL ERROR_TERMINAL;
+			RETURN FALSE;
+
+		ELSE
+			-- Build the client request.
+			-- REST XML and SOAP Web Services.
+			-- HTTP client request headers for content-type.
+			CALL addHTTPClientRequestHeaders();
+			-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+			DECLARE refAPIRequestHeader 		REFERENCE TO InputRoot.HTTPInputHeader;
+			DECLARE refClientAPIRequestHeader 	REFERENCE TO OutputRoot.HTTPRequestHeader;
+	
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+				CREATE FIELD OutputRoot.JSON.Data;
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.JSON.Data;
+				-- Map API request fields to client/target API fields.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+				-- Payload checksum or encryption.
+				CALL secureAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+			ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				DELETE FIELD OutputRoot.JSON;
+				IF COALESCE(CLIENT_API_REQUEST_NAMESPACE, '') = '' THEN -- No Namespace
+					CREATE FIELD OutputRoot.XMLNSC.{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				ELSE -- Namespace
+					CREATE FIELD OutputRoot.XMLNSC.{CLIENT_API_REQUEST_NAMESPACE}:{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				END IF;
+
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.XMLNSC.*:{ CLIENT_API_MESSAGE_REQUEST_ROOT };
+				-- Map API request fields to client/target API fields.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+				-- Payload checksum or encryption.
+				CALL secureAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+
+			ELSEIF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR
+				CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+
+				DELETE FIELD OutputRoot.JSON;
+
+				IF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+					SET OutputRoot.XMLNSC.soapEnv12:Envelope.(XMLNSC.NamespaceDecl) xmlns:soap12 = NS_SOAP_V12;
+
+					CREATE FIELD OutputRoot.XMLNSC.soapEnv12:Envelope.soapEnv12:Header;
+					CREATE FIELD OutputRoot.XMLNSC.soapEnv12:Envelope.soapEnv12:Body;
+
+				ELSEIF CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 THEN
+					SET OutputRoot.HTTPRequestHeader.SOAPAction = WS_SOAP_HTTP_HDR_SOAPACTION;
+					SET OutputRoot.XMLNSC.soapEnv11:Envelope.(XMLNSC.NamespaceDecl) xmlns:soap11 = NS_SOAP_V11;
+
+					CREATE FIELD OutputRoot.XMLNSC.soapEnv11:Envelope.soapEnv11:Header;
+					CREATE FIELD OutputRoot.XMLNSC.soapEnv11:Envelope.soapEnv11:Body;
+				END IF;
+
+				IF COALESCE(CLIENT_API_REQUEST_NAMESPACE, '') = '' THEN -- No Namespace
+					CREATE FIELD OutputRoot.XMLNSC.*:Envelope.*:Body.{CLIENT_API_MESSAGE_REQUEST_ROOT};
+				ELSE -- Namespace
+					CREATE FIELD OutputRoot.XMLNSC.*:Envelope.*:Body.{CLIENT_API_REQUEST_NAMESPACE}:{CLIENT_API_MESSAGE_REQUEST_ROOT};
+					SET OutputRoot.XMLNSC.*:Envelope.*:Body.{CLIENT_API_REQUEST_NAMESPACE}:{CLIENT_API_MESSAGE_REQUEST_ROOT}.(XMLNSC.NamespaceDecl) xmlns:clientNS
+					= CLIENT_API_REQUEST_NAMESPACE;
+				END IF;
+
+				DECLARE refClientWSSOAPHeader REFERENCE TO OutputRoot.XMLNSC.*:Envelope.*:Header;
+				DECLARE refClientAPIRequest REFERENCE TO OutputRoot.XMLNSC.*:Envelope.*:Body.*:{CLIENT_API_MESSAGE_REQUEST_ROOT};
+				-- Web Services Authentication.
+				CALL secureWSRequestAuthenticate(refAPIRequest, refClientAPIRequest, refClientWSSOAPHeader, refAPIRequestHeader, refClientAPIRequestHeader);
+				-- Map API request fields to client/target API fields.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+				-- Message security (Checksum / Hashing & Encryption)
+				CALL secureWSRequest(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader, refClientWSSOAPHeader);
+
+			END IF;
+			-- Inject HTTP headers for traceablilty in APIC.
+			DECLARE refAPIMessageTransportHeader REFERENCE TO OutputRoot.HTTPRequestHeader;
+			CALL injectReferenceDataTransportHeaders('eCollection', ApplicationLabel,
+			refAPIRequest, refAPIMessageTransportHeader);				
+			-- REST XML and SOAP Web Services.
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON OR
+				CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				-- Return client API request.
+				PROPAGATE TO TERMINAL SUCCESS_TERMINAL_REST;
+			ELSE
+				-- Return client API request.
+				PROPAGATE TO TERMINAL SUCCESS_TERMINAL_WS;
+			END IF;
+
+			--In Case Customer is Async, final response will land on Collector Node. 
+			--Hence we need to save request sent to Customer API (in case of async customer) by passing to Collector Req Terminal for later reference
+			--as Collection starts on new thread and any data saved on Environments gets lost
+			IF CLIENT_API_MODE = CLIENT_API_MODE_ASYNC THEN
+				SET OutputRoot.JSON.Data = Environment.Variables.eCollection.mh.API.Request.Message;
+				PROPAGATE TO TERMINAL 'out1';
+			END IF;						
+			RETURN FALSE;
+		END IF;
+	END;
+
+
+	-- REST XML and SOAP Web Services.
+	CREATE FUNCTION addHTTPResponseHeaders()
+	BEGIN
+		SET OutputRoot.Properties.ContentType 		= COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.Properties.Encoding 			= InputRoot.Properties.Encoding;
+		SET OutputRoot.Properties.CodedCharSetId 	= InputRoot.Properties.CodedCharSetId;
+
+		SET OutputRoot.HTTPRequestHeader."Content-Type" 	= COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" = InputRoot.HTTPInputHeader."Content-Encoding";
+
+	END;
+
+	
+	-- REST XML and SOAP Web Services.
+	CREATE FUNCTION addHTTPClientRequestHeaders()
+	BEGIN
+		-- Content-Type depends upon the target (Client) service.
+		DECLARE chClientAPIRequestContentType CHARACTER getClientAPIRequestContentType(CLIENT_API_TYPE);
+
+		SET OutputRoot.Properties.ContentType 					= chClientAPIRequestContentType;
+		SET OutputRoot.Properties.Encoding 						= InputRoot.Properties.Encoding;
+		SET OutputRoot.Properties.CodedCharSetId 				= InputRoot.Properties.CodedCharSetId;
+		-- HTTP Headers depend upon the target (Client) service.
+		SET OutputRoot.HTTPRequestHeader."Content-Type" 		= chClientAPIRequestContentType;
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" 	= InputRoot.HTTPInputHeader."Content-Encoding";
+		SET OutputRoot.HTTPRequestHeader."Accept" 				= chClientAPIRequestContentType;
+		-- Facilitates testing through mock without requiring to switch between transformation functions.
+		SET OutputRoot.HTTPRequestHeader."IXC-Client-API-Type" 	= CLIENT_API_TYPE;
+
+		IF COALESCE(CLIENT_API_AUTH_TYPE, '') = API_AUTH_TYPE_BASIC_AUTH OR
+			COALESCE(CLIENT_API_AUTH_TYPE, '') = API_AUTH_TYPE_WSSE_BASIC_AUTH THEN
+			CALL addHTTPBasicAuthenticationHeaders();
+		END IF;
+
+	END;
+
+	-- REST XML and SOAP Web Services.
+	CREATE FUNCTION getClientAPIRequestContentType(IN clientAPIType CHARACTER) RETURNS CHARACTER
+	BEGIN
+		IF clientAPIType = API_TYPE_REST_JSON THEN
+			RETURN CONTENT_TYPE_MIME_JSON;
+		ELSEIF clientAPIType = API_TYPE_REST_XML THEN
+			RETURN CONTENT_TYPE_MIME_XML;
+		ELSEIF clientAPIType = API_TYPE_WS_SOAP_V11 THEN
+			RETURN CONTENT_TYPE_MIME_SOAP_1_1;
+		ELSEIF clientAPIType = API_TYPE_WS_SOAP_V12 THEN
+			RETURN CONTENT_TYPE_MIME_SOAP_1_2;
+		END IF;
+
+		RETURN NULL;
+	END;
+
+	-- API -SECURITY: Basic Authentication for REST API and SOAP Web Services.
+	-- https://www.ibm.com/support/knowledgecenter/SSTTDS_11.0.0/com.ibm.etools.mft.doc/bp28500_.html
+	-- https://www.ibm.com/support/pages/ace-11-how-set-basic-authentication-header-httprequest-or-soaprequest-node-using-security-identity
+	CREATE FUNCTION addHTTPBasicAuthenticationHeaders()
+	BEGIN
+		-- Basic Authentication
+		-- SET OutputRoot.HTTPRequestHeader."Authorization" = 'Basic ' || BASE64ENCODE(apiUserName || ':' || apiPassword);
+		IF COALESCE(CLIENT_API_AUTH_POLICY_NAMESPACE, '') = '' AND
+			COALESCE(CLIENT_API_AUTH_POLICY_NAME, '') = '' THEN
+			SET OutputRoot.Properties.IdentitySourceType 		= 'usernameAndPassword';
+			SET OutputRoot.Properties.IdentitySourceToken 		= CLIENT_API_AUTH_IDENTITY_TOKEN;
+			SET OutputRoot.Properties.IdentitySourcePassword 	= CLIENT_API_AUTH_IDENTITY_PWD;
+			IF COALESCE(CLIENT_API_AUTH_DOMAIN, '') <> '' THEN
+				SET OutputRoot.Properties.IdentitySourceIssuedBy = CLIENT_API_AUTH_DOMAIN;
+			END IF;
+		END IF;
+	END;
+	
+	-- Validation specific to API spec downgrade.
+	-- 4 field modified to suit Profunds limitations.
+	-- request_priority, original_request_priority, resent_indicator, test_indicator.
+	-- Data-Types of these fields were modified to string.
+	CREATE FUNCTION performBaseAPIRequestValidation_Downgrade(INOUT refAPIRequest REFERENCE,
+	INOUT refAPIValidationReport REFERENCE)
+	BEGIN
+		DECLARE EXIT HANDLER FOR  SQLSTATE LIKE '%'  
+		BEGIN
+			-- Jumping hoops to send a consistent response. Consequences of the API downgrade.
+			DECLARE API_DUMMY_VALUE_API_ORIGINAL_REQUEST_ID CONSTANT CHARACTER '00000000-0000-0000-0000-000000000000';
+			DECLARE API_DUMMY_VALUE_API_ORIGINAL_REQUEST_DATETIME CONSTANT CHARACTER '1970-01-01T00:00:00.000+00:00'; 	-- Unix Epoc.
+
+			SET refAPIRequest.request_priority = NULL;
+			SET refAPIRequest.original_request_priority = NULL;
+
+			IF COALESCE(refAPIRequest.original_request_id, '') <> '' THEN
+				SET refAPIRequest.resent_indicator = CAST(TRUE AS CHARACTER);
+				SET refAPIRequest.original_request_id = COALESCE(refAPIRequest.original_request_id, API_DUMMY_VALUE_API_ORIGINAL_REQUEST_ID);
+				SET refAPIRequest.original_request_datetime = COALESCE(refAPIRequest.original_request_datetime, API_DUMMY_VALUE_API_ORIGINAL_REQUEST_DATETIME);
+			ELSE
+				SET refAPIRequest.resent_indicator = CAST(FALSE AS CHARACTER);
+				CALL com.icici.xpress_connect.common.api.unsetResentMessageFields(refAPIRequest);
+			END IF;
+			SET refAPIRequest.test_indicator = NULL;
+			
+			-- We have corrected a few field values so that the API response from Xpress Connect does not fail validation at the client (e.g. Profund) end.
+			SET Environment.Variables.eCollection.API.Request.Message = refAPIRequest;
+			
+			-- Rethrow Parsing Error.
+			RESIGNAL;
+		END;
+
+		-- Typecasting the downgraded fields to pre-empt bad values.
+		IF CAST(COALESCE(refAPIRequest.request_priority, '-1') AS INTEGER) <> -1 THEN
+			-- If priority is set to value other than -1, it implies that the client application has set a value explicitly.
+			SET refAPIRequest.request_priority = CAST (refAPIRequest.request_priority AS CHARACTER);
+		END IF;
+		-- Typecasting the downgraded fields to pre-empt bad values.
+		IF CAST(COALESCE(refAPIRequest.original_request_priority, '-1') AS INTEGER) <> -1 THEN
+			-- If priority is set to value other than -1, it implies that the client application has set a value explicitly.
+			SET refAPIRequest.original_request_priority = CAST (refAPIRequest.original_request_priority AS CHARACTER);
+		END IF;
+	
+		IF LENGTH(CAST(refAPIRequest.resent_indicator AS CHARACTER)) > 0 THEN
+			-- The field has some value, so lets validate if its a boolean one.
+			SET refAPIRequest.resent_indicator = CAST(CAST(refAPIRequest.resent_indicator AS BOOLEAN) AS CHARACTER);
+		END IF;	
+					
+		IF LENGTH(CAST(refAPIRequest.test_indicator AS CHARACTER)) > 0 THEN
+			-- The field has some value, so lets validate if its a boolean one.
+			SET refAPIRequest.test_indicator = CAST(CAST(refAPIRequest.test_indicator AS BOOLEAN) AS CHARACTER);
+		END IF;	
+	END;
+
+	-- Map / Build API request body (data / payload).
+	-- Introduced for injecting client HTTP headers.
+	CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,
+	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+	BEGIN
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+			SET refClientAPIRequest.*[] = refAPIRequest.*[];
+		ELSE
+			-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+			-- @@IXC.AutoGenerateESQL
+			-- Introduced for injecting client HTTP headers.
+			CALL genMapAPIRequest(refAPIRequest, refClientAPIRequest,
+			refAPIRequestHeader, refClientAPIRequestHeader);
+
+		END IF;
+
+	END;	
+
+	-- Message security (Checksum / Hashing & Encryption)
+	CREATE FUNCTION secureAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,
+	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+	BEGIN
+		IF CLIENT_API_MESSAGE_SECURITY_INDICATOR THEN
+			CREATE FIELD Environment.Variables.eCollection.MessageSecurity;
+			DECLARE refMessageSecurityConfiguration REFERENCE TO Environment.Variables.eCollection.MessageSecurity;
+
+			CALL buildSecurityConfiguration(refMessageSecurityConfiguration);
+			-- To plug in custom security.
+			CALL genSecureAPIRequest(refAPIRequest,
+				refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader, refMessageSecurityConfiguration);
+		END IF;
+	END;
+
+CREATE FUNCTION buildSecurityConfiguration(INOUT refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	-- SET refMessageSecurityConfiguration.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+	-- SET refMessageSecurityConfiguration.Encoding = InputRoot.Properties.Encoding;
+	SET refMessageSecurityConfiguration.Namespaces 									= '';
+	SET refMessageSecurityConfiguration.KEY_ID = API_SUBSCRIPTION_CLIENT_CODE;
+
+	CALL buildSecurityConfiguration_KeyStore(refMessageSecurityConfiguration);
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK 		
+		= CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE 		
+		= CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE 	
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO 		
+		= CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO 	
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_CUSTOM_PADDING;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE
+		= CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING
+		= LOWER(CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING);
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO
+		= CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE
+		= CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING
+		= CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING
+		= CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_CUSTOM_PADDING;
+
+	CALL buildSecurityConfiguration_KeyStore_KeyEncryption(refMessageSecurityConfiguration);
+
+END;
+
+CREATE FUNCTION buildSecurityConfiguration_KeyStore(INOUT refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE 
+		= CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_KEYSTORE_TYPE 
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_TYPE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME 
+		= CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_KEYSTORE_NAME 
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_NAME;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_KEYSTORE_PATH 
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_PATH;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD 
+		= CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD 
+		= CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_PASSWORD;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME 
+		= CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD 
+		= CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_PASSWORD;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME 
+		= CLIENT_API_MESSAGE_SECURITY_PRIVATE_KEY_ALIAS_NAME;
+END;
+
+
+CREATE FUNCTION buildSecurityConfiguration_KeyStore_KeyEncryption(INOUT refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_SECRET_KEYSTORE_TYPE
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_TYPE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_NAME;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH;
+	SET refMessageSecurityConfiguration.DEFAULT_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH
+		= DEFAULT_MESSAGE_SECURITY_KEYSTORE_PATH;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME
+		= CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME;
+END;
+
+	-- Build Web Services SOAP Header.
+	CREATE PROCEDURE secureWSRequestAuthenticate(IN refAPIRequest REFERENCE,
+	INOUT refClientAPIRequest REFERENCE,
+	INOUT refClientWSSOAPHeader REFERENCE,
+	IN refAPIRequestHeader REFERENCE,
+	INOUT refClientAPIRequestHeader REFERENCE)
+	BEGIN
+		IF CLIENT_API_AUTH_TYPE <> '' THEN
+			IF CLIENT_API_AUTH_TYPE = API_AUTH_TYPE_WSSE_BASIC_AUTH THEN
+				CREATE FIELD Environment.Variables.eCollection.MessageSecurity.WSRequestAuthenticate;
+				DECLARE refMessageSecurityConfiguration REFERENCE TO Environment.Variables.eCollection.MessageSecurity.WSRequestAuthenticate;
+
+				SET refMessageSecurityConfiguration.CLIENT_API_AUTH_IDENTITY_TOKEN = CLIENT_API_AUTH_IDENTITY_TOKEN;
+				SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO = CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+				SET refMessageSecurityConfiguration.CLIENT_API_AUTH_IDENTITY_PWD = CLIENT_API_AUTH_IDENTITY_PWD;
+
+				CALL secureWSRequestAuthenticate_BasicAuthenticationUserNameToken(refAPIRequest, refClientAPIRequest,
+				refClientWSSOAPHeader, refAPIRequestHeader, refClientAPIRequestHeader, refMessageSecurityConfiguration);
+
+			ELSE -- To plug in WSSE or custom (client-specific) Authentication in SOAP Header.
+				CALL genSecureWSRequestAuthenticate(refAPIRequest, refAPIRequestHeader, refClientWSSOAPHeader);
+			END IF;
+		END IF;
+	END;
+	
+	
+	-- Message security (Checksum / Hashing & Encryption)
+	CREATE FUNCTION secureWSRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,
+	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE,
+	INOUT refClientWSSOAPHeader REFERENCE)
+	BEGIN
+		IF CLIENT_API_MESSAGE_SECURITY_INDICATOR THEN
+			CREATE FIELD Environment.Variables.eCollection.MessageSecurity;
+			DECLARE refMessageSecurityConfiguration REFERENCE TO Environment.Variables.eCollection.MessageSecurity;
+
+			IF CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE = MESSAGE_SECURITY_TYPE_XML_SIGNATURE THEN
+				CALL buildSecurityConfiguration_XMLSignature(refMessageSecurityConfiguration);
+				CALL secureWSRequest_XMLSignature20(refAPIRequest, refClientAPIRequest,
+				refAPIRequestHeader, refClientAPIRequestHeader, refClientWSSOAPHeader, refMessageSecurityConfiguration);
+
+			ELSE -- To plug in custom security.
+				CALL buildSecurityConfiguration(refMessageSecurityConfiguration);
+				CALL  genSecureWSRequest(refAPIRequest, refClientAPIRequest,
+				refAPIRequestHeader, refClientAPIRequestHeader, refClientWSSOAPHeader, refMessageSecurityConfiguration);
+			END IF;
+		END IF;
+	END;
+
+
+	-- APIC request tracing.
+	-- This method is also present com.icici.xpress_connect.common.api.CommonAPIMessageBuilder.esql. Here its a bit concised.
+	CREATE FUNCTION injectReferenceDataTransportHeaders(IN ApplicationLabel CHARACTER, IN MessageFlowLabel CHARACTER,
+	IN refAPIMessage REFERENCE, INOUT refAPIMessageHeader REFERENCE)
+	BEGIN
+		-- End-to-end traceability.
+		-- refAPIMessageHeader will reference User ("usr" folder).
+		-- SET refAPIMessageHeader."IXC_Initiating_Application" = ApplicationLabel;
+		-- SET refAPIMessageHeader."IXC_Initiating_Business_Scenario" = MessageFlowLabel;
+		SET refAPIMessageHeader."IXC_Initiating_Application_Channel_Id"
+		= COALESCE(refAPIMessage.sender_system_id,
+		refAPIMessage.channel_id);
+		SET refAPIMessageHeader."IXC_Initiating_Request_Id" = refAPIMessage.request_id;
+		SET refAPIMessageHeader."IXC_Initiating_Request_Datetime" = refAPIMessage.request_datetime;
+		-- SET refAPIMessageHeader."IXC_Request_Priority" = CAST(COALESCE(refAPIMessage.request_priority, '3') AS INTEGER);
+		SET refAPIMessageHeader."IXC_Initiating_Original_Request_Id" = refAPIMessage.original_request_id;
+		SET refAPIMessageHeader."IXC_Initiating_Original_Request_Datetime"
+		= refAPIMessage.original_request_datetime;
+		-- SET refAPIMessageHeader."IXC_Original_Request_Priority" = CAST(COALESCE(refAPIMessage.original_request_priority, '3') AS INTEGER);
+		SET refAPIMessageHeader."IXC_Initiating_Test_Indicator" = CAST(COALESCE(refAPIMessage.test_indicator, 'FALSE') AS BOOLEAN);
+		SET refAPIMessageHeader."IXC_Client_Code" = refAPIMessage.client_code;
+		-- SET refAPIMessageHeader."IXC_Virtual_Account_Number" = refAPIMessage.virtual_account_number;
+		-- SET refAPIMessageHeader."IXC_Transaction_Amount" = CAST(refAPIMessage.transaction_amount AS CHARACTER);
+		-- SET refAPIMessageHeader."IXC_Currency_Code" = refAPIMessage.currency_code;
+		-- SET refAPIMessageHeader."IXC_Payment_Mode" = refAPIMessage.payment_mode;
+		-- SET refAPIMessageHeader."IXC_Transaction_Datetime" = refAPIMessage.transaction_datetime;
+		-- SET refAPIMessageHeader."IXC_Beneficiary_IFSC_Code" = refAPIMessage.sender_ifsc_code;
+
+	END;
+	
+
+CREATE FUNCTION buildSecurityConfiguration_XMLSignature(INOUT refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	-- SET refMessageSecurityConfiguration.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+	-- SET refMessageSecurityConfiguration.Encoding = InputRoot.Properties.Encoding;
+	SET refMessageSecurityConfiguration.Namespaces = '';
+	SET refMessageSecurityConfiguration.KEY_ID = API_SUBSCRIPTION_CLIENT_CODE;
+
+	CALL buildSecurityConfiguration_KeyStore(refMessageSecurityConfiguration);
+
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO = CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO = CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO;
+
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION = CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM = CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION = CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST = CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE = CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE;
+
+	SET refMessageSecurityConfiguration.CLIENT_API_REQUEST_NAMESPACE = CLIENT_API_REQUEST_NAMESPACE;
+	SET refMessageSecurityConfiguration.CLIENT_API_MESSAGE_REQUEST_ROOT = CLIENT_API_MESSAGE_REQUEST_ROOT;
+END;		
+END MODULE;

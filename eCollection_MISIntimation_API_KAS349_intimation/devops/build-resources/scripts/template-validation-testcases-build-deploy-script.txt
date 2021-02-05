@@ -1,0 +1,559 @@
+eCollection Mock Service Endpoint URI:
+	http://localhost:9836/ixc-ecollection-profunds-api-v3.6-swaggerhub-jaxrs-resteasy-server-acme-2.0.0-configrity/resteasy/intimate
+
+Run the below command from within BARfiles directory to package a .bar file.
+	mqsipackagebar -a eCollection_MISIntimation_API.bar -w ..  -k eCollection_MISIntimation_API
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+P L A I N  V A N I L L A
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Plain Vanilla
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\plain-vanilla\configrity-ACME-REST_JSON-vanilla.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-vanilla.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-vanilla.bar 
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Plain Vanilla
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\plain-vanilla\configrity-ACME-REST_XML-vanilla.properties -o eCollection_MISIntimation_API_ACME-REST_XML-vanilla.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-vanilla.bar 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Plain Vanilla
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\plain-vanilla\configrity-ACME-WS_SOAP11-vanilla.properties -o eCollection_MISIntimation_API_ACME-WS_SOAP11-vanilla.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-WS_SOAP11-vanilla.bar
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+B A S I C  A U T H E N T I C A T I O N
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Basic Authentication (credentials in .bar file)
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-only\configrity-ACME-REST_JSON-BasicAuth_BarConfig.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_BarConfig.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_BarConfig.bar 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Basic Authentication (credentials in integration server vault)
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-only\configrity-ACME-REST_JSON-BasicAuth_Vault.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_Vault.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_Vault.bar 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Basic Authentication (credentials in .bar file)
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-only\configrity-ACME-REST_XML-BasicAuth_BarConfig.properties -o eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_BarConfig.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_BarConfig.bar 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Basic Authentication (credentials in integration server vault)
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-only\configrity-ACME-REST_XML-BasicAuth_Vault.properties -o eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_Vault.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_Vault.bar 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Basic Authentication (credentials in .bar file)
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-only\configrity-ACME-WS_SOAP11-BasicAuth_BarConfig.properties -o eCollection_MISIntimation_API_ACME-WS_SOAP11-BasicAuth_BarConfig.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-WS_SOAP11-BasicAuth_BarConfig.bar
+
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+M E S S A G E   S E C U R I T Y   :   C H E C K S U M 
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-REST_JSON-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-checksum-MD5.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-REST_XML-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-REST_XML-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-checksum-MD5.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-WS_SOAP11-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-WS_SOAP11-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-WS_SOAP11-checksum-MD5.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Checksum, one-way
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-REST_JSON-checksum-MD5-1W.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-checksum-MD5-1W.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-checksum-MD5-1W.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Checksum, one-way
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-REST_XML-checksum-MD5-1W.properties -o eCollection_MISIntimation_API_ACME-REST_XML-checksum-MD5-1W.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-checksum-MD5-1W.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Checksum, one-way
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\checksum-only\configrity-ACME-WS_SOAP11-checksum-MD5-1W.properties -o eCollection_MISIntimation_API_ACME-WS_SOAP11-checksum-MD5-1W.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-WS_SOAP11-checksum-MD5-1W.bar
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+B A S I C   A U T H E N T I C A T I O N   &  M E S S A G E   S E C U R I T Y   :   C H E C K S U M 
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Basic Authentication (credentials in .bar file), Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-and-checksum-combo\configrity-ACME-REST_JSON-BasicAuth_BarConfig-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_BarConfig-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_JSON-BasicAuth_BarConfig-checksum-MD5.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Basic Authentication (credentials in .bar file), Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-and-checksum-combo\configrity-ACME-REST_XML-BasicAuth_BarConfig-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_BarConfig-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-REST_XML-BasicAuth_BarConfig-checksum-MD5.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Basic Authentication (credentials in .bar file), Message Security: Checksum
+>>>>>>>>>> >>>>>>>>>> 
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-and-checksum-combo\configrity-ACME-WS_SOAP11-BasicAuth_BarConfig-checksum-MD5.properties -o eCollection_MISIntimation_API_ACME-WS_SOAP11-BasicAuth_BarConfig-checksum-MD5.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-WS_SOAP11-BasicAuth_BarConfig-checksum-MD5.bar
+
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+M E S S A G E   S E C U R I T Y   :   E N C R Y P T I O N 
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Symmetric Key AES Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Symmetric Key AES Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Symmetric Key AES Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP-EncryptFieldData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Symmetric Key AES Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Symmetric Key AES Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Symmetric Key AES Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptFieldData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_RSA_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_RSA_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptFieldData_RSA_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_RSA_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_RSA_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Asymmetric Key RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptFieldData_RSA_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static)  * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_Combo_DES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static) * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_Combo_DES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static) * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptFieldData_Combo_DES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static, One-way) * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptFieldData_Combo_DES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static, One-way) * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptFieldData_Combo_DES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Field Encryption, Combo DES Runtime & RSA Static, One-way) * U N S U P P O R T E D *
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptFieldData_Combo_DES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** 
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+P A Y L O A D   E N C R Y P T I O N
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Payload Encryption, AES Runtime)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptPayloadData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Payload Encryption, AES Runtime)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptPayloadData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Payload Encryption, AES Runtime)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptPayloadData_AES_Static
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Payload Encryption, AES Runtime, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptPayloadData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Payload Encryption, AES Runtime, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptPayloadData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Payload Encryption, AES Runtime, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptPayloadData_AES_Static-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** 
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Payload Encryption, Combo AES Runtime & RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptPayloadData_AES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Payload Encryption, Combo DES Runtime & RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptPayloadData_AES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Payload Encryption, Combo DES Runtime & RSA Static)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptPayloadData_AES_RSA
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST JSON: Message Security: Encryption (Payload Encryption, Combo DES Runtime & RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-EncryptPayloadData_AES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME REST XML: Message Security: Encryption (Payload Encryption, Combo DES Runtime & RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=REST_XML-EncryptPayloadData_AES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> 
+# ACME Web Services SOAP: Message Security: Encryption (Payload Encryption, Combo DES Runtime & RSA Static, One-way)
+>>>>>>>>>> >>>>>>>>>> 
+
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-EncryptPayloadData_AES_RSA-1W
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\encryption-only\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+B A S I C   A U T H E N T I C A T I O N   &  M E S S A G E   S E C U R I T Y   :   E N C R Y P T I O N
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_BarConfig-EncryptFieldData_AES_Static
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_BarConfig-EncryptFieldData_RSA_Static
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_VaultConfig-EncryptFieldData_AES_Static
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_VaultConfig-EncryptPayloadData_AES_RSA
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_BarConfig-EncryptFieldData_AES_Static
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_BarConfig-EncryptFieldData_RSA_Static
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_VaultConfig-EncryptPayloadData_AES_RSA
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-BasicAuth_BarConfig-EncryptFieldData_AES_Static		PENDING
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-BasicAuth_BarConfig-EncryptFieldData_RSA_Static		PENDING
+
+
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-and-encryption-combo\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+M E S S A G E   S E C U R I T Y : C H E C K S U M    &    E N C R Y P T I O N
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+
+[Deferred]
+
+
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+B A S I C   A U T H E N T I C A T I O N   &  M E S S A G E   S E C U R I T Y : C H E C K S U M    &    E N C R Y P T I O N
+>>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>> >>>>>>>>>>  >>>>>>>>>> >>>>>>>>>>
+
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_AES_Static
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_RSA_Static
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_AES_Static
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_RSA_Static
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_AES_Static 	- PENDING
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-BasicAuth_BarConfig-Checksum-MD5-EncryptFieldData_RSA_Static		- PENDING
+set CONFIGRITY_UC_TOKEN=REST_JSON-BasicAuth_VaultConfig-Checksum-MD5-EncryptPayloadData_AES_RSA
+set CONFIGRITY_UC_TOKEN=REST_XML-BasicAuth_VaultConfig-Checksum-MD5-EncryptPayloadData_AES_RSA
+set CONFIGRITY_UC_TOKEN=WS_SOAP11-BasicAuth_BarConfig-Checksum-MD5-EncryptPayloadData_AES_RSA 	- PENDING
+
+
+mqsiapplybaroverride -b eCollection_MISIntimation_API.bar -p ..\eCollection_MISIntimation_API\devops\build-resources\properties\samples\configrity\basic-auth-checksum-encryption-combo\configrity-ACME-%CONFIGRITY_UC_TOKEN%.properties -o eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar -r
+
+mqsideploy -i localhost -p 7600 -a eCollection_MISIntimation_API_ACME-%CONFIGRITY_UC_TOKEN%.bar
+
+
+
+********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** 
+
+[EOF]

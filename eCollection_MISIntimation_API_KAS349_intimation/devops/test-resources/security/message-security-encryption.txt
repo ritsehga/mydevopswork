@@ -1,0 +1,435 @@
+JDK : IBM 8 SDK.
+02-Aug-2020
+
+
+Note: Wherever "keysize" is parameter is not used, default key length is taken.
+
+
+********** ********** ********** ********** ********** ********** 
+** Secret Keys (Symmetric)
+********** ********** ********** ********** ********** ********** 
+
+keytool -genseckey -alias acme-aes-128 -keyalg AES -keysize 128 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias acme-aes-192 -keyalg AES -keysize 192 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias acme-aes-256 -keyalg AES -keysize 256 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias acme-des-56 -keyalg DES -keysize 56 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias acme-3des-112 -keyalg DESede -keysize 112 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias acme-3des-168 -keyalg DESede -keysize 168 -dname "CN=ACME Inc" 
+-validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+**
+** IXC
+**
+
+keytool -genseckey -alias ixc-aes-128 -keyalg AES -keysize 128 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias ixc-aes-192 -keyalg AES -keysize 192 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias ixc-aes-256 -keyalg AES -keysize 256 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias ixc-des-56 -keyalg DES -keysize 56 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias ixc-3des-112 -keyalg DESede -keysize 112 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genseckey -alias ixc-3des-168 -keyalg DESede -keysize 168 
+-dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" 
+-validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+
+** 
+** Blowfish algo with bit sizes 32 - 448 only works with JCEKS keystore.
+** 
+With JKS: keytool error (likely untranslated): java.security.KeyStoreException: Cannot store non-PrivateKeys
+With PKCS12: keytool error (likely untranslated): java.security.KeyStoreException: Key protection  algorithm not found: java.security.NoSuchAlgorithmException: unrecognized algorithm name: Blowfish
+** 
+
+keytool -genseckey -alias acme-blowfish-64 -keyalg Blowfish -keysize 64 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-128 -keyalg Blowfish -keysize 128 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-192 -keyalg Blowfish -keysize 192 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-255 -keyalg Blowfish -keysize 255 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-256 -keyalg Blowfish -keysize 256 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-320 -keyalg Blowfish -keysize 320 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-384 -keyalg Blowfish -keysize 384 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+keytool -genseckey -alias acme-blowfish-448 -keyalg Blowfish -keysize 448 -storeType JCEKS -keystore acme-ks2.jceks 
+-validity 365 -storepass changeit -keypass changeit
+
+
+********** ********** ********** ********** ********** ********** 
+** Public-Private Key Pairs (Asymmetric Keys)
+********** ********** ********** ********** ********** ********** 
+
+keytool -genkeypair -alias acme-rsa-1024 -keyalg RSA -keysize 1024 -dname "CN=ACME Inc" -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+keytool -genkeypair -alias acme-rsa-2048 -keyalg RSA -keysize 2048 -dname "CN=ACME Inc" -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -alias acme-dsa-1024 -keyalg DSA -keysize 1024 -dname "CN=ACME Inc" -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+keytool -genkeypair -alias acme-dsa-2048 -keyalg DSA -keysize 2048 -dname "CN=ACME Inc" -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+
+
+**
+* IXC
+**
+
+keytool -genkeypair -alias ixc-rsa-1024 -keyalg RSA -keysize 1024 -dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" -validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+keytool -genkeypair -alias ixc-rsa-2048 -keyalg RSA -keysize 2048 -dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" -validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -alias ixc-dsa-1024 -keyalg DSA -keysize 1024 -dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" -validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+keytool -genkeypair -alias ixc-dsa-2048 -keyalg DSA -keysize 2048 -dname "CN=ICICI Xpress Connect, OU=Corporate Banking, O=ICICI, L=Mumbai, ST=MH, C=IN" -validity 365 -storetype PKCS12 -keystore ixc-ks.pkcs12 -storepass changeit
+
+
+
+
+
+**********
+** 3072 bits key length not supported by IBM JDK 8. Oracle JDK 8 was used to generate PKI cert "acme-dsa-3072"
+**********
+keytool -genkeypair -alias acme-dsa-3072 -keyalg DSA -keysize 3072 -dname "CN=ACME Inc" -validity 365 -storetype PKCS12 -keystore acme-ks-oracle-jdk8.pkcs12 -storepass changeit
+
+
+
+********** ********** ********** ********** ********** ********** 
+** ECDSA algo: Only for signatures (XML Signature).
+**
+**	ECDSAwithSHA1
+**	ECDSAwithSHA224
+**	ECDSAwithSHA256
+**	ECDSAwithSHA384
+**	ECDSAwithSHA512
+**
+********** ********** ********** ********** ********** ********** 
+
+X.509 distinguished names: 
+ - Case does not matter for the keyword abbreviations.
+ - Order matters; each subcomponent must appear in the designated order. However, it is not necessary to have all the subcomponents. You may use a subset.
+
+Note: Wherever "keysize" is parameter is not used, default key length is taken.
+
+
+keytool -genkeypair -dname "CN=John Doe, OU=GTS, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US" -alias acme-ecdsa-sha1 -keyalg EC -sigalg SHA1withECDSA -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -dname "CN=Jane Doe, OU=GBS, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US" -alias acme-ecdsa-sha224 -keyalg EC -sigalg SHA224withECDSA -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -dname "CN=Jonathan Doe, OU=Sales, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US" -alias acme-ecdsa-sha256 -keyalg EC -keysize 256 -sigalg SHA256withECDSA -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -dname "CN=Jeremy Doe, OU=HR, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US" -alias acme-ecdsa-sha384 -keyalg EC -keysize 384 -sigalg SHA384withECDSA -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+keytool -genkeypair -dname "CN=Jackson Doe, OU=HR, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US" -alias acme-ecdsa-sha512 -keyalg EC -sigalg SHA512withECDSA -validity 365 -storetype PKCS12 -keystore acme-ks.pkcs12 -storepass changeit
+
+
+
+
+keytool -importcert -alias amce-ecdsa-sha1-chain-x509-print -file acme_ecdsa_sha1_chain_x509_print_enc.cer -keystore acme-ks-importcert.pkcs12 -storepass changeit -storetype pkcs12 -v
+Owner: CN=John Doe, OU=GTS, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US
+Issuer: CN=John Doe, OU=GTS, O=JD DeveloperWorks, L=Chicago, ST=IL, C=US
+Serial number: 4ed97643
+Valid from: 5/8/20 2:51 PM until: 5/8/21 2:51 PM
+Certificate fingerprints:
+         MD5:  46:C1:16:A3:9C:F5:66:3C:82:C4:26:57:BD:25:79:F3
+         SHA1: 8C:A6:CA:B1:4E:81:C2:57:70:66:29:8A:E6:EC:9B:20:A8:13:D9:43
+         SHA256: D3:DE:9C:28:C4:8D:E0:78:96:55:B4:92:FF:22:6E:9A:D1:67:F3:1C:1E:6E:18:10:C1:C7:03:27:4E:29:59:A6
+         Signature algorithm name: SHA1withECDSA
+         Version: 3
+
+Extensions:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 25 71 42 31 9f 07 f5 e3  cc f2 b8 9d fb de 31 a1  .qB1..........1.
+0010: be 04 4a 4f                                        ..JO
+]
+]
+
+Trust this certificate? [no]:  yes
+Certificate was added to keystore
+[Storing acme-ks-importcert.pkcs12]
+
+
+**********
+NOTE: IMPORTING PKCS#7 Certificate WITH KEYTOOL DOES NOT WORK (FOR BOTH ORACLE AND IBM JDK) EVEN IF CLAIMED AS BEING SUPPORTED.
+**********
+
+keytool -importcert -alias amce-ecdsa-sha224-chain-pkcs7-print -file acme_ecdsa_sha224_chain_pkcs7_print_enc.p7b -keystore acme-ks-importcert.pkcs12 -storepass changeit -storetype pkcs12 -v
+keytool error: java.lang.Exception: Input not an X.509 certificate
+
+
+C:\IBM\jdk-8u201-ibm_oracle\bin\keytool  -importcert -alias amce-ecdsa-sha224-chain-pkcs7-print -file acme_ecdsa_sha224_chain_pkcs7_print_enc.p7b -keystore acme-ks-importcert.pkcs12 -storepass changeit -storetype pkcs12 -v
+keytool error: java.lang.Exception: Input not an X.509 certificate
+java.lang.Exception: Input not an X.509 certificate
+        at sun.security.tools.keytool.Main.addTrustedCert(Main.java:2861)
+        at sun.security.tools.keytool.Main.doCommands(Main.java:1050)
+        at sun.security.tools.keytool.Main.run(Main.java:366)
+        at sun.security.tools.keytool.Main.main(Main.java:359)
+
+
+https://stackoverflow.com/questions/25983440/keytool-keytool-error-java-lang-exception-input-not-an-x-509-certificate
+
+
+********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** 
+********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** ********** 
+HOW TO: Checksum (Hashing):
+
+
+Ask the customer for the following:
+	- What part of the message to calculate the hash ?
+		- All message fields.
+		- Entire payload message.
+	- What hashing algo to use ?	CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO
+
+
+	- If XML Signature:
+		- Calculate checksum on the entire payload (default, though XML Signature 
+		does allow one to sign one or more parts (portions) of the XML document)
+		- Then ask
+			- What hashing algo to use to calcuate the hash ("digest") ?	CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO
+			- What algo to use to sign (encrypt) the hash ?			CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO
+				- Only RSA or DSA algo (asymmetric)
+				- Private key owned by ICICI will be used.
+					- Private key will be identified using key alias CLIENT_API_MESSAGE_SECURITY_KEY_ALIAS_NAME
+					  in the keystore that will be accessed using
+						CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME
+						CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH
+						CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD
+						CLIENT_API_MESSAGE_SECURITY_KEY_PASSWORD
+					
+					Keystore will have a minimum "read" privileges for the "mqm" user 
+					(user running the IBM ACE integration server).
+
+				- The corresponding public key will reach the customer through the request SOAP XML message itself. 
+			- How do you want to pre-process the XML payload before calculating the hash ? 	CLIENT_API_MESSAGE_SECURITY_XMLDSIG_CANONICALIZATION
+
+
+		- Use defaults for the following:
+			CLIENT_API_MESSAGE_SECURITY_XMLDSIG_DIGEST	: Should match CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO
+			CLIENT_API_MESSAGE_SECURITY_XMLDSIG_ENCODING	: Default BASE64
+			CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SIGNATURE	: Combination of CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO and
+	 								  CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO is used.
+			CLIENT_API_MESSAGE_SECURITY_XMLDSIG_TRANSFORM 	: "XMLSIG20" (http://www.w3.org/2010/xmldsig2#transform)
+			CLIENT_API_MESSAGE_SECURITY_XMLDSIG_SELECTION 	: "XML-Document-Fragment" (http://www.w3.org/2010/xmldsig2#xml)
+
+
+
+HOW TO: Encrypt:
+	- What part of the message to calculate the hash ?
+		- All message fields.
+			Examples: 
+			{ 
+				"transaction_id" : "393ab031", 
+				"transaction_date" : "091ab031de", 
+				....
+			}
+			<intimation_request>
+				<transaction_id>393ab031</transaction_id>
+				<transaction_date>091ab031de</transaction_date> 
+				....
+			</intimation_request>
+		- Entire payload message.
+			Examples: 
+			{
+				"encrypted_payload" : "24a4b4d003s091ab031de ..."
+			}
+
+			<encrypted_payload>
+				24a4b4d003s091ab031de ...
+			</encrypted_payload>
+			
+	
+	- How should I encrypt ?
+		- Case [All Message Fields]: 
+			What encryption algo to use ?	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO
+				Options: RSA (Asymmetric PUBLIC key) to encrypt payload field values.
+
+			Ask for:
+				- "algo" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO (we already have this info)
+				- "keysize" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_KEYSIZE (can use defaults if made optional)
+				- "algo mode" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE
+				- "padding" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING
+			
+			Allow customer to upload (import via keytool command*) PUBLIC key. 
+				- Only X.509 cert (.pem) to be allowed. Keytool support issue.
+			
+
+				- Key store name 				CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE
+				- <client_code>-<subscription_id>-ks.pkcs12 	CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME
+				- /home/aceuser/keystores			CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH
+				- Auto-generate 				CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD
+				- Auto-generate (optional) 			CLIENT_API_MESSAGE_SECURITY_KEY_PASSWORD
+				- <client_code>-<algo>-<keysize>-<MMddHHmm>	CLIENT_API_MESSAGE_SECURITY_KEY_ALIAS_NAME
+
+
+		- Case [Entire Payload]:
+			What encryption algo to use for payload ?	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO	
+				Options: AES, DES, 3DES (Symmetric) to encrypt payload.
+
+		
+			Ask for:
+				- "algo" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO (we already have this info)
+				- "keysize" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_KEYSIZE (can use defaults if made optional)
+				- "algo mode" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE
+				- "padding" 	CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING
+
+			Allow 
+				Option 1: Customer to upload keystore (jceks, pkcs12) containing the symmetric secret key. 
+				== CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN = STATIC
+			
+				- <client_code>-<subscription_id>-ks.{jceks / pkcs12} 	CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_NAME
+				- /home/aceuser/keystores			CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PATH
+				- Auto-generate 				CLIENT_API_MESSAGE_SECURITY_SECRET_KEYSTORE_PASSWORD
+				- Auto-generate (optional) 			CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_PASSWORD
+				- <client_code>-<algo>-<keysize>-<MMddHHmm>	CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME
+
+                                                                                       
+				Option 2: Auto-generate
+				== CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN = RUNTIME
+
+				- Need additional field to send the IV for certain Cipher algos and a field to stick the encrypted and encoded auto-generated key.
+				- Ask information for encrypting the auto-generated key.
+
+					Ask for:
+						- "algo" 	CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO (RSA or DSA only)
+						- "keysize" 	CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_KEYSIZE (can use defaults if made optional)
+						- "algo mode" 	CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE
+						- "padding" 	CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING
+
+			
+
+					Allow customer to upload (import via keytool command*) PUBLIC key. 
+						- Only X.509 cert (.pem) to be allowed. Keytool support issue.
+			
+
+						- Key store name 				CLIENT_API_MESSAGE_SECURITY_KEYSTORE_TYPE
+						- <client_code>-<subscription_id>-ks.pkcs12 	CLIENT_API_MESSAGE_SECURITY_KEYSTORE_NAME
+						- /home/aceuser/keystores			CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PATH
+						- Auto-generate 				CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD
+						- Auto-generate (optional) 			CLIENT_API_MESSAGE_SECURITY_KEY_PASSWORD
+						- <client_code>-<algo>-<keysize>-<MMddHHmm>	CLIENT_API_MESSAGE_SECURITY_KEY_ALIAS_NAME
+
+
+
+		Ask for encoding encrypted data: 
+			BASE64 or HEX		CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING
+
+
+
+---------- ---------- ---------- ---------- ---------- ---------- 
+Generate secret key using the following:
+---------- ---------- ---------- ---------- ---------- ---------- 
+
+	** Properties REQUIRED in .bar file (below) **
+
+	"algo" is CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO
+	"keysize" is CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYSIZE
+	"keystore_password" is CLIENT_API_MESSAGE_SECURITY_KEYSTORE_PASSWORD
+
+
+				
+	** Properties not required in .bar file (below) **
+
+	"key_validity" is the key validity in days.
+
+	"client_code" is the Customer / Client Code
+	"subscription_id" is the Subscription / Application (Project) ID.
+	"customer_organization_name" is the Customer's Organization Name (default to client_code) 
+	"MMddHHmm" is the formatted date string (in Month, Date, 24 Hours and Minutes)
+
+
+Command:
+
+	keytool -genseckey 
+		-alias <client_code>-<algo>-<keysize>-<MMddHHmm> 
+		-keyalg <algo> 
+		-keysize <key> 
+		-dname "CN=<customer_organization_name>" 
+		-validity <key_validity>
+		-storetype PKCS12 
+		-keystore <client_code>-<subscription_id>-ks.pkcs12 
+		-storepass <keystore_password>
+
+
+---------- ---------- ---------- ---------- ---------- ---------- 
+Generate key pair (public-private) using the following:
+---------- ---------- ---------- ---------- ---------- ---------- 
+
+
+Command:
+
+
+	keytool -genkeypair 
+		-alias <client_code>-<algo>-<keysize>-<MMddHHmm> 
+		-keyalg <algo> 
+		-keysize <key> 
+		-dname "CN=<customer_organization_name>" 
+		-validity <key_validity>
+		-storetype PKCS12 
+		-keystore <client_code>-<subscription_id>-ks.pkcs12 
+		-storepass <keystore_password>
+
+
+
+---------- ---------- ---------- ---------- ---------- ---------- 
+Import customer's public key into keystore.
+---------- ---------- ---------- ---------- ---------- ---------- 
+
+
+Command:
+
+	keytool -importcert 
+		-alias <client_code>-<algo>-<keysize>-<MMddHHmm> 
+		-file <X.509 Certificate PEM file name> 
+		-keystore <client_code>-<subscription_id>-ks.pkcs12 
+		-storepass <keystore_password> 
+		-storetype PKCS12 
+		-v
+
+
+
+Below para taken from https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html#keytool_option_importcert
+
+The keytool command can import X.509 v1, v2, and v3 certificates, and PKCS#7 formatted certificate chains consisting of certificates of that type. The data to be imported must be provided either in binary encoding format or in printable encoding format (also known as Base64 encoding) as defined by the Internet RFC 1421 standard. In the latter case, the encoding must be bounded at the beginning by a string that starts with -----BEGIN, and bounded at the end by a string that starts with -----END.
+
+
+**********
+[04-Aug-2020]
+
+Note: Importing PKCS#7 cert with keytool does not work without conversion to X509 using openssl tool and subsequent addition of "-----BEGIN CERTIFICATE-----" used as the header and "-----END CERTIFICATE-----" as the footer. Hence not supporting this for now.
+
+https://stackoverflow.com/questions/25983440/keytool-keytool-error-java-lang-exception-input-not-an-x-509-certificate
+
+
+
+[EOF]
+

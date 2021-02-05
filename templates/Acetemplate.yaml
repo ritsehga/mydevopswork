@@ -1,0 +1,143 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ace-mqclient-template
+  annotations:
+    openshift.io/display-name: Ace-mqclient-template
+    description: Creates a Ace-Mqclient configuration, a stateless component without any persistent.
+    tags: ace-mqclient-server-app
+  labels:
+    app: ace-mqclient-template
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${NAME}-ace-svc
+    labels:
+      app: ace-${NAME}    
+  spec:
+    type: NodePort
+    ports:
+    - port: 7600
+      targetPort: 7600
+      protocol: TCP
+      name: webui
+    - port: 7800
+      targetPort: 7800
+      protocol: TCP
+      name: ace-http
+    - port: 7843
+      targetPort: 7843
+      protocol: TCP
+      name: ace-https
+    selector:
+      app: ace-${NAME} 
+- apiVersion: apps/v1
+  kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${NAME}-ace-route
+    labels:
+      app: ace-${NAME}
+    name: ${NAME}-ace-route
+  spec:
+    host: ${NAME}.apps.nonprod.icicibankltd.com
+    to:
+      kind: Service
+      name: ${NAME}-ace-svc
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${NAME}-ace-server
+    labels:
+      app: ace-${NAME}      
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        name: ${NAME}-ace-server
+        labels:
+          app: ace-${NAME} 
+      spec:
+        containers:
+          - name: ${NAME}-ace-server
+            image: ${ACE_IMAGE_NAME}
+            ports:
+              - containerPort: 7600
+                name: webui
+              - containerPort: 7800
+                name: ace-http
+              - containerPort: 7843
+                name: ace-https
+            env:
+              - name: LICENSE
+                value: "accept"
+              - name: USE_QMGR
+                value: "false"
+              - name: ACE_SERVER_NAME
+                value: "ACESERVER"
+              - name: LOG_FORMAT
+                value: "json"
+              - name: ACE_ENABLE_METRICS
+                value: "true"
+              - name: MQ_QMGR_NAME
+                value: ${MQ_QMGR_NAME}
+            volumeMounts:
+              - name: webusers
+                mountPath: "/home/aceuser/initial-config/webusers"
+              - name: policy
+                mountPath: "/home/aceuser/initial-config/policy"
+        volumes:
+          - name: webusers
+            configMap:
+              name: webusers              
+          - name: policy
+            configMap:
+              name: policy 
+parameters:
+- description: The name assigned to all of the objects defined in this template.
+  displayName: Name
+  name: NAME
+  required: true  
+- description: MQ_QMGR_NAME .
+  displayName: QMGR NAME
+  name: MQ_QMGR_NAME
+  value: QMGR name
+  required: true
+- description: The image name .
+  displayName: AceImageName
+  name: ACE_IMAGE_NAME
+  value: "registry.ixpress.icicibank.com:5000/ibmcomacelatest"
+- description: The DOCKER_REGISTRY with port
+  displayName: DockerRegistryWithPort
+  name: DOCKER_REGISTRY
+  value: registry.ixpress.icicibank.com:5000
+- description: The Registry Namespace in Docker Registry
+  displayName: RegistryNamespace
+  name: REGISTY_NAMESPACE
+  value: Registry namespace
+- description: The Log Format
+  displayName: LogFormat
+  name: LOG_FORMAT
+  value: "json"
+- description: Memory Limit Of MQ
+  displayName: MemoryLimt
+  name: MEMORY_LIMIT
+  value: 512Mi
+- description: CPU Limit Of MQ
+  displayName: CpuLimit
+  name: CPU_LIMIT  
+  value: 500m 
+- description: The Log Format
+  displayName: LogFormat
+  name: LOG_FORMAT
+  value: "basic"
+- description: Memory Limit Of MQ
+  displayName: MemoryLimt
+  name: MEMORY_LIMIT
+  value: 512Mi
+- description: CPU Limit Of MQ
+  displayName: CpuLimit
+  name: CPU_LIMIT  
+  value: 500m 

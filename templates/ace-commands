@@ -1,0 +1,9 @@
+docker build -t ibmcomacelatest --file Dockerfile.aceonly .
+docker images | grep  ace
+docker rmi 3c80772c2edd
+docker tag  ibmcomacelatest  registry.ixpress.icicibank.com:5000/ibmcomacelatest
+docker push  registry.ixpress.icicibank.com:5000/ibmcomacelatest
+oc delete all -l app=ace-mqclient-template
+oc delete template ace-mqclient-template
+oc create -f Acetemplate.yaml
+oc new-app ace-mqclient-template --param=NAME=ace

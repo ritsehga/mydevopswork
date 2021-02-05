@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	name="IntimationWS" targetNamespace="http://www.icicibank.com/ws/intimation"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+	xmlns:tns="http://www.icicibank.com/ws/intimation"
+	xmlns:api="http://www.icicibank.com/api/acme"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<wsdl:types>
+		<xsd:schema targetNamespace="http://www.icicibank.com/api/acme">
+			
+<xsd:simpleType name="request_priority_type">
+		<xsd:restriction base="xsd:integer">
+			<xsd:enumeration value="1"/>
+			<xsd:enumeration value="2"/>
+			<xsd:enumeration value="3"/>
+			<xsd:enumeration value="4"/>
+			<xsd:enumeration value="5"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="api_version" type="xsd:string" />
+
+	<xsd:element name="request_id" type="xsd:string" />
+	<xsd:element name="request_datetime" type="xsd:dateTime" />
+	<xsd:element name="request_priority" type="api:request_priority_type"/>
+	<xsd:element name="parent_request_id" type="xsd:string" />
+	<xsd:element name="parent_request_datetime" type="xsd:dateTime" />
+	<xsd:element name="sender_system_user_id" type="xsd:string" />
+	<xsd:element name="sender_system_user_id_type" type="xsd:string" />
+	<xsd:element name="resent_indicator" type="xsd:boolean" />
+	<xsd:element name="original_request_id" type="xsd:string" />
+	<xsd:element name="original_request_datetime" type="xsd:dateTime" />
+	<xsd:element name="original_channel_id" type="xsd:string" />
+	<xsd:element name="original_sender_system_id" type="xsd:string" />
+	<xsd:element name="original_request_priority" type="api:request_priority_type" />
+	<xsd:element name="original_sender_system_user_id" type="xsd:string" />
+	<xsd:element name="original_sender_system_user_id_type" type="xsd:string" />
+	<xsd:element name="sender_system_id" type="xsd:string" />
+	<xsd:element name="channel_id" type="xsd:string" />
+
+	<xsd:element name="test_indicator" type="xsd:boolean" />
+
+	<xsd:element name="client_code" type="xsd:string" />
+	<xsd:element name="virtual_account_number" type="xsd:string" />
+	<xsd:element name="transaction_id" type="xsd:string" />
+	
+	<xsd:simpleType name="transaction_id_type_type">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="UTR"/>
+			<xsd:enumeration value="RRN"/>
+			<xsd:enumeration value="TRANID"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:element name="transaction_id_type" type="api:transaction_id_type_type" />
+	
+	<xsd:element name="transaction_datetime" type="xsd:dateTime" />
+	<xsd:element name="transaction_amount" type="xsd:decimal" />
+	<xsd:element name="currency_code" type="xsd:string" />
+	
+	<xsd:simpleType name="payment_mode_type">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="NEFT"/>
+			<xsd:enumeration value="RTGS"/>
+			<xsd:enumeration value="IMPS"/>
+			<xsd:enumeration value="FT"/>
+			<xsd:enumeration value="UTR"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:element name="payment_mode" type="api:payment_mode_type" />
+
+	<xsd:element name="sender_name" type="xsd:string" />
+	<xsd:element name="sender_mobile_communication_number"
+		type="xsd:string" />
+	<xsd:element name="sender_account_number" type="xsd:string" />
+	<xsd:element name="sender_bank_name" type="xsd:string" />
+	<xsd:element name="sender_ifsc_code" type="xsd:string" />
+
+	<xsd:element name="client_account_name" type="xsd:string" />
+	<xsd:element name="client_mobile_communication_number"
+		type="xsd:string" />
+	<xsd:element name="client_account_number" type="xsd:string" />
+
+	<xsd:element name="client_bank_name" type="xsd:string" />
+	<xsd:element name="client_ifsc_code" type="xsd:string" />
+
+	<xsd:element name="narration_1" type="xsd:string" />
+	<xsd:element name="narration_2" type="xsd:string" />
+	<xsd:element name="informational_message" type="xsd:string" />
+	<xsd:element name="external_system_reference_1" type="xsd:string" />
+	<xsd:element name="external_system_reference_2" type="xsd:string" />
+	<xsd:element name="client_remarks" type="xsd:string" />
+
+	<xsd:complexType name="client_data_ext_type">
+		<xsd:sequence>
+			<xsd:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:element name="client_data_ext" type="api:client_data_ext_type" />
+
+	<xsd:element name="response_id" type="xsd:string" />
+	<xsd:element name="response_datetime" type="xsd:dateTime" />
+
+	<xsd:simpleType name="completion_code_type">
+		<xsd:restriction base="xsd:integer">
+			<xsd:enumeration value="0"/> 	<!-- Successful -->
+			<xsd:enumeration value="1"/>	<!-- Warning -->
+			<xsd:enumeration value="2"/>	<!-- Error -->
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:element name="completion_code" type="api:completion_code_type" />
+	<xsd:element name="reason_code" type="xsd:string" />
+	<xsd:element name="message" type="xsd:string" />
+
+	<xsd:element name="retry_indicator" type="xsd:boolean" />
+	<xsd:element name="retry_after_interval" type="xsd:integer" />
+	<xsd:element name="retry_after_datetime" type="xsd:dateTime" />
+
+	<xsd:element name="intimation_request" type="api:intimation_requestType" />
+	<xsd:element name="intimation_response" type="api:intimation_responseType" />
+
+	<xsd:group name="requestHeaderType">
+		<xsd:sequence>
+			<xsd:element ref="api:request_id" />
+			<xsd:element ref="api:request_datetime" />
+			<xsd:element ref="api:parent_request_id" minOccurs="0"/>
+			<xsd:element ref="api:parent_request_datetime" minOccurs="0"/>
+			<xsd:element ref="api:channel_id" minOccurs="0"/>
+			<xsd:element ref="api:sender_system_id" minOccurs="0"/>
+			<xsd:element ref="api:sender_system_user_id" minOccurs="0"/>
+			<xsd:element ref="api:sender_system_user_id_type" minOccurs="0"/>
+			<xsd:element ref="api:request_priority" minOccurs="0"/>
+			<xsd:element ref="api:resent_indicator" minOccurs="0"/>
+			<xsd:element ref="api:original_request_id" minOccurs="0"/>
+			<xsd:element ref="api:original_request_datetime" minOccurs="0"/>
+			<xsd:element ref="api:original_channel_id" minOccurs="0"/>
+			<xsd:element ref="api:original_sender_system_id" minOccurs="0"/>
+			<xsd:element ref="api:original_sender_system_user_id" minOccurs="0"/>
+			<xsd:element ref="api:original_sender_system_user_id_type" minOccurs="0"/>
+			<xsd:element ref="api:original_request_priority" minOccurs="0"/>
+			<xsd:element ref="api:test_indicator" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:group name="responseHeaderType">
+		<xsd:sequence>
+			<xsd:element ref="api:response_id" />
+			<xsd:element ref="api:response_datetime"/>
+			<xsd:group ref="api:requestHeaderType"/>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:group name="responseTrailerType">
+		<xsd:sequence>
+			<xsd:element ref="api:completion_code" />
+			<xsd:element ref="api:reason_code" minOccurs="0"/>
+			<xsd:element ref="api:message" minOccurs="0"/>
+			<xsd:element ref="api:retry_indicator" minOccurs="0"/>
+			<xsd:element ref="api:retry_after_datetime" minOccurs="0"/>
+			<xsd:element ref="api:retry_after_interval" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:group>
+
+	<xsd:complexType name="intimation_requestType">
+		<xsd:sequence>
+			<xsd:element ref="api:api_version" />
+			<xsd:group ref="api:requestHeaderType"/>			
+			<xsd:element ref="api:client_code" />
+			<xsd:element ref="api:virtual_account_number" />
+			<xsd:element ref="api:transaction_amount" />
+			<xsd:element ref="api:currency_code" />
+			<xsd:element ref="api:payment_mode" />
+			<xsd:element ref="api:transaction_id" />
+			<xsd:element ref="api:transaction_id_type" />
+			<xsd:element ref="api:transaction_datetime" />
+			<xsd:element ref="api:sender_name" />
+			<xsd:element ref="api:sender_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_account_number" />
+			<xsd:element ref="api:sender_bank_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_ifsc_code" />
+			<xsd:element ref="api:client_account_name" minOccurs="0"/>
+			<xsd:element ref="api:client_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:client_account_number" />
+			<xsd:element ref="api:client_bank_name"  minOccurs="0"/>
+			<xsd:element ref="api:client_ifsc_code"  minOccurs="0"/>
+			<xsd:element ref="api:narration_1" minOccurs="0"/>
+			<xsd:element ref="api:narration_2" minOccurs="0"/>
+			<xsd:element ref="api:informational_message" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_1" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_2" minOccurs="0"/>
+			<xsd:element ref="api:client_remarks" minOccurs="0"/>
+			<xsd:element ref="api:client_data_ext" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="intimation_responseType">
+		<xsd:sequence>
+			<xsd:element ref="api:api_version" />
+			<xsd:group ref="api:requestHeaderType"/>
+			<xsd:element ref="api:client_code" minOccurs="0"/>
+			<xsd:element ref="api:virtual_account_number" minOccurs="0"/>
+			<xsd:element ref="api:transaction_amount" minOccurs="0"/>
+			<xsd:element ref="api:currency_code" minOccurs="0"/>
+			<xsd:element ref="api:payment_mode" minOccurs="0"/>
+			<xsd:element ref="api:transaction_id" minOccurs="0"/>
+			<xsd:element ref="api:transaction_id_type" minOccurs="0"/>
+			<xsd:element ref="api:transaction_datetime" minOccurs="0"/>
+			<xsd:element ref="api:sender_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_account_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_bank_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_ifsc_code" minOccurs="0"/>
+			<xsd:element ref="api:client_account_name" minOccurs="0"/>
+			<xsd:element ref="api:client_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:client_account_number" minOccurs="0"/>
+			<xsd:element ref="api:client_bank_name"  minOccurs="0"/>
+			<xsd:element ref="api:client_ifsc_code"  minOccurs="0"/>
+			<xsd:element ref="api:narration_1" minOccurs="0"/>
+			<xsd:element ref="api:narration_2" minOccurs="0"/>
+			<xsd:element ref="api:informational_message" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_1" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_2" minOccurs="0"/>
+			<xsd:element ref="api:client_data_ext" minOccurs="0"/>
+			<xsd:group ref="api:responseTrailerType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<!--  Refund / Reversal -->
+	<xsd:element name="remitter_account_number" type="xsd:string" />
+	<xsd:element name="cms_reference_number" type="xsd:string" />
+	<xsd:element name="refund_payment_status" type="xsd:string" />
+	<xsd:element name="refund_code" type="xsd:string" />
+	<xsd:element name="refund_rejection_code" type="xsd:string" />
+	
+	<xsd:element name="refund_intimation_request" type="api:refund_intimation_requestType" />
+	<xsd:element name="refund_intimation_response" type="api:refund_intimation_responseType" />
+	
+	<xsd:complexType name="refund_intimation_requestType">
+		<xsd:sequence>
+			<xsd:element ref="api:api_version" />
+			<xsd:group ref="api:requestHeaderType"/>
+			<xsd:element ref="api:client_code" />
+			<xsd:element ref="api:virtual_account_number" />
+			<xsd:element ref="api:transaction_amount" />
+			<xsd:element ref="api:currency_code" />
+			<xsd:element ref="api:payment_mode" />
+			<xsd:element ref="api:transaction_id" />
+			<xsd:element ref="api:transaction_id_type" />
+			<xsd:element ref="api:transaction_datetime" />
+			<xsd:element ref="api:sender_name" />
+			<xsd:element ref="api:sender_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_account_number" />
+			<xsd:element ref="api:sender_bank_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_ifsc_code" />
+			<xsd:element ref="api:client_account_name" minOccurs="0"/>
+			<xsd:element ref="api:client_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:client_account_number" />
+			<xsd:element ref="api:client_bank_name"  minOccurs="0"/>
+			<xsd:element ref="api:client_ifsc_code"  minOccurs="0"/>
+			<xsd:element ref="api:narration_1" minOccurs="0"/>
+			<xsd:element ref="api:narration_2" minOccurs="0"/>
+			<xsd:element ref="api:informational_message" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_1" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_2" minOccurs="0"/>
+			<xsd:element ref="api:client_remarks" minOccurs="0"/>
+			<xsd:element ref="api:remitter_account_number"/>
+			<xsd:element ref="api:cms_reference_number"/>
+			<xsd:element ref="api:refund_payment_status"/>
+			<xsd:choice>
+				<xsd:element ref="api:refund_code"/>
+				<xsd:element ref="api:refund_rejection_code"/>
+			</xsd:choice>
+			<xsd:element ref="api:client_data_ext" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="refund_intimation_responseType">
+		<xsd:sequence>
+			<xsd:element ref="api:api_version" />
+			<xsd:group ref="api:responseHeaderType"/>
+			<xsd:element ref="api:client_code" minOccurs="0"/>
+			<xsd:element ref="api:virtual_account_number" minOccurs="0"/>
+			<xsd:element ref="api:transaction_amount" minOccurs="0"/>
+			<xsd:element ref="api:currency_code" minOccurs="0"/>
+			<xsd:element ref="api:payment_mode" minOccurs="0"/>
+			<xsd:element ref="api:transaction_id" minOccurs="0"/>
+			<xsd:element ref="api:transaction_id_type" minOccurs="0"/>
+			<xsd:element ref="api:transaction_datetime" minOccurs="0"/>
+			<xsd:element ref="api:sender_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_account_number" minOccurs="0"/>
+			<xsd:element ref="api:sender_bank_name" minOccurs="0"/>
+			<xsd:element ref="api:sender_ifsc_code" minOccurs="0"/>
+			<xsd:element ref="api:client_account_name" minOccurs="0"/>
+			<xsd:element ref="api:client_mobile_communication_number" minOccurs="0"/>
+			<xsd:element ref="api:client_account_number" minOccurs="0"/>
+			<xsd:element ref="api:client_bank_name"  minOccurs="0"/>
+			<xsd:element ref="api:client_ifsc_code"  minOccurs="0"/>
+			<xsd:element ref="api:narration_1" minOccurs="0"/>
+			<xsd:element ref="api:narration_2" minOccurs="0"/>
+			<xsd:element ref="api:informational_message" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_1" minOccurs="0"/>
+			<xsd:element ref="api:external_system_reference_2" minOccurs="0"/>
+			<xsd:element ref="api:remitter_account_number"/>
+			<xsd:element ref="api:cms_reference_number"/>
+			<xsd:element ref="api:refund_payment_status"/>
+			<xsd:choice>
+				<xsd:element ref="api:refund_code"/>
+				<xsd:element ref="api:refund_rejection_code"/>
+			</xsd:choice>
+			<xsd:element ref="api:client_data_ext" minOccurs="0"/>
+			<xsd:group ref="api:responseTrailerType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>
+
+		
+	</wsdl:types>
+	<wsdl:message name="IntimationRequest">
+		<wsdl:part element="api:intimation_request" name="IntimationRequest" />
+	</wsdl:message>
+	<wsdl:message name="IntimationResponse">
+		<wsdl:part element="api:intimation_response" name="IntimationResponse" />
+	</wsdl:message>
+	<wsdl:message name="RefundIntimationRequest">
+		<wsdl:part element="api:refund_intimation_request" name="RefundIntimationRequest" />
+	</wsdl:message>
+	<wsdl:message name="RefundIntimationResponse">
+		<wsdl:part element="api:refund_intimation_response" name="RefundIntimationResponse" />
+	</wsdl:message>
+	<wsdl:portType name="IntimationPort">
+		<wsdl:operation name="Intimate">
+			<wsdl:input message="tns:IntimationRequest" />
+			<wsdl:output message="tns:IntimationResponse" />
+		</wsdl:operation>
+		<wsdl:operation name="RefundIntimate">
+			<wsdl:input message="tns:RefundIntimationRequest" />
+			<wsdl:output message="tns:RefundIntimationResponse" />
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding name="IntimationSOAP11HTTPBinding" type="tns:IntimationPort">
+		<soap:binding style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation name="Intimate">
+			<soap:operation soapAction="http://www.icicibank.com/api/acme/intimation" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+		<wsdl:operation name="RefundIntimate">
+			<soap:operation soapAction="http://www.icicibank.com/api/acme/refund-intimation" />
+			<wsdl:input>
+				<soap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<soap:body use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service name="IntimationSOAP11WS">
+		<wsdl:port binding="tns:IntimationSOAP11HTTPBinding" name="IntimationSOAP11WS">
+			<soap:address location="http://www.example.org/" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

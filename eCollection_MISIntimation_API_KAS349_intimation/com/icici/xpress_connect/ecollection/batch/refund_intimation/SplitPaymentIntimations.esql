@@ -1,0 +1,187 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.batch.refund_intimation
+
+
+DECLARE API_HONOR_REQUEST_PRIORITY EXTERNAL BOOLEAN FALSE;
+
+DECLARE API_COMPLETION_CODE_SUCCESSFUL CONSTANT INTEGER 0;
+DECLARE API_COMPLETION_CODE_WARNING CONSTANT INTEGER 1;
+DECLARE API_COMPLETION_CODE_ERROR CONSTANT INTEGER 2;
+
+DECLARE PAYMENT_INTIMATION_QUEUE_TERMINAL CONSTANT CHARACTER 'out1';
+DECLARE PAYMENT_INTIMATION_BATCH_COMPLETION_TERMINAL CONSTANT CHARACTER 'out';
+
+DECLARE API_REASON_CODE_REQUEST_ACCEPTED CONSTANT CHARACTER 'XC00203I';
+DECLARE API_REASON_CODE_UNEXPECTED_FAILURE CONSTANT CHARACTER 'XC00500E';
+DECLARE API_REASON_CODE_UNEXPECTED_INTERMITTENT_FAILURE CONSTANT CHARACTER 'XC00501W';
+
+CREATE COMPUTE MODULE SplitPaymentIntimations
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE refPaymentIntimationBatchRequest REFERENCE TO InputRoot.JSON.Data;
+		-- TODO: Basic hygiene checks.
+		
+		CREATE FIELD Environment.Variables.eCollection."Intimation-Batch";
+		DECLARE refPaymentInitiationQueuingStatus REFERENCE TO Environment.Variables.eCollection."Intimation-Batch-Errors";
+		
+		DECLARE intPaymentInitiationTotalCount 									INTEGER 0;
+		DECLARE intPaymentInitiationRequestQueueCount 				INTEGER 0;
+		DECLARE intPaymentInitiationRequestQueuingErrorCount 	INTEGER 0;
+		
+		FOR refPaymentIntimation AS refPaymentIntimationBatchRequest.intimation_data.*[]  DO
+			DECLARE EXIT HANDLER FOR SQLSTATE '%' 
+			BEGIN
+				-- Error Handler: If we are unable to place the Intimation Request on the common queue.
+				-- TODO: Error Handling. Write the message to a file. Warn the client of the issue.
+
+				SET intPaymentInitiationRequestQueuingErrorCount = intPaymentInitiationRequestQueuingErrorCount + 1;
+				
+				CREATE LASTCHILD OF refPaymentInitiationQueuingStatus NAME 'intimation_data' ;
+				DECLARE refLastPIRequest REFERENCE TO  refPaymentInitiationQueuingStatus.intimation_data[<];
+				
+				SET refLastPIRequest = refPaymentIntimation;
+				
+			END;
+			
+			SET intPaymentInitiationTotalCount = intPaymentInitiationTotalCount + 1;
+			
+			CALL prepareBasicMQTransportHeaders();
+			
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refPaymentInitiationRequest REFERENCE TO OutputRoot.JSON.Data; 
+			
+			SET refPaymentInitiationRequest.api_version = refPaymentIntimationBatchRequest.api_version;
+			
+			SET refPaymentInitiationRequest.request_id 	= UCASE(UUIDASCHAR);
+			SET refPaymentInitiationRequest.request_datetime = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'IU');
+			
+			SET refPaymentInitiationRequest.parent_request_id = refPaymentIntimationBatchRequest.request_id;
+			SET refPaymentInitiationRequest.parent_request_datetime = refPaymentIntimationBatchRequest.request_datetime;
+			
+			SET refPaymentInitiationRequest.channel_id = refPaymentIntimationBatchRequest.channel_id;
+			SET refPaymentInitiationRequest.sender_system_id = refPaymentIntimationBatchRequest.sender_system_id;
+			
+			IF COALESCE(refPaymentIntimationBatchRequest.sender_system_user_id, '') <> '' THEN
+				SET refPaymentInitiationRequest.sender_system_user_id = refPaymentIntimationBatchRequest.sender_system_user_id;
+				SET refPaymentInitiationRequest.sender_system_user_id_type = refPaymentIntimationBatchRequest.sender_system_user_id_type;
+			END IF;
+			
+			SET refPaymentInitiationRequest.request_priority = refPaymentIntimationBatchRequest.request_priority;
+			
+			IF COALESCE(refPaymentIntimationBatchRequest.resent_indicator, FALSE) THEN
+				SET refPaymentInitiationRequest.resent_indicator = refPaymentIntimationBatchRequest.resent_indicator;
+				SET refPaymentInitiationRequest.original_request_id = refPaymentIntimationBatchRequest.original_request_id;
+				SET refPaymentInitiationRequest.original_request_datetime = refPaymentIntimationBatchRequest.original_request_datetime;
+				SET refPaymentInitiationRequest.original_channel_id = refPaymentIntimationBatchRequest.original_channel_id;
+				SET refPaymentInitiationRequest.original_sender_system_id = refPaymentIntimationBatchRequest.original_sender_system_id;
+				SET refPaymentInitiationRequest.original_sender_system_user_id = refPaymentIntimationBatchRequest.original_sender_system_user_id;
+				SET refPaymentInitiationRequest.original_sender_system_user_id_type = refPaymentIntimationBatchRequest.original_sender_system_user_id_type;
+				SET refPaymentInitiationRequest.original_request_priority = refPaymentIntimationBatchRequest.original_request_priority;
+			END IF;
+
+			SET refPaymentInitiationRequest.test_indicator = refPaymentIntimationBatchRequest.test_indicator;
+			
+			IF EXISTS(refPaymentIntimation.application_context.*[])  THEN
+				SET refPaymentInitiationRequest.application_context = refPaymentIntimation.application_context;
+			ELSE
+				SET refPaymentInitiationRequest.application_context = refPaymentIntimationBatchRequest.application_context;
+			END IF;		
+			
+			-- Copy the business data fields.
+			SET refPaymentInitiationRequest.*[] = refPaymentIntimation.*[];
+			
+			-- Add select business data to MQ RFH2 header.
+			CALL prepareMQTransportHeaders(refPaymentInitiationRequest);
+			
+			-- Queue the Payment Intimation.
+			PROPAGATE TO TERMINAL PAYMENT_INTIMATION_QUEUE_TERMINAL;
+			
+			SET intPaymentInitiationRequestQueueCount = intPaymentInitiationRequestQueueCount + 1;
+			
+		END FOR;
+		
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refPaymentInitiationBatchResponse REFERENCE TO OutputRoot.JSON.Data; 
+
+		CALL com.icici.xpress_connect.common.api.buildAPIResponse(refPaymentIntimationBatchRequest, refPaymentInitiationBatchResponse, FALSE);
+		
+		IF intPaymentInitiationRequestQueueCount = intPaymentInitiationTotalCount THEN
+			-- All split payment intimation requests were queued.
+			SET refPaymentInitiationBatchResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refPaymentInitiationBatchResponse.reason_code = API_REASON_CODE_REQUEST_ACCEPTED;
+		ELSEIF intPaymentInitiationRequestQueuingErrorCount = intPaymentInitiationTotalCount THEN
+			-- Not a single split payment intimation request was queued.
+			SET refPaymentInitiationBatchResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refPaymentInitiationBatchResponse.reason_code = API_REASON_CODE_UNEXPECTED_FAILURE;
+		ELSE
+			-- Not all split payment intimation requests were queued. One or more failed.
+			SET refPaymentInitiationBatchResponse.completion_code = API_COMPLETION_CODE_WARNING;
+			SET refPaymentInitiationBatchResponse.reason_code = API_REASON_CODE_UNEXPECTED_INTERMITTENT_FAILURE;
+		END IF;		
+
+		-- Set HTTP Status Code
+		SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = com.icici.xpress_connect.common.api.mapHTTPStatusCode(refPaymentInitiationBatchResponse.reason_code);
+		
+		-- TODO: Might add information pertaining to the failed intimation requests to application_context in case of partial success scenario.
+		
+		-- Done queuing each Payment Intimation as a seperate request on the queue.
+		PROPAGATE TO TERMINAL PAYMENT_INTIMATION_BATCH_COMPLETION_TERMINAL;
+		RETURN FALSE;
+		
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	CREATE FUNCTION prepareBasicMQTransportHeaders () 
+	BEGIN
+		SET OutputRoot.MQMD.PutApplName		= 'eCollection';
+		SET OutputRoot.MQMD.PutApplType 		= MQAT_BROKER;
+	-- SET OutputRoot.MQMD.MsgType 				= MQMT_;
+		SET OutputRoot.MQMD.Persistence 			= MQPER_PERSISTENT;
+		
+	-- SET OutputRoot.MQMD.Encoding 				= InputRoot.Properties.Encoding;
+		SET OutputRoot.MQMD.CodedCharSetId = 1208;	 -- TODO: Use constant.
+		SET OutputRoot.MQMD.Format 					= MQFMT_STRING; 
+		SET OutputRoot.MQMD.Expiry 					= MQEI_UNLIMITED;
+		
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version 						= MQRFH_VERSION_2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format 						= MQFMT_STRING;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID 	= 1208;
+			
+		RETURN;
+	END;
+
+	CREATE FUNCTION prepareMQTransportHeaders (IN refAPIMessage REFERENCE ) 
+	BEGIN
+		IF API_HONOR_REQUEST_PRIORITY AND 
+			(COALESCE(refAPIMessage.request_priority, '' ) <> '') THEN
+			SET OutputRoot.MQMD.Priority  = refAPIMessage.request_priority;
+		END IF;
+		
+		-- Message Content Descriptor ("mcd" folder)
+		SET OutputRoot.MQRFH2.mcd.Msd = 'json';
+			
+		CREATE FIELD OutputRoot.MQRFH2.usr;
+		DECLARE refAPIMessageTransportHeader REFERENCE TO OutputRoot.MQRFH2.usr;
+			
+		CALL com.icici.xpress_connect.common.api.injectReferenceDataTransportHeaders('eCollection', ApplicationLabel, 
+					refAPIMessage, refAPIMessageTransportHeader);
+		
+		RETURN;
+	END;
+	
+END MODULE;

@@ -1,0 +1,362 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.refund_intimation.gen
+
+DECLARE API_COMPLETION_CODE_SUCCESSFUL CONSTANT INTEGER 0;
+DECLARE API_COMPLETION_CODE_WARNING CONSTANT INTEGER 1;
+DECLARE API_COMPLETION_CODE_ERROR CONSTANT INTEGER 2;
+
+-- Reason codes to be used whatever be the logic on the Client API end.
+-- These codes decide the Accept (Fund Transfer) / Reject (Refund) Payment Instruction logic.
+
+DECLARE API_REASON_CODE_REQUEST_ACCEPTED CONSTANT CHARACTER 'XC00211I';
+DECLARE API_REASON_CODE_REQUEST_PROVISIONALLY_ACCEPTED CONSTANT CHARACTER 'XC00212I';
+DECLARE API_REASON_CODE_REQUEST_REJECTED  CONSTANT CHARACTER 'XC00221E';
+
+-- [20-Jan-2020]
+DECLARE API_REASON_CODE_OK 	CONSTANT CHARACTER 'XC00202I';
+
+DECLARE API_REASON_MESSAGE_REQUEST_ACCEPTED CONSTANT CHARACTER 'Request accepted.';
+DECLARE API_REASON_MESSAGE_REQUEST_REJECTED CONSTANT CHARACTER 'Request rejected.';
+
+DECLARE API_REASON_CODE_TRANSACTION_ACCEPTED CONSTANT CHARACTER 'XC00441I';									-- [20-Jan-2020]
+DECLARE API_REASON_CODE_TRANSACTION_REJECTED CONSTANT CHARACTER 'XC00442E';									-- [20-Jan-2020]
+
+-- Overriding default messages
+DECLARE API_REASON_MESSAGE_TRANSACTION_ACCEPTED CONSTANT CHARACTER 'Client has acknowledged this refund transaction.';		-- [20-Jan-2020]
+DECLARE API_REASON_MESSAGE_TRANSACTION_REJECTED  CONSTANT CHARACTER 'Client has rejected this refund transaction.';		-- [20-Jan-2020]
+
+-- [20-Jan-2020]: We already had business data related reason codes and messages in CommonAPIMessageBuilder ESQL module.
+-- Hence we removed it from here. Add new client specific reason codes and messages in this extention module.
+-- Example: 	API_REASON_CODE_VALID_CLIENT_CODE, API_REASON_CODE_INVALID_CLIENT_CODE,
+-- 						API_REASON_CODE_INVALID_VIRTUAL_ACCOUNT_NUMBER
+-- OK
+DECLARE API_HTTP_STATUS_CODE_OK CONSTANT INTEGER 200;
+--Bad Request	
+DECLARE API_HTTP_STATUS_CODE_BAD_REQUEST CONSTANT INTEGER 400;
+--Unprocessable Entity	
+DECLARE API_HTTP_STATUS_CODE_UNPROCESSABLE_ENTITY CONSTANT INTEGER 422;
+
+--		CREATE COMPUTE MODULE XCreateAPIResponse
+--			CREATE FUNCTION Main() RETURNS BOOLEAN
+--			BEGIN
+--				-- CALL CopyMessageHeaders();
+--				-- CALL CopyEntireMessage();
+--				RETURN TRUE;
+--			END;
+--		
+--			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--				DECLARE I INTEGER 1;
+--				DECLARE J INTEGER;
+--				SET J = CARDINALITY(InputRoot.*[]);
+--				WHILE I < J DO
+--					SET OutputRoot.*[I] = InputRoot.*[I];
+--					SET I = I + 1;
+--				END WHILE;
+--			END;
+--		
+--			CREATE PROCEDURE CopyEntireMessage() BEGIN
+--				SET OutputRoot = InputRoot;
+--			END;
+--		END MODULE;
+
+-- Perform business data validation.
+CREATE FUNCTION performResponseBusinessDataValidation(IN refAPIRequest REFERENCE, IN refClientAPIResponse REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API response body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+	-- Code --
+	-- CALL mapAPIResponse_ACME(refClientAPIResponse, refClientAPIResponseHeader, refAPIResponse, refAPIResponseHeader, refAPIRequest);
+	-- CALL mapAPIResponse_ACME_XML(refClientAPIResponse, refClientAPIResponseHeader, refAPIResponse, refAPIResponseHeader, refAPIRequest);
+END;
+
+-- [12-Jun-2020]: Gather analytics data.
+CREATE FUNCTION gatherAnalyticsData_ClientAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, INOUT refAnalyticsDataCollector REFERENCE) 
+BEGIN
+	-- Pick whatever data is required from the client API request and place it in a safe place 
+	-- to be used later, perhaps by the IBM ACE monitoring event handlers.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+
+-- Map / Build API response body (data / payload).
+-- [20-Jan-2020]: ACME API : JSON representation.
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIResponse_ACME(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refClientAPIResponse.request_priority, -1) <> -1 THEN
+			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.resent_indicator, FALSE) THEN
+			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.resent_indicator AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.original_request_priority, -1) <> -1 THEN
+			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.original_request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.test_indicator, FALSE) THEN
+			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.test_indicator AS CHARACTER);
+		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.response_datetime;
+
+		SET refAPIResponse.cms_reference_number 			= refClientAPIResponse.cms_reference_number;
+		SET refAPIResponse.refund_payment_status 			= refClientAPIResponse.refund_payment_status;
+		SET refAPIResponse.refund_code 								= refClientAPIResponse.refund_code;
+		SET refAPIResponse.refund_rejection_code 				= refClientAPIResponse.refund_rejection_code;
+		
+		IF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+
+-- [06-May-2020]: ACME API : XML representation.
+CREATE FUNCTION mapAPIResponse_ACME_XML(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+--		IF COALESCE(refClientAPIResponse.request_priority, -1) <> -1 THEN
+--			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.request_priority AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.resent_indicator, FALSE) THEN
+--			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.resent_indicator AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.original_request_priority, -1) <> -1 THEN
+--			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.original_request_priority AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.test_indicator, FALSE) THEN
+--			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.test_indicator AS CHARACTER);
+--		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.response_datetime;
+		
+		SET refAPIResponse.cms_reference_number 			= refClientAPIResponse.cms_reference_number;
+		SET refAPIResponse.refund_payment_status 			= refClientAPIResponse.refund_payment_status;
+		SET refAPIResponse.refund_code 								= refClientAPIResponse.refund_code;
+		SET refAPIResponse.refund_rejection_code 				= refClientAPIResponse.refund_rejection_code;
+	
+		IF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+-- [06-May-2020]: ACME API : SOAP 1.1 and 1.2 representations.
+CREATE FUNCTION mapAPIResponse_ACME_SOAP(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		-- @@IXC.AutoGenerateESQL
+
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		DECLARE tns 	NAMESPACE 	'http://www.icicibank.com/api/eCollection/3_6_downgrade';
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refClientAPIResponse.tns:intimation_request.tns:request_priority, -1) <> -1 THEN
+			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.tns:intimation_request.tns:request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:intimation_request.tns:resent_indicator, FALSE) THEN
+			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.tns:intimation_request.tns:resent_indicator AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:intimation_request.tns:original_request_priority, -1) <> -1 THEN
+			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.tns:intimation_request.tns:original_request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:intimation_request.tns:test_indicator, FALSE) THEN
+			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.tns:intimation_request.tns:test_indicator AS CHARACTER);
+		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.tns:intimation_request.tns:client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.tns:intimation_request.tns:virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.tns:intimation_request.tns:transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.tns:intimation_request.tns:currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.tns:intimation_request.tns:payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.tns:intimation_request.tns:transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.tns:intimation_request.tns:transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.tns:intimation_request.tns:transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.tns:intimation_request.tns:sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.tns:intimation_request.tns:sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.tns:intimation_request.tns:sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.tns:intimation_request.tns:sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.tns:intimation_request.tns:sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.tns:intimation_request.tns:client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.tns:intimation_request.tns:client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.tns:intimation_request.tns:client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.tns:intimation_request.tns:narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.tns:intimation_request.tns:narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.tns:intimation_request.tns:informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.tns:intimation_request.tns:external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.tns:intimation_request.tns:external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.tns:intimation_request.tns:response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.tns:intimation_request.tns:response_datetime;
+		
+		SET refAPIResponse.cms_reference_number 			= refClientAPIResponse.tns:intimation_request.tns:cms_reference_number;
+		SET refAPIResponse.refund_payment_status 			= refClientAPIResponse.tns:intimation_request.tns:refund_payment_status;
+		SET refAPIResponse.refund_code 								= refClientAPIResponse.tns:intimation_request.tns:refund_code;
+		SET refAPIResponse.refund_rejection_code 				= refClientAPIResponse.tns:intimation_request.tns:refund_rejection_code;
+	
+		IF refClientAPIResponse.tns:intimation_request.tns:reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.tns:intimation_request.tns:reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.tns:intimation_request.tns:reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.tns:intimation_request.tns:reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.tns:intimation_request.tns:completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.tns:intimation_request.tns:reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+
+-- Map the Reason Code with the HTTP Status Code.
+CREATE FUNCTION mapHTTPStatusCode (IN chReasonCode CHARACTER)  RETURNS INTEGER
+BEGIN
+	-- Default.
+	DECLARE intMappedHTTPStatusCode INTEGER com.icici.xpress_connect.common.api.mapHTTPStatusCode(chReasonCode);
+	
+	-- Override defaults. 
+	-- Uses HTTP Status Code to Customer Error Code map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		RETURN API_HTTP_STATUS_CODE_OK;
+	END IF;
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		RETURN API_HTTP_STATUS_CODE_UNPROCESSABLE_ENTITY;
+	END IF;
+
+	RETURN intMappedHTTPStatusCode;
+END;
+
+--  Returns a descriptive message for the given code.
+CREATE FUNCTION lookupReasonMessage (IN reasonCode CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE chReasonMessage CHARACTER  NULL;
+	
+	IF reasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		SET chReasonMessage = API_REASON_MESSAGE_REQUEST_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_REQUEST_REJECTED;
+	END IF;
+	
+	IF reasonCode = API_REASON_CODE_TRANSACTION_ACCEPTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_TRANSACTION_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_REJECTED;
+	END IF;
+	
+	-- Fallback on the common reason codes and messages. Applies when API_OPTIMIZATION is true.
+	RETURN COALESCE(chReasonMessage, 	com.icici.xpress_connect.common.api.lookupExtendedReasonMessage(reasonCode));
+END;

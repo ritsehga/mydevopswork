@@ -1,0 +1,545 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.intimation.gen
+
+DECLARE API_TYPE_REST_JSON 														CONSTANT CHARACTER 		'REST-JSON/HTTP';
+DECLARE API_TYPE_REST_XML 														CONSTANT CHARACTER 		'REST-XML/HTTP';
+DECLARE API_TYPE_WS_SOAP_V11 												CONSTANT CHARACTER 		'WS-SOAP1.1/HTTP';
+DECLARE API_TYPE_WS_SOAP_V12 												CONSTANT CHARACTER 		'WS-SOAP1.2/HTTP';
+
+-- Web Services Properties.
+DECLARE 	CLIENT_API_MESSAGE_REQUEST_ROOT 					EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_REQUEST_NAMESPACE 						EXTERNAL CHARACTER 		NULL;
+
+DECLARE CLIENT_API_MESSAGE_REQUEST_ROOT_SECURE 					EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_REQUEST_NAMESPACE_SECURE 						EXTERNAL CHARACTER 		NULL;
+
+
+DECLARE CLIENT_API_AUTH_TYPE															EXTERNAL CHARACTER NULL;
+DECLARE CLIENT_API_AUTH_IDENTITY_TOKEN									EXTERNAL CHARACTER NULL;		-- Username 
+DECLARE CLIENT_API_AUTH_IDENTITY_PWD										EXTERNAL CHARACTER NULL;		-- Password
+DECLARE	CLIENT_API_AUTH_DOMAIN													EXTERNAL CHARACTER NULL;		-- Authorization Domain
+DECLARE CLIENT_API_AUTH_POLICY_NAMESPACE							EXTERNAL CHARACTER NULL;		-- Policy Project name (not .bar file name or policy XML file name).
+DECLARE CLIENT_API_AUTH_POLICY_NAME										EXTERNAL CHARACTER NULL;		-- Policy Name (not the policy XML file name). 
+
+
+-- Constants 
+DECLARE MESSAGE_SECURITY_TYPE_MESSAGE_HASHING												CONSTANT CHARACTER 	'Message-Hashing';
+DECLARE MESSAGE_SECURITY_TYPE_XML_SIGNATURE													CONSTANT CHARACTER 	'WSSE-XMLSignature';
+
+DECLARE MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION										CONSTANT CHARACTER 	'Message-Encryption';
+DECLARE MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION_FIELDS_ONLY			CONSTANT CHARACTER 	'Message-Encryption-FieldsOnly';
+DECLARE MESSAGE_SECURITY_TYPE_XML_ENCRYPTION													CONSTANT CHARACTER 	'WSSE-XMLEncryption';
+
+DECLARE MESSAGE_SECURITY_CIPHER_PUBLIC_KEY 							CONSTANT INTEGER 		1;
+DECLARE MESSAGE_SECURITY_CIPHER_PRIVATE_KEY 							CONSTANT INTEGER 		2;
+DECLARE MESSAGE_SECURITY_CIPHER_SECRET_KEY 							CONSTANT INTEGER 		3;
+
+-- 	Valid Values:	 Message-Hashing, WSSE-XMLSignature 
+DECLARE CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE								EXTERNAL CHARACTER NULL;
+-- 	Valid Values:	 Message-Encryption-FieldsOnly, Message-Encryption,  WSSE-XMLEncryption
+DECLARE CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE 							EXTERNAL CHARACTER NULL;
+
+-- Hashing / Checksum
+DECLARE CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO														EXTERNAL CHARACTER NULL;
+-- Encryption 
+DECLARE CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO												EXTERNAL CHARACTER NULL;
+  
+--			CREATE COMPUTE MODULE CreateClientAPIRequest
+--				CREATE FUNCTION Main() RETURNS BOOLEAN
+--				BEGIN
+--					-- CALL CopyMessageHeaders();
+--					-- CALL CopyEntireMessage();
+--					RETURN TRUE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--					DECLARE I INTEGER 1;
+--					DECLARE J INTEGER;
+--					SET J = CARDINALITY(InputRoot.*[]);
+--					WHILE I < J DO
+--						SET OutputRoot.*[I] = InputRoot.*[I];
+--						SET I = I + 1;
+--					END WHILE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyEntireMessage() BEGIN
+--					SET OutputRoot = InputRoot;
+--				END;
+--			END MODULE;
+
+
+-- [20-Jan-2020]: Ensure the endpoint is configured per the client (or the mock service)
+
+-- Perform business data validation.
+CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API request body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+	DECLARE tns NAMESPACE 'http://www.icicibank.com/api/acme';
+IF refAPIRequest."payment_mode" = 'NEFT' THEN
+ SET refClientAPIRequest.tns:"payment_mode"='NEFT';
+ELSEIF refAPIRequest."payment_mode" = 'RTGS' THEN
+ SET refClientAPIRequest.tns:"payment_mode"='RTGS';
+ELSEIF refAPIRequest."payment_mode" = 'IMPS' THEN
+ SET refClientAPIRequest.tns:"payment_mode"='IMPS';
+ELSEIF refAPIRequest."payment_mode" = 'FT' THEN
+ SET refClientAPIRequest.tns:"payment_mode"='FT';
+ END IF;
+SET refClientAPIRequest.tns:"request_id"='7C615D36-1529-4B0C-A1E6-C5C67D5FA353';
+SET refClientAPIRequest.tns:"request_datetime"='2019-11-26T12:28:56.321+05:30';
+SET refClientAPIRequest.tns:"client_code"=refAPIRequest."client_code";
+SET refClientAPIRequest.tns:"virtual_account_number"=refAPIRequest."virtual_account_number";
+SET refClientAPIRequest.tns:"transaction_amount"=CAST(refAPIRequest."transaction_amount" AS CHARACTER FORMAT '0.00');
+SET refClientAPIRequest.tns:"currency_code"=refAPIRequest."currency_code";
+SET refClientAPIRequest.tns:"transaction_id"=refAPIRequest."transaction_id";
+SET refClientAPIRequest.tns:"transaction_id_type"='UTR';
+SET refClientAPIRequest.tns:"transaction_datetime"=CAST(CAST(refAPIRequest."transaction_datetime" AS TIMESTAMP FORMAT 'IU') AS CHARACTER FORMAT 'IU');
+SET refClientAPIRequest.tns:"sender_name"=refAPIRequest."sender_name";
+SET refClientAPIRequest.tns:"sender_mobile_communication_number"=refAPIRequest."sender_mobile_communication_number";
+SET refClientAPIRequest.tns:"sender_account_number"=refAPIRequest."sender_account_number";
+SET refClientAPIRequest.tns:"sender_bank_name"=refAPIRequest."sender_bank_name";
+SET refClientAPIRequest.tns:"sender_ifsc_code"=refAPIRequest."sender_ifsc_code";
+SET refClientAPIRequest.tns:"client_account_number"=refAPIRequest."client_account_number";
+SET refClientAPIRequest.tns:"narration_1"=refAPIRequest."informational_message";
+
+
+--	DECLARE chClientAPIType CHARACTER refClientAPIRequestHeader."IXC-Client-API-Type";
+--	
+--	IF chClientAPIType = API_TYPE_REST_JSON THEN
+--		CALL mapAPIRequest_ACME(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+--	ELSEIF  chClientAPIType = API_TYPE_REST_XML THEN
+--		CALL mapAPIRequest_ACME_XML(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+--	ELSEIF 	(chClientAPIType = API_TYPE_WS_SOAP_V11)  OR 
+--					(chClientAPIType = API_TYPE_WS_SOAP_V12) THEN
+--		CALL mapAPIRequest_ACME_SOAP(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+--	END IF;
+	
+END;
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption)
+-- Use secureWSRequest for securing SOAP Web Service calls to the customer.
+CREATE FUNCTION secureAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE,
+																	  	  IN refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	-- rest checksum --
+	
+	-- rest encryption --
+
+--	CALL secureAPIRequest_ACME(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader, refMessageSecurityConfiguration);
+END;
+
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption). 
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE secureWSRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE,  
+																		  	IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE, 
+																		  	INOUT refClientWSSOAPHeader REFERENCE,
+																		  	IN refMessageSecurityConfiguration REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+
+	-- soap checksum --
+	
+	-- soap encryption --
+--
+--		CALL secureWSRequest_ACME(refAPIRequest, refClientAPIRequest, 
+--																   refAPIRequestHeader, refClientAPIRequestHeader, refClientWSSOAPHeader,
+--																   refMessageSecurityConfiguration);
+END;
+
+
+-- [20-Jun-2020]: User Authentication
+-- Used for building the Web Services SOAP Header.
+CREATE PROCEDURE secureWSRequestAuthenticate(IN refAPIRequest REFERENCE, IN refAPIRequestHeader REFERENCE, 
+																			INOUT refClientWSSOAPHeader REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+        -- authentication soap-header --
+
+END;
+
+-- [20-Jan-2020]: ACME API : JSON representation.
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIRequest_ACME(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		IF CLIENT_API_AUTH_TYPE = 'Basic-Auth' THEN
+			DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+			SET policyList = policyList || '|UserAuthentication';
+			SET  refClientAPIRequestHeader."enforced-policy-list" = policyList;
+			SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-only';
+		END IF;
+		
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+		SET refClientAPIRequest.*[] = refAPIRequest.*[];
+		
+		-- [22-Aug-2020]: Number format leading to checksum mismatch in the response.
+		SET refClientAPIRequest.transaction_amount 				= CAST(refAPIRequest.transaction_amount AS DECIMAL);
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority = CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator = CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+			
+		SET refClientAPIRequest.api_version = NULL;	
+END;
+
+
+-- [06-May-2020]: ACME API : XML representation.
+CREATE FUNCTION mapAPIRequest_ACME_XML(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		IF CLIENT_API_AUTH_TYPE = 'Basic-Auth' THEN
+			DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+			SET policyList = policyList || '|UserAuthentication';
+			SET  refClientAPIRequestHeader."enforced-policy-list" = policyList;
+			SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-only';
+		END IF;
+
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		
+		-- SET refClientAPIRequest.api_version 								= refAPIRequest.api_version;
+		SET refClientAPIRequest.request_id 								= refAPIRequest.request_id;
+		SET refClientAPIRequest.request_datetime 					= refAPIRequest.request_datetime;
+		SET refClientAPIRequest.parent_request_id 					= refAPIRequest.parent_request_id;
+		SET refClientAPIRequest.parent_request_datetime 		= refAPIRequest.parent_request_datetime;
+		SET refClientAPIRequest.channel_id 								= refAPIRequest.channel_id;
+		SET refClientAPIRequest.sender_system_id 					= refAPIRequest.sender_system_id;
+		SET refClientAPIRequest.sender_system_user_id 		= refAPIRequest.sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority 					= CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator 					= CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		SET refClientAPIRequest.original_request_id 				= refAPIRequest.original_request_id;
+		SET refClientAPIRequest.original_request_datetime 	= refAPIRequest.original_request_datetime;
+		SET refClientAPIRequest.original_channel_id 				= refAPIRequest.original_channel_id;
+		SET refClientAPIRequest.original_sender_system_id 	= refAPIRequest.original_sender_system_id;
+		SET refClientAPIRequest.original_sender_system_user_id 		
+																																			= refAPIRequest.original_sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+		
+		SET refClientAPIRequest.client_code 								= refAPIRequest.client_code;
+		SET refClientAPIRequest.virtual_account_number 		= refAPIRequest.virtual_account_number;
+		SET refClientAPIRequest.transaction_amount 				= CAST(refAPIRequest.transaction_amount AS DECIMAL);
+		SET refClientAPIRequest.currency_code 						= refAPIRequest.currency_code;
+		SET refClientAPIRequest.payment_mode 						= refAPIRequest.payment_mode;
+		SET refClientAPIRequest.transaction_id 						= refAPIRequest.transaction_id;
+		SET refClientAPIRequest.transaction_id_type 				= refAPIRequest.transaction_id_type;
+		SET refClientAPIRequest.transaction_datetime 			= refAPIRequest.transaction_datetime;
+		SET refClientAPIRequest.sender_name 							= refAPIRequest.sender_name;
+		SET refClientAPIRequest.sender_mobile_communication_number 							
+																																			= refAPIRequest.sender_mobile_communication_number;
+		SET refClientAPIRequest.sender_account_number 		= refAPIRequest.sender_account_number;
+		SET refClientAPIRequest.sender_bank_name 				= refAPIRequest.sender_bank_name;
+		SET refClientAPIRequest.sender_ifsc_code 					= refAPIRequest.sender_ifsc_code;
+		SET refClientAPIRequest.client_account_name				= refAPIRequest.client_account_name;
+		SET refClientAPIRequest.client_mobile_communication_number 							
+																																			= refAPIRequest.client_mobile_communication_number;
+		SET refClientAPIRequest.client_account_number 		= refAPIRequest.client_account_number;
+		SET refClientAPIRequest.client_bank_name					= refAPIRequest.client_bank_name;
+		SET refClientAPIRequest.client_ifsc_code 						= refAPIRequest.client_ifsc_code;
+		SET refClientAPIRequest.narration_1 								= refAPIRequest.narration_1;
+		SET refClientAPIRequest.narration_2 								= refAPIRequest.narration_2;
+		SET refClientAPIRequest.informational_message 		= refAPIRequest.informational_message;
+		SET refClientAPIRequest.external_system_reference_1 		
+		 																																	= refAPIRequest.external_system_reference_1;
+		SET refClientAPIRequest.external_system_reference_2 		
+																																			= refAPIRequest.external_system_reference_2;
+		
+END;
+
+-- [06-May-2020]: ACME API : SOAP 1.1 and 1.2 representations.
+CREATE FUNCTION mapAPIRequest_ACME_SOAP(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		IF CLIENT_API_AUTH_TYPE = 'Basic-Auth' THEN
+			DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+			SET policyList = policyList || '|UserAuthentication';
+			SET  refClientAPIRequestHeader."enforced-policy-list" = policyList;
+			SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-only';
+		END IF;
+
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		DECLARE tns 	NAMESPACE 	'http://www.icicibank.com/api/acme';
+		
+		SET refClientAPIRequest.tns:api_version 							= refAPIRequest.api_version;
+		SET refClientAPIRequest.tns:request_id 								= refAPIRequest.request_id;
+		SET refClientAPIRequest.tns:request_datetime 					= refAPIRequest.request_datetime;
+		SET refClientAPIRequest.tns:parent_request_id 					= refAPIRequest.parent_request_id;
+		SET refClientAPIRequest.tns:parent_request_datetime 	= refAPIRequest.parent_request_datetime;
+		SET refClientAPIRequest.tns:channel_id 								= refAPIRequest.channel_id;
+		SET refClientAPIRequest.tns:sender_system_id 					= refAPIRequest.sender_system_id;
+		SET refClientAPIRequest.tns:sender_system_user_id 		= refAPIRequest.sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.tns:request_priority 					= CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.tns:resent_indicator 					= CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		SET refClientAPIRequest.tns:original_request_id 				= refAPIRequest.original_request_id;
+		SET refClientAPIRequest.tns:original_request_datetime 	= refAPIRequest.original_request_datetime;
+		SET refClientAPIRequest.tns:original_channel_id 				= refAPIRequest.original_channel_id;
+		SET refClientAPIRequest.tns:original_sender_system_id 	= refAPIRequest.original_sender_system_id;
+		SET refClientAPIRequest.tns:original_sender_system_user_id 		
+																																			= refAPIRequest.original_sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.tns:original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.tns:test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+		
+		SET refClientAPIRequest.tns:client_code 							= refAPIRequest.client_code;
+		SET refClientAPIRequest.tns:virtual_account_number 	= refAPIRequest.virtual_account_number;
+		SET refClientAPIRequest.tns:transaction_amount 			= CAST(refAPIRequest.transaction_amount AS DECIMAL);
+		SET refClientAPIRequest.tns:currency_code 						= refAPIRequest.currency_code;
+		SET refClientAPIRequest.tns:payment_mode 					= refAPIRequest.payment_mode;
+		SET refClientAPIRequest.tns:transaction_id 						= refAPIRequest.transaction_id;
+		SET refClientAPIRequest.tns:transaction_id_type 			= refAPIRequest.transaction_id_type;
+		SET refClientAPIRequest.tns:transaction_datetime 			= refAPIRequest.transaction_datetime;
+		SET refClientAPIRequest.tns:sender_name 						= refAPIRequest.sender_name;
+		SET refClientAPIRequest.tns:sender_mobile_communication_number 							
+																											= refAPIRequest.sender_mobile_communication_number;
+		SET refClientAPIRequest.tns:sender_account_number 	= refAPIRequest.sender_account_number;
+		SET refClientAPIRequest.tns:sender_bank_name 			= refAPIRequest.sender_bank_name;
+		SET refClientAPIRequest.tns:sender_ifsc_code 				= refAPIRequest.sender_ifsc_code;
+		SET refClientAPIRequest.tns:client_account_name			= refAPIRequest.client_account_name;
+		SET refClientAPIRequest.tns:client_mobile_communication_number 							
+																											= refAPIRequest.client_mobile_communication_number;
+		SET refClientAPIRequest.tns:client_account_number 		= refAPIRequest.client_account_number;
+		SET refClientAPIRequest.tns:client_bank_name				= refAPIRequest.client_bank_name;
+		SET refClientAPIRequest.tns:client_ifsc_code 					= refAPIRequest.client_ifsc_code;
+		SET refClientAPIRequest.tns:narration_1 							= refAPIRequest.narration_1;
+		SET refClientAPIRequest.tns:narration_2 							= refAPIRequest.narration_2;
+		SET refClientAPIRequest.tns:informational_message 		= refAPIRequest.informational_message;
+		SET refClientAPIRequest.tns:external_system_reference_1 		
+																											= refAPIRequest.external_system_reference_1;
+		SET refClientAPIRequest.tns:external_system_reference_2 		
+																											= refAPIRequest.external_system_reference_2;
+	-- SET refClientAPIRequest.tns:client_remarks 					= refAPIRequest.client_remarks;
+		
+END;
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption)
+CREATE FUNCTION secureAPIRequest_ACME(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  					IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE,
+																	  					IN refMessageSecurityConfiguration REFERENCE)
+BEGIN
+
+	-- Example 1: Checksum of message payload (business data) and passing it through the HTTP header.
+	DECLARE chMessagePayload BLOB ASBITSTREAM (refClientAPIRequest, 546, 1208, '', '', '', FolderBitStream);
+
+	IF CAST(refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK AS BOOLEAN) THEN
+		SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-response';
+	ELSE	
+		SET refClientAPIRequestHeader."policy-enforcement-indicator" = 'request-only';
+	END IF;
+	
+	IF CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE = 'Message-Hashing' THEN
+		DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+		SET policyList = policyList || '|IntegrityValidator';
+		SET refClientAPIRequestHeader."enforced-policy-list" = policyList;
+		
+		SET refClientAPIRequestHeader."ACME-Message-Checksum" = 
+				com.icici.xpress_connect.common.api.hash(CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO, chMessagePayload);
+		SET refClientAPIRequestHeader."ACME-Message-Checksum-Algo" = 	CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+	
+		-- Example 4: Checksum of select message fields (business data) and passing it through the message payload itself.
+		SET refClientAPIRequest.client_data_ext."ACME-Message-Checksum-Algo" 	=  CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+		SET refClientAPIRequest.client_data_ext."ACME-Message-Checksum" 				=  refClientAPIRequestHeader."ACME-Message-Checksum";
+	END IF;	
+
+	-- Encryption Headers
+    DECLARE CONFIGRITY_HDR_SECURE_ENCODING						CONSTANT CHARACTER 'secure_encoding';
+    DECLARE CONFIGRITY_HDR_SECRET_GENERATION_TYPE		CONSTANT CHARACTER 'secret_gen';
+    
+    DECLARE CONFIGRITY_HDR_SECURE_SECRET_KEY					CONSTANT CHARACTER 'secure_secret_key';
+    DECLARE CONFIGRITY_HDR_SECRET_KEY_ALIAS 						CONSTANT CHARACTER 'secret_key_alias';
+
+    DECLARE CONFIGRITY_HDR_PAYLOAD_CIPHER_ALGO			CONSTANT CHARACTER 'payload_cipher_algo';
+    DECLARE CONFIGRITY_HDR_PAYLOAD_CIPHER_MODE			CONSTANT CHARACTER 'payload_cipher_mode';
+    DECLARE CONFIGRITY_HDR_PAYLOAD_CIPHER_PADDING	CONSTANT CHARACTER 'payload_cipher_padding';
+    DECLARE CONFIGRITY_HDR_PAYLOAD_CIPHER_IV					CONSTANT CHARACTER 'payload_cipher_iv';
+    
+    
+    DECLARE CONFIGRITY_HDR_SECRET_CIPHER_ALGO					CONSTANT CHARACTER 'secret_cipher_algo';
+    DECLARE CONFIGRITY_HDR_SECRET_CIPHER_MODE				CONSTANT CHARACTER 'secret_cipher_mode';
+    DECLARE CONFIGRITY_HDR_SECRET_CIPHER_PADDING			CONSTANT CHARACTER 'secret_cipher_padding';
+    DECLARE CONFIGRITY_HDR_SECRET_CIPHER_IV							CONSTANT CHARACTER 'secret_cipher_iv';
+    
+    DECLARE CONFIGRITY_HDR_PUBLIC_KEY_ALIAS 						CONSTANT CHARACTER 'public_key_alias';	
+
+	IF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION_FIELDS_ONLY THEN
+		DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+		SET policyList = policyList || '|SimpleConfidentialityValidator';
+		SET refClientAPIRequestHeader."enforced-policy-list" = policyList;
+		-- Normally we would not require to set there HTTP headers when consuming the client API as these would be 
+		-- pre-determined during on-boarding. However since our mock service is common and dynamic 
+		-- (just by passing the cipher and key information through HTTP headers).
+		
+		SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_PAYLOAD_CIPHER_ALGO 	}	
+								= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO;
+		SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_PAYLOAD_CIPHER_MODE } 		
+								= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE;
+		SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_PAYLOAD_CIPHER_PADDING } 
+								= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING;
+		SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_SECURE_ENCODING }
+								= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING;
+
+		SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_SECRET_GENERATION_TYPE }
+								= 'STATIC';
+
+		CALL com.icici.xpress_connect.common.api.encryptMessageFields(refClientAPIRequest, refMessageSecurityConfiguration);
+
+		IF com.icici.xpress_connect.common.api.isAsymmetricEncryption(refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO) THEN
+			-- Asymmetric PUBLIC only
+			SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_PUBLIC_KEY_ALIAS }
+									=	refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME;
+		ELSE
+			-- Symmetric SHARED SECRET only.
+			SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_SECRET_KEY_ALIAS }
+									= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME;
+			SET refClientAPIRequestHeader.{ CONFIGRITY_HDR_PAYLOAD_CIPHER_IV }	
+									= com.icici.xpress_connect.common.api.encode(
+											com.icici.xpress_connect.common.api.decode(refMessageSecurityConfiguration.IV_HEX, 'hex'), 
+											refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING);
+		END IF;
+
+		
+	ELSEIF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION THEN
+		DECLARE policyList CHARACTER COALESCE(refClientAPIRequestHeader."enforced-policy-list", '');
+		SET policyList = policyList || '|PayloadConfidentialityValidator';
+		SET refClientAPIRequestHeader."enforced-policy-list" = policyList;
+		
+		CREATE FIELD refMessageSecurityConfiguration.encryption_result;
+		DECLARE encryptionResult REFERENCE TO refMessageSecurityConfiguration.encryption_result;
+		
+		CALL com.icici.xpress_connect.common.api.encryptMessagePayload(refClientAPIRequest, refMessageSecurityConfiguration, encryptionResult);
+		
+		-- Result is
+			-- encryptionResult.encryption_encoding
+			-- encryptionResult.encryption_cipher
+			-- encryptionResult.encryption_iv
+			-- encryptionResult.encrypted_secret_key				-- If key is generated at RUNTIME
+			-- encryptionResult.encrypted_payload
+			
+			-- ADD YOUR FINAL TRANSFORMATION CODE HERE.
+			
+			CREATE LASTCHILD  OF refAPIRequest NAME 'secure_request';
+			DECLARE refSecureRequest REFERENCE TO refAPIRequest.secure_request;
+
+			 SET refSecureRequest.secure_payload 						=	encryptionResult.encrypted_payload;
+			 SET refSecureRequest.secure_encoding 					= encryptionResult.encryption_encoding;
+
+			 SET refSecureRequest.security_config.secret_gen 						= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_SECRET_KEYGEN;
+			 SET refSecureRequest.security_config.secret_key_alias 				= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRET_KEY_ALIAS_NAME;
+			 
+			 IF refSecureRequest.security_config.secret_gen = 'RUNTIME' THEN
+				 SET refSecureRequest.security_config.secret_key_alias 														= NULL;
+				 SET refSecureRequest.security_config.secure_secret_key 													= encryptionResult.encrypted_secret_key;
+				 SET refSecureRequest.security_config.secret_security_config.cipher_algo 					= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO;
+				 SET refSecureRequest.security_config.secret_security_config.cipher_mode 					= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_MODE;
+				 SET refSecureRequest.security_config.secret_security_config.cipher_padding 				= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_SECRETKEY_ENCRYPTION_ALGO_PADDING;
+				 SET refSecureRequest.security_config.secret_security_config.cipher_iv 						= NULL;
+				 SET refSecureRequest.security_config.secret_security_config.public_key_alias 			= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_PUBLIC_KEY_ALIAS_NAME;
+			 END IF;
+			 
+			 SET refSecureRequest.security_config.cipher_algo 					= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO;
+			 SET refSecureRequest.security_config.cipher_mode 				= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_MODE;
+			 SET refSecureRequest.security_config.cipher_padding 			= refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ALGO_PADDING;
+			 SET refSecureRequest.security_config.cipher_iv 						= encryptionResult.encryption_iv;
+	
+			DECLARE chClientAPIType CHARACTER refClientAPIRequestHeader."IXC-Client-API-Type";
+	
+			IF  chClientAPIType = API_TYPE_REST_XML THEN
+				MOVE refClientAPIRequest PARENT;
+				SET refClientAPIRequest.{CLIENT_API_MESSAGE_REQUEST_ROOT} = NULL;
+				CREATE FIRSTCHILD OF refClientAPIRequest NAME 'secure_request';
+				MOVE refClientAPIRequest FIRSTCHILD;
+			END IF;
+				
+			SET refClientAPIRequest = refAPIRequest.secure_request;
+			
+			SET refAPIRequest.secure_request = NULL;
+			SET encryptionResult = NULL;
+			
+	END IF;	
+	
+END;
+
+-- [03-Jul-2020]: Message security (Checksum / Hashing & Encryption)
+CREATE FUNCTION secureWSRequest_ACME(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				   IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE, 
+																	  				   INOUT refClientWSSOAPHeader REFERENCE, 
+																	  				   IN refMessageSecurityConfiguration REFERENCE)
+BEGIN
+	DECLARE chMessagePayload BLOB ASBITSTREAM (refClientAPIRequest, 546, 1208, '', '', '', FolderBitStream);
+
+	-- Example 1: Checksum of message payload (business data) and passing it through the HTTP header.
+	SET refClientAPIRequestHeader."ACME-Message-Checksum-Algo" = 	CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO;
+
+	IF CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE = 'Message-Hashing' THEN
+		SET refClientAPIRequestHeader."ACME-Message-Checksum" = 
+				com.icici.xpress_connect.common.api.hash(CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO, chMessagePayload);
+	
+		-- Example 2: Checksum of message payload (business data) and passing it through the SOAP header.
+		-- IF CLIENT_API_MESSAGE_SECURITY_TYPE = 'WSSE-XMLSignature' THEN secureWSRequest_XMLSignature20() will be called automatically.
+		
+		SET refClientWSSOAPHeader.(XMLNSC.NamespaceDecl)xmlns:acmens = CLIENT_API_REQUEST_NAMESPACE;
+		SET refClientWSSOAPHeader.{CLIENT_API_REQUEST_NAMESPACE}:client_data_ext
+															   .{CLIENT_API_REQUEST_NAMESPACE}:message_security.message_checksum 	=  refClientAPIRequestHeader."ACME-Message-Checksum";
+	END IF;	
+
+	IF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION_FIELDS_ONLY THEN
+		MOVE refClientAPIRequest FIRSTCHILD;
+		CALL com.icici.xpress_connect.common.api.encryptMessageFields(refClientAPIRequest, refMessageSecurityConfiguration);
+
+	ELSEIF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION THEN
+		
+		CREATE FIELD refMessageSecurityConfiguration.encryption_result;
+		DECLARE encryptionResult REFERENCE TO refMessageSecurityConfiguration.encryption_result;
+		
+		CALL com.icici.xpress_connect.common.api.encryptMessagePayload(refClientAPIRequest, refMessageSecurityConfiguration, encryptionResult);
+	
+		-- Result is
+			-- refMessage.encryption_encoding
+			-- refMessage.encryption_cipher
+			-- refMessage.encryption_iv
+			-- refMessage.encrypted_secret_key				-- If key is generated at RUNTIME
+			-- refMessage.encrypted_payload
+
+			-- ADD YOUR FINAL TRANSFORMATION CODE HERE.
+	END IF;	
+
+END;

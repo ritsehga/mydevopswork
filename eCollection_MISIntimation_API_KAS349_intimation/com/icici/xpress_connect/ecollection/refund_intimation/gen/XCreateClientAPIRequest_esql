@@ -1,0 +1,96 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.refund_intimation.gen
+
+
+--			CREATE COMPUTE MODULE CreateClientAPIRequest
+--				CREATE FUNCTION Main() RETURNS BOOLEAN
+--				BEGIN
+--					-- CALL CopyMessageHeaders();
+--					-- CALL CopyEntireMessage();
+--					RETURN TRUE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--					DECLARE I INTEGER 1;
+--					DECLARE J INTEGER;
+--					SET J = CARDINALITY(InputRoot.*[]);
+--					WHILE I < J DO
+--						SET OutputRoot.*[I] = InputRoot.*[I];
+--						SET I = I + 1;
+--					END WHILE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyEntireMessage() BEGIN
+--					SET OutputRoot = InputRoot;
+--				END;
+--			END MODULE;
+
+
+-- [20-Jan-2020]: Ensure the endpoint is configured per the client (or the mock service)
+
+-- Perform business data validation.
+CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API request body (data / payload).
+CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	CALL mapAPIRequest_ProfundsMock(refAPIRequest, refClientAPIRequest);
+	
+	-- CALL mapAPIRequest_Adani(refAPIRequest, refClientAPIRequest);
+END;
+
+-- [20-Jan-2020]: Our Profunds Mock specific payload.
+CREATE FUNCTION mapAPIRequest_ProfundsMock(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+		SET refClientAPIRequest.*[] = refAPIRequest.*[];
+
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority = CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator = CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+	
+END;
+
+-- [20-Jan-2020]: Adani specific payload.
+--		{
+--		  "src": "ICICI BANK LTD",
+--		  "vid": "ADANJUPI00014",
+--		  "amount": "10.00",
+--		  "paymentType": "N",
+--		  "txid": "ICIC876583938222",
+--		  "currencytype": "INR",
+--		  "txdatetimestamp": "04-12-2019"
+--		}
+CREATE FUNCTION mapAPIRequest_Adani(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- Adani	
+    SET refClientAPIRequest.src = refAPIRequest.sender_bank_name;
+	SET refClientAPIRequest.vid = refAPIRequest.virtual_account_number;
+	SET refClientAPIRequest.amount = CAST (CAST (refAPIRequest.transaction_amount AS DECIMAL FORMAT '0##.##') AS  CHARACTER);
+	SET refClientAPIRequest.paymentType = com.icici.xpress_connect.rules.core.DefaultPaymentModeMatcher_getValue(refAPIRequest.payment_mode);
+    SET refClientAPIRequest.txid = refAPIRequest.transaction_id;
+
+	SET refClientAPIRequest.currencytype = refAPIRequest.currency_code;
+
+    -- From 2019-11-26T12:28:56.321+05:30 to 26-11-2019
+	SET refClientAPIRequest.txdatetimestamp =  com.icici.xpress_connect.rules.core.DateTimeReformatter__format(
+					'yyyy-MM-dd''T''HH:mm:ss.SSS',  'dd-MM-yyyy', refAPIRequest.transaction_datetime);
+
+END;

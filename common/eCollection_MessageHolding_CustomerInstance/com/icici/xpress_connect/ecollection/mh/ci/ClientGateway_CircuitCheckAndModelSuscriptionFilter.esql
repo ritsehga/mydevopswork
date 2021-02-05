@@ -1,0 +1,39 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci
+
+
+CREATE FILTER MODULE ClientGateway_CircuitCheckAndModelSuscriptionFilter
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+--		Check Customer Model Subscription Detail
+		DECLARE chTargetModelSubscribed, chInputReqModel CHARACTER NULL;
+		SET chInputReqModel = UCASE(Root.JSON.Data.message_type); 
+
+		IF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_1 THEN
+			SET chTargetModelSubscribed = 'MODEL-1';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_2 THEN
+			SET chTargetModelSubscribed = 'MODEL-2';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_3 THEN
+			SET chTargetModelSubscribed = 'MODEL-3';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_4 THEN
+			SET chTargetModelSubscribed = 'MODEL-4';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_5 THEN
+			SET chTargetModelSubscribed = 'MODEL-5';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_6 THEN
+			SET chTargetModelSubscribed = 'MODEL-6';
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_7 THEN
+			SET chTargetModelSubscribed = 'MODEL-7';			
+		ELSEIF CLIENT_SUBSCRIBED_API_MODEL = CLIENT_SUBSCRIBED_API_MODEL_TYPE_8 THEN
+			SET chTargetModelSubscribed = 'MODEL-8';
+		END IF;
+				 
+		 IF cbflag AND chInputReqModel = chTargetModelSubscribed THEN
+		 	RETURN TRUE;
+		 ELSEIF NOT chInputReqModel = chTargetModelSubscribed THEN
+ 		 	SET Environment.Variable.isReqModelMisMatch = TRUE;
+		 END IF;
+
+		RETURN FALSE;
+	END;
+
+
+END MODULE;

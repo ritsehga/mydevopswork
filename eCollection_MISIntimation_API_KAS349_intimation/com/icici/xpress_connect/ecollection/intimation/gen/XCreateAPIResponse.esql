@@ -1,0 +1,573 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.intimation.gen
+
+DECLARE API_COMPLETION_CODE_SUCCESSFUL CONSTANT INTEGER 0;
+DECLARE API_COMPLETION_CODE_WARNING CONSTANT INTEGER 1;
+DECLARE API_COMPLETION_CODE_ERROR CONSTANT INTEGER 2;
+
+-- Reason codes to be used whatever be the logic on the Client API end.
+-- These codes decide the Accept (Fund Transfer) / Reject (Refund) Payment Instruction logic.
+
+DECLARE API_REASON_CODE_REQUEST_ACCEPTED CONSTANT CHARACTER 'XC00211I';
+DECLARE API_REASON_CODE_REQUEST_PROVISIONALLY_ACCEPTED CONSTANT CHARACTER 'XC00212I';
+DECLARE API_REASON_CODE_REQUEST_REJECTED  CONSTANT CHARACTER 'XC00221E';
+
+-- Web Services Properties.
+DECLARE CLIENT_API_MESSAGE_RESPONSE_ROOT 					EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_RESPONSE_NAMESPACE 						EXTERNAL CHARACTER 		NULL;
+
+DECLARE CLIENT_API_MESSAGE_RESPONSE_ROOT_SECURE 					EXTERNAL CHARACTER 		NULL;
+DECLARE	CLIENT_API_RESPONSE_NAMESPACE_SECURE 						EXTERNAL CHARACTER 		NULL;
+
+-- [20-Jan-2020]
+DECLARE API_REASON_CODE_OK 	CONSTANT CHARACTER 'XC00202I';
+
+DECLARE API_REASON_MESSAGE_REQUEST_ACCEPTED CONSTANT CHARACTER 'Request accepted.';
+DECLARE API_REASON_MESSAGE_REQUEST_REJECTED CONSTANT CHARACTER 'Request rejected.';
+
+DECLARE API_REASON_CODE_TRANSACTION_ACCEPTED CONSTANT CHARACTER 'XC00441I';									-- [20-Jan-2020]
+DECLARE API_REASON_CODE_TRANSACTION_REJECTED CONSTANT CHARACTER 'XC00442E';									-- [20-Jan-2020]
+
+-- Overriding default messages
+DECLARE API_REASON_MESSAGE_TRANSACTION_ACCEPTED CONSTANT CHARACTER 'Client has confirmed this transaction to be a valid one.';		-- [20-Jan-2020]
+DECLARE API_REASON_MESSAGE_TRANSACTION_REJECTED  CONSTANT CHARACTER 'Client has rejected this transaction.';		-- [20-Jan-2020]
+
+-- [20-Jan-2020]: We already had business data related reason codes and messages in CommonAPIMessageBuilder ESQL module.
+-- Hence we removed it from here. Add new client specific reason codes and messages in this extention module.
+-- Example: 	API_REASON_CODE_VALID_CLIENT_CODE, API_REASON_CODE_INVALID_CLIENT_CODE,
+-- 						API_REASON_CODE_INVALID_VIRTUAL_ACCOUNT_NUMBER
+-- OK
+DECLARE API_HTTP_STATUS_CODE_OK CONSTANT INTEGER 200;
+--Bad Request	
+DECLARE API_HTTP_STATUS_CODE_BAD_REQUEST CONSTANT INTEGER 400;
+--Unprocessable Entity	
+DECLARE API_HTTP_STATUS_CODE_UNPROCESSABLE_ENTITY CONSTANT INTEGER 422;
+
+--		CREATE COMPUTE MODULE XCreateAPIResponse
+--			CREATE FUNCTION Main() RETURNS BOOLEAN
+--			BEGIN
+--				-- CALL CopyMessageHeaders();
+--				-- CALL CopyEntireMessage();
+--				RETURN TRUE;
+--			END;
+--		
+--			CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--				DECLARE I INTEGER 1;
+--				DECLARE J INTEGER;
+--				SET J = CARDINALITY(InputRoot.*[]);
+--				WHILE I < J DO
+--					SET OutputRoot.*[I] = InputRoot.*[I];
+--					SET I = I + 1;
+--				END WHILE;
+--			END;
+--		
+--			CREATE PROCEDURE CopyEntireMessage() BEGIN
+--				SET OutputRoot = InputRoot;
+--			END;
+--		END MODULE;
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION validateSecureAPIResponse(
+																		IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		IN refAPIRequest REFERENCE,
+																		IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	-- rest encryption --
+
+	-- rest checksum --
+
+
+--	RETURN validateSecureAPIResponse_ACME_REST(refClientAPIResponse, refClientAPIResponseHeader, 
+--				refAPIResponse, refAPIResponseHeader, refAPIRequest, refMessageSecurityConfiguration);
+END;
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION validateSecureWSResponse(
+																			IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																			INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																			IN refAPIRequest REFERENCE, 
+																			IN refClientAPISOAPHeader REFERENCE, 
+																			IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	-- soap checksum --
+
+	-- soap encryption --
+
+-- RETURN validateSecureWSResponse_ACME_SOAP(refClientAPIResponse, refClientAPIResponseHeader, 
+--				refAPIResponse, refAPIResponseHeader, refAPIRequest, refClientAPISOAPHeader,
+--				refMessageSecurityConfiguration);
+END;
+
+-- Perform business data validation.
+CREATE FUNCTION performResponseBusinessDataValidation(IN refAPIRequest REFERENCE, IN refClientAPIResponse REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+
+-- Map / Build API response body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	DECLARE tns NAMESPACE 'http://www.icicibank.com/api/acme';
+IF refClientAPIResponse.tns:"completion_code" = 0 THEN
+SET refAPIResponse."completion_code" = API_COMPLETION_CODE_SUCCESSFUL;
+SET refAPIResponse.reason_code =API_REASON_CODE_TRANSACTION_ACCEPTED;
+ELSE
+	SET refAPIResponse."completion_code" = API_COMPLETION_CODE_ERROR;
+	SET refAPIResponse."reason_code"= API_REASON_CODE_TRANSACTION_REJECTED;
+END IF;
+SET refAPIResponse."message" = lookupReasonMessage(refAPIResponse."reason_code");
+SET refAPIResponse."client_completion_code"= refClientAPIResponse.tns:"completion_code";
+SET refAPIResponse."client_reason_code"= refClientAPIResponse.tns:"reason_code";
+SET refAPIResponse."client_informational_message"= refClientAPIResponse.tns:"message";
+
+	
+--	DECLARE chClientAPIType CHARACTER refAPIResponseHeader."IXC-Client-API-Type";
+--	
+--	IF chClientAPIType = API_TYPE_REST_JSON THEN
+--		CALL mapAPIResponse_ACME(refClientAPIResponse, refClientAPIResponseHeader, refAPIResponse, refAPIResponseHeader, refAPIRequest);
+--	ELSEIF  chClientAPIType = API_TYPE_REST_XML THEN
+--		CALL mapAPIResponse_ACME_XML(refClientAPIResponse, refClientAPIResponseHeader, refAPIResponse, refAPIResponseHeader, refAPIRequest);
+--	ELSEIF 	(chClientAPIType = API_TYPE_WS_SOAP_V11)  OR 
+--					(chClientAPIType = API_TYPE_WS_SOAP_V12) THEN
+--		CALL mapAPIResponse_ACME_SOAP(refClientAPIResponse, refClientAPIResponseHeader, refAPIResponse, refAPIResponseHeader, refAPIRequest);
+--	END IF;
+
+END;
+
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION validateSecureAPIResponse_ACME_REST(
+																		IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		IN refAPIRequest REFERENCE, 
+																		IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+
+    DECLARE CONFIGRITY_HDR_PAYLOAD_CIPHER_IV					CONSTANT CHARACTER 'payload_cipher_iv';
+	
+	-- Decryption	
+	IF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION_FIELDS_ONLY THEN
+		
+		SET refMessageSecurityConfiguration.IV_HEX = COALESCE(refClientAPIResponseHeader.{ CONFIGRITY_HDR_PAYLOAD_CIPHER_IV 	}, ''); -- only for SHARED SECRET
+		
+		IF refMessageSecurityConfiguration.IV_HEX <> '' THEN
+			SET refMessageSecurityConfiguration.IV_HEX = com.icici.xpress_connect.common.api.encode(
+						com.icici.xpress_connect.common.api.decode(refMessageSecurityConfiguration.IV_HEX, 
+						refMessageSecurityConfiguration.CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_ENCODING), 'hex');
+		END IF;
+			
+		CALL com.icici.xpress_connect.common.api.decryptMessageFields(refClientAPIResponse, refMessageSecurityConfiguration);
+
+	ELSEIF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION THEN
+		DECLARE chClearClientAPIResponse CHARACTER;
+		
+		SET refMessageSecurityConfiguration.decryption_req.encrypted_payload 			= refClientAPIResponse.secure_payload;
+		SET refMessageSecurityConfiguration.decryption_req.encryption_iv 						= refClientAPIResponse.security_config.cipher_iv;
+		SET refMessageSecurityConfiguration.decryption_req.encrypted_secret_key 		= refClientAPIResponse.security_config.secure_secret_key;
+		
+		SET chClearClientAPIResponse =  com.icici.xpress_connect.common.api.decryptMessagePayload(refMessageSecurityConfiguration.decryption_req, refMessageSecurityConfiguration);
+		IF COALESCE(chClearClientAPIResponse, '') = '' THEN
+			RETURN FALSE;
+		END IF;	
+		
+		SET refMessageSecurityConfiguration.decryption_req = NULL;
+	
+		-- ADD YOUR FINAL TRANSFORMATION CODE HERE.
+		CREATE FIELD refMessageSecurityConfiguration.clear_response;
+	
+		DECLARE chClientAPIType CHARACTER refAPIResponseHeader."IXC-Client-API-Type";
+		
+		IF chClientAPIType = API_TYPE_REST_JSON THEN
+			CREATE LASTCHILD OF refMessageSecurityConfiguration.clear_response  DOMAIN('JSON') 
+						PARSE(chClearClientAPIResponse 
+									CCSID refMessageSecurityConfiguration.CodedCharSetId 
+									ENCODING refMessageSecurityConfiguration.Encoding);
+	
+			SET refClientAPIResponse = refMessageSecurityConfiguration.clear_response.JSON.Data;
+		ELSEIF  chClientAPIType = API_TYPE_REST_XML THEN
+			CREATE LASTCHILD OF refMessageSecurityConfiguration.clear_response  DOMAIN('XMLNSC') 
+						PARSE(chClearClientAPIResponse 
+									CCSID refMessageSecurityConfiguration.CodedCharSetId 
+									ENCODING refMessageSecurityConfiguration.Encoding);
+			
+			SET refClientAPIResponse = refMessageSecurityConfiguration.clear_response.XMLNSC;
+			MOVE refClientAPIResponse FIRSTCHILD;
+		END IF;
+		
+		SET refMessageSecurityConfiguration.clear_response = NULL;
+			
+	END IF;	
+	
+	-- Message Hashing
+	IF CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE = 'Message-Hashing' THEN
+		-- Example 1: Checksum of message payload (business data) and passing it through the HTTP header.
+	--	DECLARE chMessagePayload BLOB ASBITSTREAM (refClientAPIResponse, 546, 1208, '', '', '', FolderBitStream);
+	
+	--	DECLARE chResponseChecksum CHARACTER  FIELDVALUE(refClientAPIResponseHeader."ACME-Message-Checksum"); -- Checksum value in the HTTP header
+	--	DECLARE chComputeChecksum CHARACTER com.icici.xpress_connect.common.api.hash(CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO, chMessagePayload);
+	
+		-- Example 2: Checksum of message payload (business data) and passing it through the HTTP header.
+		DECLARE chResponseChecksum 			CHARACTER  COALESCE(FIELDVALUE(refClientAPIResponse.client_data_ext."ACME-Message-Checksum"), 
+																																  FIELDVALUE(refClientAPIResponse.client_data_ext.checksum_data."ACME-Message-Checksum"));					-- Checksum value in the payload
+		DECLARE chResponseChecksumAlgo 	CHARACTER  COALESCE(FIELDVALUE(refClientAPIResponse.client_data_ext."ACME-Message-Checksum-Algo"), 
+																																  FIELDVALUE(refClientAPIResponse.client_data_ext.checksum_data."ACME-Message-Checksum-Algo"));		-- Checksum value in the payload
+
+		-- Type correction required if we have field encryption along with checksum.
+		IF CAST(COALESCE(refClientAPIResponse.request_priority, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.request_priority 			= CAST(refClientAPIResponse.request_priority AS INTEGER);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.original_request_priority, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.original_request_priority 			= CAST(refClientAPIResponse.original_request_priority AS INTEGER);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.test_indicator, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.test_indicator 				= CAST(refClientAPIResponse.test_indicator AS BOOLEAN);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.resent_indicator, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.resent_indicator 				= CAST(refClientAPIResponse.resent_indicator AS BOOLEAN);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.transaction_amount, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.transaction_amount 	= CAST(refClientAPIResponse.transaction_amount AS DECIMAL);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.completion_code, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.completion_code 		= CAST(refClientAPIResponse.completion_code AS INTEGER);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.retry_indicator, '') AS CHARACTER) <> '' THEN
+			SET refClientAPIResponse.retry_indicator 			= CAST(refClientAPIResponse.retry_indicator AS BOOLEAN);
+		END IF;
+		
+		SET refClientAPIResponse.client_data_ext = NULL; 		-- Remove the field that contains the checksum value before computing the checksum. 
+		DECLARE chMessagePayload BLOB ASBITSTREAM (refClientAPIResponse, 546, 1208, '', '', '', FolderBitStream);
+			
+		DECLARE chComputeChecksum CHARACTER com.icici.xpress_connect.common.api.hash(CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO, chMessagePayload);
+		
+		SET refAPIResponse.client_ext_data."ixc-checksum"."ACME-Message-Checksum" 			= chResponseChecksum;
+		SET refAPIResponse.client_ext_data."ixc-checksum"."Evaluated-Message-Checksum" 	= chComputeChecksum;
+	
+		IF COALESCE(chResponseChecksum, '') = '' OR 
+			COALESCE(chComputeChecksum, '') = '' OR 
+			chResponseChecksum <> chComputeChecksum THEN
+			RETURN FALSE;
+		END IF;
+	END IF;	
+
+	
+	RETURN TRUE;
+END;
+
+-- [02-Aug-2020]: Message security (Checksum / Hashing & Encryption): Response Validation
+CREATE FUNCTION validateSecureWSResponse_ACME_SOAP(
+																		IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		IN refAPIRequest REFERENCE, IN refClientAPISOAPHeader REFERENCE, 
+																		IN refMessageSecurityConfiguration REFERENCE)
+RETURNS BOOLEAN																		 
+BEGIN
+		-- Message Hashing
+		IF CLIENT_API_MESSAGE_SECURITY_HASHING_TYPE = 'Message-Hashing' THEN
+			
+			-- Example 3: Checksum of message payload (business data) and passing it through the SOAP  header.
+			DECLARE chMessagePayload BLOB ASBITSTREAM (refClientAPIResponse, 546, 1208, '', '', '', FolderBitStream);
+		
+			DECLARE clientNS NAMESPACE 'http://www.icicibank.com/api/acme';
+			
+			DECLARE chResponseChecksum CHARACTER  FIELDVALUE(refClientAPISOAPHeader.clientNS:"ACME-Message-Checksum");
+			DECLARE chComputeChecksum CHARACTER com.icici.xpress_connect.common.api.hash(CLIENT_API_MESSAGE_SECURITY_HASHING_ALGO, chMessagePayload);
+		
+			IF COALESCE(chResponseChecksum, '') = '' OR 
+				COALESCE(chComputeChecksum, '') = '' OR 
+				chResponseChecksum <> chComputeChecksum THEN
+				
+				RETURN FALSE;
+			END IF;
+		END IF;
+
+
+	-- Encryption	
+	IF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION_FIELDS_ONLY THEN
+		MOVE refClientAPIResponse FIRSTCHILD;
+		CALL com.icici.xpress_connect.common.api.decryptMessageFields(refClientAPIResponse, refMessageSecurityConfiguration);
+
+	ELSEIF CLIENT_API_MESSAGE_SECURITY_ENCRYPTION_TYPE = MESSAGE_SECURITY_TYPE_MESSAGE_ENCRYPTION THEN
+		DECLARE chClearClientAPIResponse CHARACTER;
+		SET chClearClientAPIResponse =  com.icici.xpress_connect.common.api.decryptMessagePayload(refClientAPIResponse, refMessageSecurityConfiguration);
+
+			-- ADD YOUR FINAL TRANSFORMATION CODE HERE.
+	END IF;	
+		
+	RETURN TRUE;
+END;
+
+
+-- Map / Build API response body (data / payload).
+-- [20-Jan-2020]: ACME API : JSON representation.
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIResponse_ACME(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refClientAPIResponse.request_priority, -1) <> -1 THEN
+			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.request_priority AS CHARACTER);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.resent_indicator, '') AS CHARACTER) <> '' THEN
+			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.resent_indicator AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.original_request_priority, -1) <> -1 THEN
+			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.original_request_priority AS CHARACTER);
+		END IF;
+		IF CAST(COALESCE(refClientAPIResponse.test_indicator, '') AS CHARACTER) <> '' THEN
+			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.test_indicator AS CHARACTER);
+		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.response_datetime;
+		
+		IF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+
+-- [06-May-2020]: ACME API : XML representation.
+CREATE FUNCTION mapAPIResponse_ACME_XML(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+--		IF COALESCE(refClientAPIResponse.request_priority, -1) <> -1 THEN
+--			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.request_priority AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.resent_indicator, FALSE) THEN
+--			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.resent_indicator AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.original_request_priority, -1) <> -1 THEN
+--			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.original_request_priority AS CHARACTER);
+--		END IF;
+--		IF COALESCE(refClientAPIResponse.test_indicator, FALSE) THEN
+--			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.test_indicator AS CHARACTER);
+--		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.response_datetime;
+		
+		IF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+-- [06-May-2020]: ACME API : SOAP 1.1 and 1.2 representations.
+CREATE FUNCTION mapAPIResponse_ACME_SOAP(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE)
+BEGIN
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		-- @@IXC.AutoGenerateESQL
+
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		DECLARE tns 	NAMESPACE 	'http://www.icicibank.com/api/acme';
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refClientAPIResponse.tns:request_priority, -1) <> -1 THEN
+			SET refAPIResponse.request_priority = CAST(refClientAPIResponse.tns:request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:resent_indicator, FALSE) THEN
+			SET refAPIResponse.resent_indicator = CAST(refClientAPIResponse.tns:resent_indicator AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:original_request_priority, -1) <> -1 THEN
+			SET refAPIResponse.original_request_priority = CAST(refClientAPIResponse.tns:original_request_priority AS CHARACTER);
+		END IF;
+		IF COALESCE(refClientAPIResponse.tns:test_indicator, FALSE) THEN
+			SET refAPIResponse.test_indicator = CAST(refClientAPIResponse.tns:test_indicator AS CHARACTER);
+		END IF;
+	
+		SET refAPIResponse.client_code 									= refClientAPIResponse.tns:client_code;
+		SET refAPIResponse.virtual_account_number 			= refClientAPIResponse.tns:virtual_account_number;
+		SET refAPIResponse.transaction_amount 					= refClientAPIResponse.tns:transaction_amount;
+		SET refAPIResponse.currency_code 							= refClientAPIResponse.tns:currency_code;
+		SET refAPIResponse.payment_mode 							= refClientAPIResponse.tns:payment_mode;
+		SET refAPIResponse.transaction_id 							= refClientAPIResponse.tns:transaction_id;
+		SET refAPIResponse.transaction_id_type 					= refClientAPIResponse.tns:transaction_id_type;
+		SET refAPIResponse.transaction_datetime 				= refClientAPIResponse.tns:transaction_datetime;
+		SET refAPIResponse.sender_name 								= refClientAPIResponse.tns:sender_name;
+		SET refAPIResponse.sender_mobile_communication_number 
+																									= refClientAPIResponse.tns:sender_mobile_communication_number;
+		SET refAPIResponse.sender_account_number 			= refClientAPIResponse.tns:sender_account_number;
+		SET refAPIResponse.sender_bank_name 					= refClientAPIResponse.tns:sender_bank_name;
+		SET refAPIResponse.sender_ifsc_code 						= refClientAPIResponse.tns:sender_ifsc_code;
+		SET refAPIResponse.client_account_name 				= refClientAPIResponse.tns:client_account_name;
+		SET refAPIResponse.client_mobile_communication_number 
+																									= refClientAPIResponse.tns:client_mobile_communication_number;
+		SET refAPIResponse.client_account_number 			= refClientAPIResponse.tns:client_account_number;
+		SET refAPIResponse.narration_1 									= refClientAPIResponse.tns:narration_1;
+		SET refAPIResponse.narration_2 									= refClientAPIResponse.tns:narration_2;
+		SET refAPIResponse.informational_message 			= refClientAPIResponse.tns:informational_message;
+		SET refAPIResponse.external_system_reference_1 	= refClientAPIResponse.tns:external_system_reference_1;
+		SET refAPIResponse.external_system_reference_2 	= refClientAPIResponse.tns:external_system_reference_2;
+		SET refAPIResponse.client_data_ext.response_id 	= refClientAPIResponse.tns:response_id;
+		SET refAPIResponse.client_data_ext.response_datetime 
+																									= refClientAPIResponse.tns:response_datetime;
+		
+		IF refClientAPIResponse.tns:reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED OR
+			 refClientAPIResponse.tns:reason_code = API_REASON_CODE_REQUEST_ACCEPTED  OR 
+			 refClientAPIResponse.tns:reason_code = API_REASON_CODE_OK THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_SUCCESSFUL;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_ACCEPTED;
+			
+		ELSEIF refClientAPIResponse.tns:reason_code = API_REASON_CODE_TRANSACTION_REJECTED THEN
+			
+			SET refAPIResponse.completion_code = API_COMPLETION_CODE_ERROR;
+			SET refAPIResponse.reason_code = API_REASON_CODE_TRANSACTION_REJECTED;
+			
+		ELSE 
+			SET refAPIResponse.completion_code = refClientAPIResponse.tns:completion_code;
+			SET refAPIResponse.reason_code = refClientAPIResponse.tns:reason_code;
+		END IF;
+		
+		SET refAPIResponse.message = lookupReasonMessage(refAPIResponse.reason_code);
+END;
+
+
+-- Map the Reason Code with the HTTP Status Code.
+CREATE FUNCTION mapHTTPStatusCode (IN chReasonCode CHARACTER)  RETURNS INTEGER
+BEGIN
+	-- Default.
+	DECLARE intMappedHTTPStatusCode INTEGER com.icici.xpress_connect.common.api.mapHTTPStatusCode(chReasonCode);
+	
+	-- Override defaults. 
+	-- Uses HTTP Status Code to Customer Error Code map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		RETURN API_HTTP_STATUS_CODE_OK;
+	END IF;
+
+	IF chReasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		RETURN API_HTTP_STATUS_CODE_UNPROCESSABLE_ENTITY;
+	END IF;
+
+	RETURN intMappedHTTPStatusCode;
+END;
+
+--  Returns a descriptive message for the given code.
+CREATE FUNCTION lookupReasonMessage (IN reasonCode CHARACTER) RETURNS CHARACTER
+BEGIN
+	DECLARE chReasonMessage CHARACTER  NULL;
+	
+	IF reasonCode = API_REASON_CODE_REQUEST_ACCEPTED THEN
+		SET chReasonMessage = API_REASON_MESSAGE_REQUEST_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_REQUEST_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_REQUEST_REJECTED;
+	END IF;
+	
+	IF reasonCode = API_REASON_CODE_TRANSACTION_ACCEPTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_ACCEPTED;
+	END IF;
+	IF reasonCode = API_REASON_CODE_TRANSACTION_REJECTED THEN
+		SET chReasonMessage =  API_REASON_MESSAGE_TRANSACTION_REJECTED;
+	END IF;
+	
+	-- Fallback on the common reason codes and messages. Applies when API_OPTIMIZATION is true.
+	RETURN COALESCE(chReasonMessage, 	com.icici.xpress_connect.common.api.lookupExtendedReasonMessage(reasonCode));
+END;

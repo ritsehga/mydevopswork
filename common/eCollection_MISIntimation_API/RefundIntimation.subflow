@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmSOAPRequest.msgnode="ComIbmSOAPRequest.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:com_icici_xpress_connect_ecollection_RedeliveryHandler.subflow="com/icici/xpress_connect/ecollection/RedeliveryHandler.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:mbmonitor="http://www.ibm.com/wbi/2008/eflow_mbmonitor"
+    xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="RefundIntimation.subflow" nsPrefix="RefundIntimation.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_TYPE" name="CLIENT_API_TYPE" lowerBound="1" defaultValueLiteral="REST-JSON/HTTP">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_SUBSCRIPTION" name="API_SUBSCRIPTION" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_SUBSCRIPTION_CLIENT_CODE" name="API_SUBSCRIPTION_CLIENT_CODE" lowerBound="1" defaultValueLiteral="NA">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.OPTIMIZE_FOR_UNIFIED_API" name="OPTIMIZE_FOR_UNIFIED_API" lowerBound="1" defaultValueLiteral="false">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_MANAGED_RETRIES" name="API_MANAGED_RETRIES" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_RULE_NAME" name="REDELIVERY_RULE_NAME" defaultValueLiteral="retry-none">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_INTERVAL" name="REDELIVERY_INTERVAL" lowerBound="1" defaultValueLiteral="600">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_COUNT_MAX" name="REDELIVERY_COUNT_MAX" defaultValueLiteral="-1">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.FALLBACK_REDELIVERY_RULE_NAME" name="FALLBACK_REDELIVERY_RULE_NAME" defaultValueLiteral="retry-none">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_BLOCK_START_TIME" name="REDELIVERY_BLOCK_START_TIME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_BLOCK_END_TIME" name="REDELIVERY_BLOCK_END_TIME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.API_RESPONSE_DEFAULT_MAP" name="API_RESPONSE_DEFAULT_MAP" lowerBound="1" defaultValueLiteral="true">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_REQUEST_ROOT" name="CLIENT_API_MESSAGE_REQUEST_ROOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_REQUEST_NAMESPACE" name="CLIENT_API_REQUEST_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_OPERATION_NAME" name="WS_SOAP_CTX_OPERATION_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_PORT_TYPE" name="WS_SOAP_CTX_PORT_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_PORT_NAME" name="WS_SOAP_CTX_PORT_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_SERVICE_NAME" name="WS_SOAP_CTX_SERVICE_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_NAMESPACE_PREFIX" name="WS_SOAP_CTX_NAMESPACE_PREFIX">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_CTX_XML_DECLARATION" name="WS_SOAP_CTX_XML_DECLARATION">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.WS_SOAP_HTTP_HDR_SOAPACTION" name="WS_SOAP_HTTP_HDR_SOAPACTION">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT" name="CLIENT_API_MESSAGE_RESPONSE_ROOT">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_RESPONSE_NAMESPACE" name="CLIENT_API_RESPONSE_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.timeoutForServer" name="timeoutForServer" lowerBound="1" defaultValueLiteral="10">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.URLSpecifier" name="URLSpecifier" lowerBound="1" defaultValueLiteral="http://client-host-server-name:80/client-api-path">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.requestTimeout" name="requestTimeout" defaultValueLiteral="120">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.requestTimeout.internal_npcompiler" name="requestTimeout.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.webServiceURL" name="webServiceURL" defaultValueLiteral="http://client-host-server-name:80/client-api-path">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.webServiceURL.internal_npcompiler" name="webServiceURL.internal_npcompiler">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_POLICY_NAMESPACE" name="REDELIVERY_POLICY_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.REDELIVERY_POLICY_NAME" name="REDELIVERY_POLICY_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_TYPE" name="CLIENT_API_AUTH_TYPE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_IDENTITY_TOKEN" name="CLIENT_API_AUTH_IDENTITY_TOKEN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_IDENTITY_PWD" name="CLIENT_API_AUTH_IDENTITY_PWD">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_DOMAIN" name="CLIENT_API_AUTH_DOMAIN">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_POLICY_NAME" name="CLIENT_API_AUTH_POLICY_NAME">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.CLIENT_API_AUTH_POLICY_NAMESPACE" name="CLIENT_API_AUTH_POLICY_NAMESPACE">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="RefundIntimation" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj16/RefundIntimation.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj30/RefundIntimation.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.ReturnTransactionIntimation" location="1026,217">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.ReturnRefundIntimation" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.AcceptTransactionIntimation" location="112,215">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.AcceptRefundIntimation" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="798,216" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.refund_intimation#CreateAPIResponse.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="CreateAPIResponse"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="351,215" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.refund_intimation#CreateClientAPIRequest.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="CreateClientAPIRequest"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="703,346" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.refund_intimation#HandleAPIException.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="HandleAPIException"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="600,217" URLSpecifier="http://13.127.90.153:3200/api/users/validateUser" httpVersion="1.1" protocol="TLS" messageDomainProperty="BLOB">
+        <translation xmi:type="utility:ConstantString" string="InvokeClientAPI"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="InvokeClientAPI.terminal.in" eventIdentity="InvokeClientAPI.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientAPI.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="InvokeClientAPI.terminal.failure" eventIdentity="InvokeClientAPI.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientAPI.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="InvokeClientAPI.terminal.out" eventIdentity="InvokeClientAPI.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientAPI.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Error terminal" eventSourceName="InvokeClientAPI.terminal.error" eventIdentity="InvokeClientAPI.ErrorTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientAPI.ErrorTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="531,354" wsdlOperationMode="gateway" useHTTPTransport="true" webServiceURL="http://client-host-server-name:80/client-api-path" sslProtocol="TLS" validateTiming="complete" parserXmlnscBuildTreeUsingXMLSchema="false" validateMaster="none">
+        <translation xmi:type="utility:ConstantString" string="InvokeClientWS"/>
+        <monitorEvents eventSourceDescription="In terminal" eventSourceName="InvokeClientWS.terminal.in" eventIdentity="InvokeClientWS.InTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <applicationData dataLocation="$Environment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientWS.InTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Failure terminal" eventSourceName="InvokeClientWS.terminal.failure" eventIdentity="InvokeClientWS.FailureTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$ExceptionList" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientWS.FailureTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Out terminal" eventSourceName="InvokeClientWS.terminal.out" eventIdentity="InvokeClientWS.OutTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientWS.OutTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+        <monitorEvents eventSourceDescription="Fault terminal" eventSourceName="InvokeClientWS.terminal.fault" eventIdentity="InvokeClientWS.FaultTerminal">
+          <eventXMLDoc xmi:type="mbmonitor:MonitorEvent" eventUOW="none">
+            <applicationData dataLocation="$Root" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$LocalEnvironment" isXPath="true" complexData="true"/>
+            <applicationData dataLocation="$Environment" isXPath="true" complexData="true"/>
+            <globalTransactionCorrelator/>
+            <parentTransactionCorrelator/>
+            <localTransactionCorrelator/>
+            <bitStreamData encoding="base64Binary"/>
+            <eventName literal="InvokeClientWS.FaultTerminal"/>
+            <eventFilter dataLocation="true()" isXPath="true"/>
+          </eventXMLDoc>
+        </monitorEvents>
+      </nodes>
+      <nodes xmi:type="com_icici_xpress_connect_ecollection_RedeliveryHandler.subflow:FCMComposite_1" xmi:id="FCMComposite_1_6" location="1049,347">
+        <translation xmi:type="utility:ConstantString" string="RedeliveryHandler"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="FCMComposite_1_3" sourceNode="InTerminal.AcceptTransactionIntimation" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="OutTerminal.ReturnTransactionIntimation" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in">
+        <bendPoints>371,-95,-278,-97</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.in">
+        <bendPoints>47,65,-73,-64</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in">
+        <bendPoints>73,50,-47,-79</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_12" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out2" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_13" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_14" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_16" targetNode="FCMComposite_1_5" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.fault" targetTerminalName="InTerminal.in">
+        <bendPoints>113,-49,-76,-41</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="OutTerminal.ReturnTransactionIntimation" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="OutTerminal.ReturnTransactionIntimation" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_6" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.out3" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_TYPE">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_TYPE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+        <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_SUBSCRIPTION">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.API_SUBSCRIPTION" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+          <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_SUBSCRIPTION_CLIENT_CODE">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.API_SUBSCRIPTION_CLIENT_CODE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+            <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.OPTIMIZE_FOR_UNIFIED_API">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.OPTIMIZE_FOR_UNIFIED_API" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+              <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_MANAGED_RETRIES">
+                <propertyName xmi:type="utility:TranslatableString" key="Property.API_MANAGED_RETRIES" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_RULE_NAME">
+                  <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_RULE_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                  <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_INTERVAL">
+                    <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_INTERVAL" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                    <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_COUNT_MAX">
+                      <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_COUNT_MAX" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                      <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.FALLBACK_REDELIVERY_RULE_NAME">
+                        <propertyName xmi:type="utility:TranslatableString" key="Property.FALLBACK_REDELIVERY_RULE_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                        <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_BLOCK_START_TIME">
+                          <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_BLOCK_START_TIME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                          <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_BLOCK_END_TIME">
+                            <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_BLOCK_END_TIME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                            <propertyDescriptor groupName="Group.API-Basic" configurable="true" userDefined="true" describedAttribute="Property.API_RESPONSE_DEFAULT_MAP">
+                              <propertyName xmi:type="utility:TranslatableString" key="Property.API_RESPONSE_DEFAULT_MAP" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                              <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_REQUEST_ROOT">
+                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_REQUEST_ROOT" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_REQUEST_NAMESPACE">
+                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_REQUEST_NAMESPACE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                  <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_OPERATION_NAME">
+                                    <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_OPERATION_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                    <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_PORT_TYPE">
+                                      <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_PORT_TYPE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                      <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_PORT_NAME">
+                                        <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_PORT_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                        <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_SERVICE_NAME">
+                                          <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_SERVICE_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                          <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_NAMESPACE_PREFIX">
+                                            <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_NAMESPACE_PREFIX" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                            <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_CTX_XML_DECLARATION">
+                                              <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_CTX_XML_DECLARATION" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                              <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.WS_SOAP_HTTP_HDR_SOAPACTION">
+                                                <propertyName xmi:type="utility:TranslatableString" key="Property.WS_SOAP_HTTP_HDR_SOAPACTION" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT">
+                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_MESSAGE_RESPONSE_ROOT" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                  <propertyDescriptor groupName="Group.Client-WebService" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_RESPONSE_NAMESPACE">
+                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_RESPONSE_NAMESPACE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                    <propertyDescriptor groupName="Group.Client-REST-API" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.PositiveIntegerPropertyEditor" configurable="true" describedAttribute="Property.timeoutForServer">
+                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.timeoutForServer" bundleName="ComIbmWSRequest" pluginId="com.ibm.etools.mft.ibmnodes.definitions"/>
+                                                      <propertyDescriptor groupName="Group.Client-REST-API" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.URLPropertyEditor" configurable="true" describedAttribute="Property.URLSpecifier">
+                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.URLSpecifier" bundleName="ComIbmWSRequest" pluginId="com.ibm.etools.mft.ibmnodes.definitions"/>
+                                                        <propertyDescriptor groupName="Group.Client-WebService" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.GenericSOAPOverHTTPPositiveIntegerNonMandatoryPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.requestTimeout">
+                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.requestTimeout" bundleName="ComIbmSOAPRequest" pluginId="com.ibm.etools.mft.ibmnodes.definitions"/>
+                                                          <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.requestTimeout.internal_npcompiler">
+                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.requestTimeout.internal_npcompiler" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                            <propertyDescriptor groupName="Group.Client-WebService" propertyEditor="com.ibm.etools.mft.ibmnodes.editors.soap.http.SOAP_Over_HTTP_WebServicesURLPropertyEditor" compiler="com.ibm.etools.mft.ibmnodes.compilers.GenericSOAPCompiler" configurable="true" describedAttribute="Property.webServiceURL">
+                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.webServiceURL" bundleName="ComIbmSOAPRequest" pluginId="com.ibm.etools.mft.ibmnodes.definitions"/>
+                                                              <propertyDescriptor groupName="Group.InternalRuntimeGroup" readOnly="true" hidden="true" userDefined="true" describedAttribute="Property.webServiceURL.internal_npcompiler">
+                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.webServiceURL.internal_npcompiler" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_POLICY_NAMESPACE">
+                                                                  <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_POLICY_NAMESPACE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                  <propertyDescriptor groupName="Group.API-Redelivery" configurable="true" userDefined="true" describedAttribute="Property.REDELIVERY_POLICY_NAME">
+                                                                    <propertyName xmi:type="utility:TranslatableString" key="Property.REDELIVERY_POLICY_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                    <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_TYPE">
+                                                                      <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_TYPE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                      <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_IDENTITY_TOKEN">
+                                                                        <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_IDENTITY_TOKEN" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                        <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_IDENTITY_PWD">
+                                                                          <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_IDENTITY_PWD" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                          <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_DOMAIN">
+                                                                            <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_DOMAIN" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                            <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_POLICY_NAME">
+                                                                              <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_POLICY_NAME" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                              <propertyDescriptor groupName="Group.Client-API-Security" configurable="true" userDefined="true" describedAttribute="Property.CLIENT_API_AUTH_POLICY_NAMESPACE">
+                                                                                <propertyName xmi:type="utility:TranslatableString" key="Property.CLIENT_API_AUTH_POLICY_NAMESPACE" bundleName="RefundIntimation" pluginId="eCollection_MISIntimation_API"/>
+                                                                              </propertyDescriptor>
+                                                                            </propertyDescriptor>
+                                                                          </propertyDescriptor>
+                                                                        </propertyDescriptor>
+                                                                      </propertyDescriptor>
+                                                                    </propertyDescriptor>
+                                                                  </propertyDescriptor>
+                                                                </propertyDescriptor>
+                                                              </propertyDescriptor>
+                                                            </propertyDescriptor>
+                                                          </propertyDescriptor>
+                                                        </propertyDescriptor>
+                                                      </propertyDescriptor>
+                                                    </propertyDescriptor>
+                                                  </propertyDescriptor>
+                                                </propertyDescriptor>
+                                              </propertyDescriptor>
+                                            </propertyDescriptor>
+                                          </propertyDescriptor>
+                                        </propertyDescriptor>
+                                      </propertyDescriptor>
+                                    </propertyDescriptor>
+                                  </propertyDescriptor>
+                                </propertyDescriptor>
+                              </propertyDescriptor>
+                            </propertyDescriptor>
+                          </propertyDescriptor>
+                        </propertyDescriptor>
+                      </propertyDescriptor>
+                    </propertyDescriptor>
+                  </propertyDescriptor>
+                </propertyDescriptor>
+              </propertyDescriptor>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <attributeLinks promotedAttribute="Property.timeoutForServer" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmWSRequest.msgnode#Property.timeoutForServer"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.URLSpecifier" overriddenNodes="FCMComposite_1_1">
+      <overriddenAttribute href="ComIbmWSRequest.msgnode#Property.URLSpecifier"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.requestTimeout" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="ComIbmSOAPRequest.msgnode#Property.requestTimeout"/>
+    </attributeLinks>
+    <attributeLinks promotedAttribute="Property.webServiceURL" overriddenNodes="FCMComposite_1_4">
+      <overriddenAttribute href="ComIbmSOAPRequest.msgnode#Property.webServiceURL"/>
+    </attributeLinks>
+    <stickyBoard>
+      <stickyNote location="938,478">
+        <body xmi:type="utility:ConstantString" string="[10-Jan-2020]: API Response Processing Order:&#xA;1) Return API response to caller (e.g. Profunds).&#xA;2) Queue Payment Instruction (if applicable) &#xA;for refunds / fund transfers.&#xA;&#xA;Step 2 (queuing) errors are currently not propagated&#xA;to this main flow. &#xA;"/>
+      </stickyNote>
+    </stickyBoard>
+  </eClassifiers>
+</ecore:EPackage>

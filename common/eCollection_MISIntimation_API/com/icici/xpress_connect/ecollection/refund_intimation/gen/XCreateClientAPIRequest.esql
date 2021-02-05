@@ -1,0 +1,234 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.refund_intimation.gen
+
+DECLARE CLIENT_API_AUTH_IDENTITY_TOKEN									EXTERNAL CHARACTER NULL;		-- Username 
+DECLARE CLIENT_API_AUTH_IDENTITY_PWD										EXTERNAL CHARACTER NULL;		-- Password
+DECLARE	CLIENT_API_AUTH_DOMAIN													EXTERNAL CHARACTER NULL;		-- Authorization Domain
+DECLARE CLIENT_API_AUTH_POLICY_NAMESPACE							EXTERNAL CHARACTER NULL;		-- Policy Project name (not .bar file name or policy XML file name).
+DECLARE CLIENT_API_AUTH_POLICY_NAME										EXTERNAL CHARACTER NULL;		-- Policy Name (not the policy XML file name). 
+
+--			CREATE COMPUTE MODULE CreateClientAPIRequest
+--				CREATE FUNCTION Main() RETURNS BOOLEAN
+--				BEGIN
+--					-- CALL CopyMessageHeaders();
+--					-- CALL CopyEntireMessage();
+--					RETURN TRUE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--					DECLARE I INTEGER 1;
+--					DECLARE J INTEGER;
+--					SET J = CARDINALITY(InputRoot.*[]);
+--					WHILE I < J DO
+--						SET OutputRoot.*[I] = InputRoot.*[I];
+--						SET I = I + 1;
+--					END WHILE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyEntireMessage() BEGIN
+--					SET OutputRoot = InputRoot;
+--				END;
+--			END MODULE;
+
+
+-- [20-Jan-2020]: Ensure the endpoint is configured per the client (or the mock service)
+
+-- Perform business data validation.
+CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- [20-Jun-2020]: Used for building the Web Services SOAP Header.
+CREATE PROCEDURE mapWSRequestHeader(IN refAPIRequest REFERENCE, 
+											INOUT refClientWSSOAPHeader REFERENCE, IN refAPIRequestHeader REFERENCE) 
+BEGIN
+	-- @@IXC.AutoGenerateESQL
+	-- Code --
+END;
+
+-- Map / Build API request body (data / payload).
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+	
+	-- Code --
+	-- CALL mapAPIRequest_ACME(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+	-- CALL mapAPIRequest_ACME_XML(refAPIRequest, refClientAPIRequest, refAPIRequestHeader, refClientAPIRequestHeader);
+END;
+
+-- [12-Jun-2020]: Gather analytics data.
+CREATE FUNCTION gatherAnalyticsData_ClientAPIRequest(IN refClientAPIRequest REFERENCE, IN refClientAPIRequestHeader REFERENCE, INOUT refAnalyticsDataCollector REFERENCE) 
+BEGIN
+	-- Pick whatever data is required from the client API request and place it in a safe place 
+	-- to be used later, perhaps by the IBM ACE monitoring event handlers.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- [20-Jan-2020]: ACME API : JSON representation.
+-- [15-Apr-2020]: Introduced for injecting client HTTP headers.
+CREATE FUNCTION mapAPIRequest_ACME(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+		SET refClientAPIRequest.*[] = refAPIRequest.*[];
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority = CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator = CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+			
+		SET refClientAPIRequest.api_version = NULL;	
+END;
+
+
+-- [06-May-2020]: ACME API : XML representation.
+CREATE FUNCTION mapAPIRequest_ACME_XML(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		
+		-- SET refClientAPIRequest.api_version 								= refAPIRequest.api_version;
+		SET refClientAPIRequest.request_id 								= refAPIRequest.request_id;
+		SET refClientAPIRequest.request_datetime 					= refAPIRequest.request_datetime;
+		SET refClientAPIRequest.parent_request_id 					= refAPIRequest.parent_request_id;
+		SET refClientAPIRequest.parent_request_datetime 		= refAPIRequest.parent_request_datetime;
+		SET refClientAPIRequest.channel_id 								= refAPIRequest.channel_id;
+		SET refClientAPIRequest.sender_system_id 					= refAPIRequest.sender_system_id;
+		SET refClientAPIRequest.sender_system_user_id 		= refAPIRequest.sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority 					= CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator 					= CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		SET refClientAPIRequest.original_request_id 				= refAPIRequest.original_request_id;
+		SET refClientAPIRequest.original_request_datetime 	= refAPIRequest.original_request_datetime;
+		SET refClientAPIRequest.original_channel_id 				= refAPIRequest.original_channel_id;
+		SET refClientAPIRequest.original_sender_system_id 	= refAPIRequest.original_sender_system_id;
+		SET refClientAPIRequest.original_sender_system_user_id 		
+																																			= refAPIRequest.original_sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+		
+		SET refClientAPIRequest.client_code 								= refAPIRequest.client_code;
+		SET refClientAPIRequest.virtual_account_number 		= refAPIRequest.virtual_account_number;
+		SET refClientAPIRequest.transaction_amount 				= refAPIRequest.transaction_amount;
+		SET refClientAPIRequest.currency_code 						= refAPIRequest.currency_code;
+		SET refClientAPIRequest.payment_mode 						= refAPIRequest.payment_mode;
+		SET refClientAPIRequest.transaction_id 						= refAPIRequest.transaction_id;
+		SET refClientAPIRequest.transaction_id_type 				= refAPIRequest.transaction_id_type;
+		SET refClientAPIRequest.transaction_datetime 			= refAPIRequest.transaction_datetime;
+		SET refClientAPIRequest.sender_name 							= refAPIRequest.sender_name;
+		SET refClientAPIRequest.sender_mobile_communication_number 							
+																																			= refAPIRequest.sender_mobile_communication_number;
+		SET refClientAPIRequest.sender_account_number 		= refAPIRequest.sender_account_number;
+		SET refClientAPIRequest.sender_bank_name 				= refAPIRequest.sender_bank_name;
+		SET refClientAPIRequest.sender_ifsc_code 					= refAPIRequest.sender_ifsc_code;
+		SET refClientAPIRequest.client_account_name				= refAPIRequest.client_account_name;
+		SET refClientAPIRequest.client_mobile_communication_number 							
+																																			= refAPIRequest.client_mobile_communication_number;
+		SET refClientAPIRequest.client_account_number 		= refAPIRequest.client_account_number;
+		SET refClientAPIRequest.client_bank_name					= refAPIRequest.client_bank_name;
+		SET refClientAPIRequest.client_ifsc_code 						= refAPIRequest.client_ifsc_code;
+		SET refClientAPIRequest.narration_1 								= refAPIRequest.narration_1;
+		SET refClientAPIRequest.narration_2 								= refAPIRequest.narration_2;
+		SET refClientAPIRequest.informational_message 		= refAPIRequest.informational_message;
+		SET refClientAPIRequest.external_system_reference_1 		
+																																			= refAPIRequest.external_system_reference_1;
+		SET refClientAPIRequest.external_system_reference_2 		
+																																			= refAPIRequest.external_system_reference_2;
+
+		SET refClientAPIRequest.remitter_account_number 	= refAPIRequest.remitter_account_number;
+		SET refClientAPIRequest.cms_reference_number 		= refAPIRequest.cms_reference_number;
+		SET refClientAPIRequest.refund_payment_status 		= refAPIRequest.refund_payment_status;
+		SET refClientAPIRequest.refund_code 							= refAPIRequest.refund_code;
+		SET refClientAPIRequest.refund_rejection_code 			= refAPIRequest.refund_rejection_code;
+		
+END;
+
+-- [06-May-2020]: ACME API : SOAP 1.1 and 1.2 representations.
+CREATE FUNCTION mapAPIRequest_ACME_SOAP(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE, 
+																	  				 IN refAPIRequestHeader REFERENCE, INOUT refClientAPIRequestHeader REFERENCE)
+BEGIN
+		-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		DECLARE tns 	NAMESPACE 	'http://www.icicibank.com/api/eCollection/3_6_downgrade';
+		
+		SET refClientAPIRequest.tns:intimation_request.tns:api_version 							= refAPIRequest.api_version;
+		SET refClientAPIRequest.tns:intimation_request.tns:request_id 								= refAPIRequest.request_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:request_datetime 					= refAPIRequest.request_datetime;
+		SET refClientAPIRequest.tns:intimation_request.tns:parent_request_id 					= refAPIRequest.parent_request_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:parent_request_datetime 	= refAPIRequest.parent_request_datetime;
+		SET refClientAPIRequest.tns:intimation_request.tns:channel_id 								= refAPIRequest.channel_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_system_id 					= refAPIRequest.sender_system_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_system_user_id 		= refAPIRequest.sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.tns:intimation_request.tns:request_priority 					= CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.tns:intimation_request.tns:resent_indicator 					= CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		SET refClientAPIRequest.tns:intimation_request.tns:original_request_id 				= refAPIRequest.original_request_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:original_request_datetime 	= refAPIRequest.original_request_datetime;
+		SET refClientAPIRequest.tns:intimation_request.tns:original_channel_id 				= refAPIRequest.original_channel_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:original_sender_system_id 	= refAPIRequest.original_sender_system_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:original_sender_system_user_id 		
+																																			= refAPIRequest.original_sender_system_user_id;
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.tns:intimation_request.tns:original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.tns:intimation_request.tns:test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+		
+		SET refClientAPIRequest.tns:intimation_request.tns:client_code 								= refAPIRequest.client_code;
+		SET refClientAPIRequest.tns:intimation_request.tns:virtual_account_number 		= refAPIRequest.virtual_account_number;
+		SET refClientAPIRequest.tns:intimation_request.tns:transaction_amount 				= refAPIRequest.transaction_amount;
+		SET refClientAPIRequest.tns:intimation_request.tns:currency_code 						= refAPIRequest.currency_code;
+		SET refClientAPIRequest.tns:intimation_request.tns:payment_mode 						= refAPIRequest.payment_mode;
+		SET refClientAPIRequest.tns:intimation_request.tns:transaction_id 						= refAPIRequest.transaction_id;
+		SET refClientAPIRequest.tns:intimation_request.tns:transaction_id_type 				= refAPIRequest.transaction_id_type;
+		SET refClientAPIRequest.tns:intimation_request.tns:transaction_datetime 			= refAPIRequest.transaction_datetime;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_name 							= refAPIRequest.sender_name;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_mobile_communication_number 							
+																																						= refAPIRequest.sender_mobile_communication_number;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_account_number 		= refAPIRequest.sender_account_number;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_bank_name 				= refAPIRequest.sender_bank_name;
+		SET refClientAPIRequest.tns:intimation_request.tns:sender_ifsc_code 					= refAPIRequest.sender_ifsc_code;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_account_name			= refAPIRequest.client_account_name;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_mobile_communication_number 							
+																																						= refAPIRequest.client_mobile_communication_number;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_account_number 		= refAPIRequest.client_account_number;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_bank_name					= refAPIRequest.client_bank_name;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_ifsc_code 						= refAPIRequest.client_ifsc_code;
+		SET refClientAPIRequest.tns:intimation_request.tns:narration_1 							= refAPIRequest.narration_1;
+		SET refClientAPIRequest.tns:intimation_request.tns:narration_2 							= refAPIRequest.narration_2;
+		SET refClientAPIRequest.tns:intimation_request.tns:informational_message 		= refAPIRequest.informational_message;
+		SET refClientAPIRequest.tns:intimation_request.tns:external_system_reference_1 		
+																																						= refAPIRequest.external_system_reference_1;
+		SET refClientAPIRequest.tns:intimation_request.tns:external_system_reference_2 		
+																																						= refAPIRequest.external_system_reference_2;
+		SET refClientAPIRequest.tns:intimation_request.tns:client_remarks 						= refAPIRequest.client_remarks;
+		
+END;

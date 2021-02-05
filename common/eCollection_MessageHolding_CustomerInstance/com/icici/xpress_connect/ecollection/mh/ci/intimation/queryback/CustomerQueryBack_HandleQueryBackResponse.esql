@@ -1,0 +1,272 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci.intimation.queryback
+
+
+CREATE COMPUTE MODULE CustomerQueryBack_HandleQueryBackResponse
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.mh.API.Request.Message;
+
+		-- API request is a JSON, so the response would be JSON as well. 
+		SET OutputRoot.HTTPReplyHeader."Content-Type" 			= CONTENT_TYPE_MIME_JSON;
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+
+
+		CREATE FIELD Environment.Variables.eCollection.mh.API.Response.ValidationResult;
+		DECLARE refAPIValidationReport REFERENCE TO Environment.Variables.eCollection.mh.API.Response.ValidationResult;
+
+
+		IF EXISTS(InputRoot.BLOB.*[]) THEN
+			-- Unexpected partial (incomplete) response was received from Resteasy mock service implementation. 
+			-- This lead to a parsing error. Note that the content-type header was returned by the service. But the response did not 
+			-- comply with the content-type. Handling this rare but possible condition.
+			DECLARE EXIT HANDLER FOR  SQLSTATE LIKE '%' 
+			BEGIN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_PARSEABLE, TRUE);
+
+				PROPAGATE TO TERMINAL RETURN_REPLY_TERMINAL;
+				
+				RETURN FALSE;
+			END;
+			
+			DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+			IF chTargetMessageDomain = 'JSON' THEN
+				CREATE LASTCHILD OF InputRoot DOMAIN('JSON') PARSE(InputRoot.BLOB.BLOB 
+																										CCSID InputRoot.Properties.CodedCharSetId 
+																										ENCODING InputRoot.Properties.Encoding
+																										OPTIONS FolderBitStream);
+			ELSEIF chTargetMessageDomain = 'XMLNSC' THEN
+				CREATE LASTCHILD OF InputRoot.XMLNSC DOMAIN('XMLNSC') PARSE(InputRoot.BLOB.BLOB 
+																										CCSID InputRoot.Properties.CodedCharSetId 
+																										ENCODING InputRoot.Properties.Encoding 
+																										OPTIONS FolderBitStream);
+			ELSEIF chTargetMessageDomain = 'SOAP' THEN
+				CREATE LASTCHILD OF InputRoot.XMLNSC DOMAIN('XMLNSC') PARSE(InputRoot.BLOB.BLOB 
+																										CCSID InputRoot.Properties.CodedCharSetId 
+																										ENCODING InputRoot.Properties.Encoding
+																										OPTIONS FolderBitStream);
+			END IF;
+		END IF;
+		
+
+		IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+
+		ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.XMLNSC;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+
+		ELSEIF 	CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR 
+						CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+			-- Changes required following use of XMLNSC instead of SOAP domain to allow checksum computation on the message payload.
+			DECLARE refClientAPIResponse REFERENCE TO InputRoot.XMLNSC.*:Envelope.*:Body;
+			CALL performBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+		END IF;
+
+		IF com.icici.xpress_connect.common.api.hasValidationFailed(refAPIValidationReport)  THEN
+			-- Validation failure.
+			-- Prepare API error response.
+				CALL buildErrorResponse(refAPIRequest, refAPIResponse, refAPIValidationReport.completion_code, 
+																API_REASON_CODE_RESPONSE_NOT_VALID, OPTIMIZE_FOR_UNIFIED_API);
+
+			PROPAGATE TO TERMINAL ERROR_TERMINAL FINALIZE NONE DELETE NONE;
+			RETURN FALSE;
+		ELSE
+			
+			DECLARE refClientAPIResponseHeader REFERENCE TO InputRoot.HTTPResponseHeader;
+			DECLARE refAPIResponseHeader REFERENCE TO OutputRoot.HTTPReplyHeader;
+
+			-- Facilitates testing through mock without requiring to switch between transformation functions.
+			SET refAPIResponseHeader."IXC-Client-API-Type" 	= CLIENT_API_TYPE;
+			
+			IF CLIENT_API_TYPE = API_TYPE_REST_JSON THEN
+				DECLARE refClientAPIResponse REFERENCE TO InputRoot.JSON.Data;
+
+				-- Message security (Checksum / Hashing & Encryption): Response Validation
+				DECLARE isMessageSecure BOOLEAN TRUE;
+
+				IF CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK THEN
+					SET isMessageSecure = validateSecureAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+																	refAPIResponse, refAPIResponseHeader,  
+																	refAPIRequest);
+				END IF;
+
+				-- Map client response with our API response.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+															 refAPIResponse, refAPIResponseHeader, refAPIRequest, isMessageSecure);
+			
+			ELSEIF CLIENT_API_TYPE = API_TYPE_REST_XML THEN
+				-- You may not see the variable "refClientAPIResponse" during debug giving you a feeling that the reference is not being resolved properly.
+				-- But the mapping happens correctly.  If you declare refClientAPIResponse to point to InputRoot.XMLNSC, you will see the variable in debug window
+				-- pointing to response root (CLIENT_API_MESSAGE_RESPONSE_ROOT). Implying that the below declaration is correct.
+				-- The root of the issue is perhaps how we parse BLOB early in the code (by explicitly saying "DOMAIN('XMLNSC')"). 
+				DECLARE refClientAPIResponse REFERENCE TO InputRoot.XMLNSC.*:{CLIENT_API_MESSAGE_RESPONSE_ROOT}[1]; 
+
+				-- Message security (Checksum / Hashing & Encryption): Response Validation
+				DECLARE isMessageSecure BOOLEAN TRUE;
+
+				IF CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK THEN
+					SET isMessageSecure = validateSecureAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+																	refAPIResponse, refAPIResponseHeader,  
+																	refAPIRequest);
+				END IF;
+
+				-- Map client response with our API response.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+															 refAPIResponse, refAPIResponseHeader, refAPIRequest, isMessageSecure);
+
+			ELSEIF 	CLIENT_API_TYPE = API_TYPE_WS_SOAP_V11 OR 
+							CLIENT_API_TYPE = API_TYPE_WS_SOAP_V12 THEN
+			-- Changes required following use of XMLNSC instead of SOAP domain to allow checksum computation on the message payload.
+				DECLARE refClientAPIResponse 			REFERENCE TO InputRoot.XMLNSC.*:Envelope.*:Body.*:*[1];
+				DECLARE refClientAPISOAPHeader 	REFERENCE TO InputRoot.XMLNSC.*:Envelope.*:Header;
+
+				-- Message security (Checksum / Hashing & Encryption): Response Validation
+				DECLARE isMessageSecure BOOLEAN TRUE;
+				
+				IF CLIENT_API_MESSAGE_SECURITY_RESPONSE_CHECK THEN
+					SET isMessageSecure = validateSecureWSResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+																	refAPIResponse, refAPIResponseHeader,  
+																	refAPIRequest, refClientAPISOAPHeader);
+				END IF;
+
+				-- Map client response with our API response.
+				-- Introduced for injecting client HTTP headers.
+				CALL mapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+															 refAPIResponse, refAPIResponseHeader, refAPIRequest, isMessageSecure);
+				
+			END IF;				
+			
+			IF (CLIENT_API_MODE = CLIENT_API_MODE_ASYNC) AND (refAPIRequest.payment_mode IN (API_PAYMENT_MODE_IMPS, API_PAYMENT_MODE_UPI, API_PAYMENT_MODE_FT)) THEN
+				RETURN FALSE;
+			ELSE
+				PROPAGATE TO TERMINAL RETURN_REPLY_TERMINAL FINALIZE NONE DELETE NONE; 
+			END IF;
+			RETURN FALSE;
+
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	-- Perform business data validation.
+	CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, IN refClientAPIResponse REFERENCE, INOUT refAPIValidationReport REFERENCE) 
+	BEGIN
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			-- Validate default / common fields.
+		ELSE
+			-- Validate rest of the message fields.
+			CALL genPerformResponseBusinessDataValidation(refAPIRequest, refClientAPIResponse, refAPIValidationReport);
+		END IF;
+	END;
+
+	-- Convenience method to build an error response.
+	CREATE FUNCTION buildErrorResponse(IN refAPIRequest REFERENCE, INOUT refAPIResponse REFERENCE, 
+			IN chCompletionCode CHARACTER, IN chAPIResponseCode CHARACTER, IN chOptimizeAPI CHARACTER)
+	BEGIN
+		CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				chCompletionCode, chAPIResponseCode, chOptimizeAPI);
+
+				-- Set the HTTP Status Code.
+				SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = com.icici.xpress_connect.ecollection.mh.ci.intimation.mapHTTPStatusCode(refAPIResponse.reason_code);
+				
+	END;	
+	
+	-- Message security (Checksum / Hashing & Encryption): Response Validation
+	CREATE FUNCTION validateSecureAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																			 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																			 IN refAPIRequest REFERENCE)
+	RETURNS BOOLEAN																		 
+	BEGIN
+		-- CREATE FIELD Environment.Variables.eCollection.MessageSecurity;
+		DECLARE refMessageSecurityConfiguration REFERENCE TO Environment.Variables.eCollection.MessageSecurity;
+		-- CALL buildSecurityConfiguration(refMessageSecurityConfiguration);
+
+		RETURN genValidateSecureAPIResponse(
+												refClientAPIResponse, refClientAPIResponseHeader, 
+												refAPIResponse, refAPIResponseHeader,  
+												refAPIRequest, 
+												refMessageSecurityConfiguration);
+	END;	
+	
+	-- Map / Build API response body (data / payload).
+	-- Introduced for injecting client HTTP headers.
+	CREATE FUNCTION mapAPIResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																		 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																		 IN refAPIRequest REFERENCE, IN isMessageSecure BOOLEAN)
+	BEGIN
+		-- Unexpected partial (incomplete) response was received from Resteasy mock service implementation. 
+		-- This lead to a parsing error. Note that the content-type header was returned by the service. But the response did not 
+		-- comply with the content-type. Handling this rare but possible condition.
+		-- TODO: Need to discern between parsing issues and faulty implementation (code weave).
+		
+		DECLARE CONTINUE HANDLER FOR  SQLSTATE LIKE '%' 
+		BEGIN
+			CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+			API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_PARSEABLE, TRUE);
+		END;
+		
+		IF OPTIMIZE_FOR_UNIFIED_API THEN
+			CALL com.icici.xpress_connect.common.api.defaultMapAPIResponse(refClientAPIResponse, refAPIResponse);
+			SET refAPIResponse.*[] = refClientAPIResponse.*[];
+		ELSE	
+			IF NOT isMessageSecure THEN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+				API_COMPLETION_CODE_ERROR, API_REASON_CODE_SECURITY_EXCEPTION_CONFIGRITY, TRUE);
+				
+				RETURN;
+			END IF;
+				
+			-- Build default API response. Include business data from the request as well.
+			CALL com.icici.xpress_connect.common.api.buildAPIResponse(refAPIRequest, refAPIResponse, API_RESPONSE_DEFAULT_MAP);
+
+			-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+			-- Introduced for injecting client HTTP headers.
+			CALL genMapAPIResponse(refClientAPIResponse, refClientAPIResponseHeader, 
+								refAPIResponse, refAPIResponseHeader, refAPIRequest);
+
+			IF COALESCE(refAPIResponse.completion_code, '') = '' THEN
+				-- TODO
+				-- THROW USER EXCEPTION SEVERITY 1 CATALOG 'BIPMsg' MESSAGE 
+				--	'Client API response not in line with the expected format or there was a client API response transformation error.';
+			END IF;
+		END IF;	
+		
+	END;
+
+	-- Message security (Checksum / Hashing & Encryption): Response Validation
+	CREATE FUNCTION validateSecureWSResponse(IN refClientAPIResponse REFERENCE, IN refClientAPIResponseHeader REFERENCE, 
+																			 INOUT refAPIResponse REFERENCE, INOUT refAPIResponseHeader REFERENCE,  
+																			 IN refAPIRequest REFERENCE, IN refClientAPISOAPHeader REFERENCE)
+	RETURNS BOOLEAN																		 
+	BEGIN
+		-- CREATE FIELD Environment.Variables.eCollection.MessageSecurity;
+		DECLARE refMessageSecurityConfiguration REFERENCE TO Environment.Variables.eCollection.MessageSecurity;
+		-- CALL buildSecurityConfiguration(refMessageSecurityConfiguration);
+
+		RETURN genValidateSecureWSResponse(
+												refClientAPIResponse, refClientAPIResponseHeader, 
+												refAPIResponse, refAPIResponseHeader,  
+												refAPIRequest, refClientAPISOAPHeader, 
+												refMessageSecurityConfiguration);
+	END;
+			
+END MODULE;

@@ -1,0 +1,93 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.batch.refund_intimation
+
+
+
+DECLARE PAYMENT_INTIMATION_API_TERMINAL CONSTANT CHARACTER 'out';
+DECLARE PAYMENT_INTIMATION_AGGREGATE_RESPONSE_OUT_TERMINAL CONSTANT CHARACTER 'out1';
+
+
+CREATE COMPUTE MODULE SplitPaymentIntimationsImmediate
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+
+		DECLARE refPaymentIntimationBatchRequest REFERENCE TO InputRoot.JSON.Data;
+		-- TODO: Basic hygiene checks.
+		
+		CREATE FIELD Environment.Variables.eCollection."Intimation-Batch";
+		DECLARE refPaymentInitiationStatus REFERENCE TO Environment.Variables.eCollection."Intimation-Batch";
+		
+		FOR refPaymentIntimation AS refPaymentIntimationBatchRequest.intimation_data.*[]  DO
+			
+			CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+			DECLARE refPaymentInitiationRequest REFERENCE TO OutputRoot.JSON.Data; 
+			
+			SET refPaymentInitiationRequest.api_version = refPaymentIntimationBatchRequest.api_version;
+			
+			SET refPaymentInitiationRequest.request_id 	= UCASE(UUIDASCHAR);
+			SET refPaymentInitiationRequest.request_datetime = CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'IU');
+			
+			SET refPaymentInitiationRequest.parent_request_id = refPaymentIntimationBatchRequest.request_id;
+			SET refPaymentInitiationRequest.parent_request_datetime = refPaymentIntimationBatchRequest.request_datetime;
+			
+			SET refPaymentInitiationRequest.channel_id = refPaymentIntimationBatchRequest.channel_id;
+			SET refPaymentInitiationRequest.sender_system_id = refPaymentIntimationBatchRequest.sender_system_id;
+			
+			IF COALESCE(refPaymentIntimationBatchRequest.sender_system_user_id, '') <> '' THEN
+				SET refPaymentInitiationRequest.sender_system_user_id = refPaymentIntimationBatchRequest.sender_system_user_id;
+				SET refPaymentInitiationRequest.sender_system_user_id_type = refPaymentIntimationBatchRequest.sender_system_user_id_type;
+			END IF;
+			
+			SET refPaymentInitiationRequest.request_priority = refPaymentIntimationBatchRequest.request_priority;
+			
+			IF COALESCE(refPaymentIntimationBatchRequest.resent_indicator, FALSE) THEN
+				SET refPaymentInitiationRequest.resent_indicator = refPaymentIntimationBatchRequest.resent_indicator;
+				SET refPaymentInitiationRequest.original_request_id = refPaymentIntimationBatchRequest.original_request_id;
+				SET refPaymentInitiationRequest.original_request_datetime = refPaymentIntimationBatchRequest.original_request_datetime;
+				SET refPaymentInitiationRequest.original_channel_id = refPaymentIntimationBatchRequest.original_channel_id;
+				SET refPaymentInitiationRequest.original_sender_system_id = refPaymentIntimationBatchRequest.original_sender_system_id;
+				SET refPaymentInitiationRequest.original_sender_system_user_id = refPaymentIntimationBatchRequest.original_sender_system_user_id;
+				SET refPaymentInitiationRequest.original_sender_system_user_id_type = refPaymentIntimationBatchRequest.original_sender_system_user_id_type;
+				SET refPaymentInitiationRequest.original_request_priority = refPaymentIntimationBatchRequest.original_request_priority;
+			END IF;
+
+			SET refPaymentInitiationRequest.test_indicator = refPaymentIntimationBatchRequest.test_indicator;
+			
+			IF EXISTS(refPaymentIntimation.application_context.*[])  THEN
+				SET refPaymentInitiationRequest.application_context = refPaymentIntimation.application_context;
+			ELSE
+				SET refPaymentInitiationRequest.application_context = refPaymentIntimationBatchRequest.application_context;
+			END IF;		
+			
+			-- Copy the business data fields.
+			SET refPaymentInitiationRequest.*[] = refPaymentIntimation.*[];
+			
+			CREATE LASTCHILD OF refPaymentInitiationStatus.intimation_data NAME 'Item';
+			SET refPaymentInitiationStatus.intimation_data.Item[<] = refPaymentIntimationBatchRequest.intimation_data;
+			
+			-- Call the Payment Intimation API.
+			PROPAGATE TO TERMINAL PAYMENT_INTIMATION_API_TERMINAL;
+			
+		END FOR;
+		
+		-- Return the final aggregate API response.
+		PROPAGATE TO TERMINAL PAYMENT_INTIMATION_AGGREGATE_RESPONSE_OUT_TERMINAL;
+		
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

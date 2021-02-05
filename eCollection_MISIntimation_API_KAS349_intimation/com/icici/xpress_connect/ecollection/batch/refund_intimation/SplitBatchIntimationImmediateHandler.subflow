@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmWSRequest.msgnode="ComIbmWSRequest.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationImmediateHandler.subflow" nsPrefix="com_icici_xpress_connect_ecollection_batch_refund_intimation_SplitBatchIntimationImmediateHandler.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" useDefaults="true" udpSupport="true">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <translation xmi:type="utility:TranslatableString" key="SplitBatchIntimationImmediateHandler" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationImmediateHandler" pluginId="eCollection_MISIntimation_API"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj16/SplitBatchIntimationImmediateHandler.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/eCollection_MISIntimation_API/icons/full/obj30/SplitBatchIntimationImmediateHandler.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input" location="51,52">
+        <translation xmi:type="utility:TranslatableString" key="InTerminal.AcceptPaymentIntimationBatchRequest" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationImmediateHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output" location="599,186">
+        <translation xmi:type="utility:TranslatableString" key="OutTerminal.ReturnPaymentIntimationBatchResponse" bundleName="com/icici/xpress_connect/ecollection/batch/refund_intimation/SplitBatchIntimationImmediateHandler" pluginId="eCollection_MISIntimation_API"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="397,52" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.batch.refund_intimation#SplitPaymentIntimationsImmediate.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="SplitPaymentIntimations"/>
+      </nodes>
+      <nodes xmi:type="ComIbmWSRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="626,53" URLSpecifier="http://localhost:8080/api/eCollection/mis/intimate" timeoutForServer="10" httpVersion="1.1" protocol="TLS" messageDomainProperty="JSON">
+        <translation xmi:type="utility:ConstantString" string="InvokePaymentIntimationAPI"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="990,57" computeExpression="esql://routine/com.icici.xpress_connect.ecollection.batch.refund_intimation#JoinBatchIntimations.Main" computeMode="destinationAndMessage">
+        <translation xmi:type="utility:ConstantString" string="JoinPaymentIntimations"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.failure" targetTerminalName="InTerminal.in">
+        <bendPoints>195,-51,-136,-55</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.error" targetTerminalName="InTerminal.in">
+        <bendPoints>197,19,-134,15</bendPoints>
+      </connections>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="OutTerminal.Output" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out1" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer/>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

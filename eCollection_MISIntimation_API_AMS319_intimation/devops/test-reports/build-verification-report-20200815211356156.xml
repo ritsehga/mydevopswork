@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="12626" it="0" lt="12626" ct="151" ts="1597506250160" s="true" lb="New-Request-ACME-IXC-eCollection-API-TC-001" rc="200" rm="OK" tn="Intimation-MainThreadGroup 1-1" dt="text" de="" by="1554" sby="1366" ng="1" na="1">
+  <responseHeader class="java.lang.String">HTTP/1.1 200 OK
+Content-Type: application/json
+IXC-Client-API-Type: REST-JSON/HTTP
+X-Original-HTTP-Status-Code: 200
+Server: IBM App Connect Enterprise
+Date: Sat, 15 Aug 2020 15:44:10 GMT
+Content-Length: 1337
+</responseHeader>
+  <requestHeader class="java.lang.String">Connection: keep-alive
+Content-Type: application/json
+Accept: application/json
+Content-Length: 1139
+Host: localhost:7800
+User-Agent: Apache-HttpClient/4.5.7 (Java/1.8.0_201)
+</requestHeader>
+  <responseData class="java.lang.String">{&quot;api_version&quot;:&quot;1.2.0&quot;,&quot;response_id&quot;:&quot;3BDD5BB5-E890-4FD4-90DF-7BD005FA3047&quot;,&quot;response_datetime&quot;:&quot;2020-08-15T21:14:10.066+05:30&quot;,&quot;request_id&quot;:&quot;79b20738-93fc-4915-8928-880bcc584e88&quot;,&quot;request_datetime&quot;:&quot;2020-08-15T21:13:57.536+05:30&quot;,&quot;sender_system_id&quot;:&quot;Profunds&quot;,&quot;sender_system_user_id&quot;:&quot;profunds@icicibank.com&quot;,&quot;request_priority&quot;:&quot;1&quot;,&quot;test_indicator&quot;:&quot;true&quot;,&quot;client_code&quot;:&quot;ACME&quot;,&quot;virtual_account_number&quot;:&quot;ACME0000000000015503&quot;,&quot;transaction_amount&quot;:45000,&quot;currency_code&quot;:&quot;INR&quot;,&quot;payment_mode&quot;:&quot;NEFT&quot;,&quot;transaction_id&quot;:&quot;200815211357001055&quot;,&quot;transaction_id_type&quot;:&quot;UTR&quot;,&quot;transaction_datetime&quot;:&quot;2020-08-15T21:08:47.537&quot;,&quot;sender_name&quot;:&quot;John Doe&quot;,&quot;sender_mobile_communication_number&quot;:&quot;0&quot;,&quot;sender_account_number&quot;:&quot;238070777&quot;,&quot;sender_bank_name&quot;:&quot;Canara Bank, Central Mumbai&quot;,&quot;sender_ifsc_code&quot;:&quot;CNRB0000238&quot;,&quot;client_account_name&quot;:&quot;Konark Cements&quot;,&quot;client_mobile_communication_number&quot;:&quot;0&quot;,&quot;client_account_number&quot;:&quot;70020778&quot;,&quot;client_bank_name&quot;:&quot;ICICI&quot;,&quot;client_ifsc_code&quot;:&quot;ICIC0000007&quot;,&quot;narration_1&quot;:&quot;NARRATION 1&quot;,&quot;narration_2&quot;:&quot;NARRATION 2&quot;,&quot;informational_message&quot;:&quot;A quick brown fox jumped over the lazy dog !&quot;,&quot;completion_code&quot;:0,&quot;reason_code&quot;:&quot;XC00441I&quot;,&quot;message&quot;:&quot;Client has confirmed this transaction to be a valid one.&quot;,&quot;client_data_ext&quot;:{&quot;response_id&quot;:&quot;0D5C4948-57B4-4A92-AB6F-170827683EDF&quot;,&quot;response_datetime&quot;:&quot;2020-08-15T21:14:09.600+05:30&quot;}}</responseData>
+  <cookies class="java.lang.String"></cookies>
+  <method class="java.lang.String">POST</method>
+  <queryString class="java.lang.String">{&#xd;
+  &quot;api_version&quot;: &quot;1.2.0&quot;,&#xd;
+  &quot;request_id&quot;: &quot;79b20738-93fc-4915-8928-880bcc584e88&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;2020-08-15T21:13:57.536+05:30&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;Profunds&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;profunds@icicibank.com&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;1&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;client_code&quot;: &quot;ACME&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;ACME0000000000015503&quot;,&#xd;
+  &quot;transaction_amount&quot;: 45000,&#xd;
+  &quot;currency_code&quot;: &quot;INR&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;NEFT&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;200815211357001055&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;UTR&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;2020-08-15T21:08:47.537&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;John Doe&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;0&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;238070777&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;Canara Bank, Central Mumbai&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;CNRB0000238&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;Konark Cements&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;0&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;70020778&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;ICICI&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;ICIC0000007&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;NARRATION 1&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;NARRATION 2&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;A quick brown fox jumped over the lazy dog !&quot;&#xd;
+}&#xd;
+</queryString>
+  <java.net.URL>http://localhost:7800/api/eCollection/mis/intimate</java.net.URL>
+</httpSample>
+<httpSample t="535" it="0" lt="535" ct="11" ts="1597506250762" s="true" lb="New-Request-ACME-IXC-eCollection-API-TC-002" rc="200" rm="OK" tn="Intimation-MainThreadGroup 1-1" dt="text" de="" by="1543" sby="1355" ng="1" na="1">
+  <responseHeader class="java.lang.String">HTTP/1.1 200 OK
+Content-Type: application/json
+IXC-Client-API-Type: REST-JSON/HTTP
+X-Original-HTTP-Status-Code: 200
+Server: IBM App Connect Enterprise
+Date: Sat, 15 Aug 2020 15:44:10 GMT
+Content-Length: 1326
+</responseHeader>
+  <requestHeader class="java.lang.String">Connection: keep-alive
+Content-Type: application/json
+Accept: application/json
+Content-Length: 1128
+Host: localhost:7800
+User-Agent: Apache-HttpClient/4.5.7 (Java/1.8.0_201)
+</requestHeader>
+  <responseData class="java.lang.String">{&quot;api_version&quot;:&quot;1.2.0&quot;,&quot;response_id&quot;:&quot;2B3FC4E6-C4B7-4335-BBBB-68DB5C82EEE5&quot;,&quot;response_datetime&quot;:&quot;2020-08-15T21:14:10.753+05:30&quot;,&quot;request_id&quot;:&quot;8f955c45-514e-4627-9844-c139196e3c96&quot;,&quot;request_datetime&quot;:&quot;2020-08-15T21:14:10.227+05:30&quot;,&quot;sender_system_id&quot;:&quot;Profunds&quot;,&quot;sender_system_user_id&quot;:&quot;profunds@icicibank.com&quot;,&quot;request_priority&quot;:&quot;2&quot;,&quot;test_indicator&quot;:&quot;true&quot;,&quot;client_code&quot;:&quot;ACME&quot;,&quot;virtual_account_number&quot;:&quot;ACME0000000000287091&quot;,&quot;transaction_amount&quot;:800,&quot;currency_code&quot;:&quot;INR&quot;,&quot;payment_mode&quot;:&quot;RTGS&quot;,&quot;transaction_id&quot;:&quot;200815211410004778&quot;,&quot;transaction_id_type&quot;:&quot;UTR&quot;,&quot;transaction_datetime&quot;:&quot;2020-08-15T21:09:00.228&quot;,&quot;sender_name&quot;:&quot;Jane Doe&quot;,&quot;sender_mobile_communication_number&quot;:&quot;0&quot;,&quot;sender_account_number&quot;:&quot;84002221&quot;,&quot;sender_bank_name&quot;:&quot;HDFC, Dadar (W), Mumbai&quot;,&quot;sender_ifsc_code&quot;:&quot;HDFC0000084&quot;,&quot;client_account_name&quot;:&quot;JSW Cement&quot;,&quot;client_mobile_communication_number&quot;:&quot;0&quot;,&quot;client_account_number&quot;:&quot;70020778&quot;,&quot;client_bank_name&quot;:&quot;ICICI&quot;,&quot;client_ifsc_code&quot;:&quot;ICIC0000007&quot;,&quot;narration_1&quot;:&quot;NARRATION 1&quot;,&quot;narration_2&quot;:&quot;NARRATION 2&quot;,&quot;informational_message&quot;:&quot;A quick brown fox jumped over the lazy dog !&quot;,&quot;completion_code&quot;:0,&quot;reason_code&quot;:&quot;XC00441I&quot;,&quot;message&quot;:&quot;Client has confirmed this transaction to be a valid one.&quot;,&quot;client_data_ext&quot;:{&quot;response_id&quot;:&quot;F53AF418-57D8-4CCF-BB32-321A752BBF89&quot;,&quot;response_datetime&quot;:&quot;2020-08-15T21:14:10.569+05:30&quot;}}</responseData>
+  <cookies class="java.lang.String"></cookies>
+  <method class="java.lang.String">POST</method>
+  <queryString class="java.lang.String">{&#xd;
+  &quot;api_version&quot;: &quot;1.2.0&quot;,&#xd;
+  &quot;request_id&quot;: &quot;8f955c45-514e-4627-9844-c139196e3c96&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;2020-08-15T21:14:10.227+05:30&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;Profunds&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;profunds@icicibank.com&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;2&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;client_code&quot;: &quot;ACME&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;ACME0000000000287091&quot;,&#xd;
+  &quot;transaction_amount&quot;: 800,&#xd;
+  &quot;currency_code&quot;: &quot;INR&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;RTGS&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;200815211410004778&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;UTR&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;2020-08-15T21:09:00.228&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;Jane Doe&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;0&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;84002221&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;HDFC, Dadar (W), Mumbai&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;HDFC0000084&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;JSW Cement&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;0&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;70020778&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;ICICI&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;ICIC0000007&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;NARRATION 1&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;NARRATION 2&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;A quick brown fox jumped over the lazy dog !&quot;&#xd;
+}&#xd;
+</queryString>
+  <java.net.URL>http://localhost:7800/api/eCollection/mis/intimate</java.net.URL>
+</httpSample>
+
+</testResults>

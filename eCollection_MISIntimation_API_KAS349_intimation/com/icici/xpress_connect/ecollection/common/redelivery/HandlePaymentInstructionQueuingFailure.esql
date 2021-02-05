@@ -1,0 +1,59 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.common.redelivery
+
+
+DECLARE PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY 		EXTERNAL CHARACTER 	'.';
+DECLARE PAYMENT_INSTRUCTION_FILE_NAME  							EXTERNAL CHARACTER 	'PAY_INSTR';
+DECLARE FILE_NAME_SEPARATOR_CHAR 										EXTERNAL CHARACTER 	'_';
+
+-- File extension names
+DECLARE FILE_EXTENSION_XML 				CONSTANT CHARACTER 'xml';
+DECLARE FILE_EXTENSION_JSON 				CONSTANT CHARACTER 'json';
+DECLARE FILE_EXTENSION_DEFAULT 		CONSTANT CHARACTER 'dat';		-- though chances are nil, fallbacking back on default, if the received message is messed up. 
+
+-- Handles failure to queue the payment instruction request.
+CREATE COMPUTE MODULE HandlePaymentInstructionQueuingFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		CALL CopyEntireMessage();
+		
+		DECLARE refPaymentInstruction REFERENCE TO OutputRoot.JSON.Data;
+		
+		-- Request directory property location.
+		SET OutputLocalEnvironment.Destination.File.Directory = PAYMENT_INSTRUCTION_FILE_BASE_DIRECTORY;
+		
+		-- Request file name property location.
+		SET OutputLocalEnvironment.Destination.File.Name = composePaymentInstructionFileName(refPaymentInstruction, FILE_EXTENSION_JSON);
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+	
+	CREATE FUNCTION composePaymentInstructionFileName(IN refPaymentInstruction REFERENCE, IN chFileExtension CHARACTER) RETURNS CHARACTER
+	BEGIN
+		-- DECLARE chPaymentInstructionFileName CHARACTER;
+		
+		RETURN (PAYMENT_INSTRUCTION_FILE_NAME || FILE_NAME_SEPARATOR_CHAR || 
+							 refPaymentInstruction.client_code 			|| FILE_NAME_SEPARATOR_CHAR || 
+							 refPaymentInstruction.transaction_id 		|| FILE_NAME_SEPARATOR_CHAR || 
+							 refPaymentInstruction.request_id 				|| FILE_NAME_SEPARATOR_CHAR || 
+							 chFileExtension);
+	
+		-- RETURN chPaymentInstructionFileName;																				
+	END;
+	
+END MODULE;

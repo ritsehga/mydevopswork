@@ -1,0 +1,743 @@
+---
+swagger: "2.0"
+info:
+  description: "eCollection API (erstwhile known as Profunds API)"
+  version: "1.1.0"
+  title: "Xpress Connect eCollection API."
+  termsOfService: "http://xpressconnect.icicibank.com/api/eCollection/tos"
+  contact:
+    name: "ICICI"
+    url: "http://xpressconnect.icicibank.com/api/eCollection"
+    email: "raman.kumar@icicibank.co.in"
+  license:
+    name: "ICICI Xpress Connect License V1.0"
+    url: "http://xpressconnect.icicibank.com/api/eCollection/license"
+host: "localhost"
+basePath: "/api/eCollection/mis"
+schemes:
+- "http"
+- "https"
+consumes:
+- "application/json"
+- "application/xml"
+produces:
+- "application/json"
+- "application/xml"
+paths:
+  /intimate:
+    post:
+      tags:
+      - "eCollection"
+      summary: "Intimation."
+      description: "Intimation."
+      operationId: "opIntimation"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Payment transaction that needs to be validated by the beneficiary."
+        required: true
+        schema:
+          $ref: "#/definitions/intimation_request"
+      responses:
+        200:
+          description: "Payment transaction validation response."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        400:
+          description: "API request from sender application is not valid. One ore\
+            \ more mandatory fields were found missing from the request or were inconsistent.\
+            \ Example of the latter case could be when the resent_indicator is set\
+            \ to true, but original_request_id or original_request_datetime were not\
+            \ present in the request."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        403:
+          description: "API request from sender application was disallowed as the\
+            \ client (business / customer) does not have a valid subscription for\
+            \ the service. Example: If client did not opt for receiving Reversal MIS\
+            \ during subscription, and if the sender application sent a Reversal MIS\
+            \ notification, that request would be rejected."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        422:
+          description: "API request from the sender application was understood but\
+            \ declined as one or more mandatory business data fields were either missing\
+            \ or had invalid data.'"
+          schema:
+            $ref: "#/definitions/intimation_response"
+        500:
+          description: "API service experienced an unexpected error that prevented\
+            \ the sender client application API request to be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        502:
+          description: "API response from client (business / customer) could not be\
+            \ understood."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        503:
+          description: "Client / Business API service was unavailable and hence the\
+            \ API request could not be fulfilled."
+          schema:
+            $ref: "#/definitions/intimation_response"
+        504:
+          description: "Client / Business API service did not respond within the stipulated\
+            \ response period. API request may or may not have been fulfilled by the\
+            \ client / business API service."
+          schema:
+            $ref: "#/definitions/intimation_response"
+  /reversal-intimate:
+    post:
+      tags:
+      - "eCollection"
+      summary: "Reversal Intimation."
+      description: "Reversal Intimation."
+      operationId: "opReversalIntimation"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Payment transaction reversal information passed to the client."
+        required: true
+        schema:
+          $ref: "#/definitions/reversal_intimation_notification"
+      responses:
+        200:
+          description: "Payment transaction reversal intimation acknowledgment."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        400:
+          description: "API request from sender application is not valid. One ore\
+            \ more mandatory fields were found missing from the request or were inconsistent.\
+            \ Example of the latter case could be when the resent_indicator is set\
+            \ to true, but original_request_id or original_request_datetime were not\
+            \ present in the request."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        403:
+          description: "API request from sender application was disallowed as the\
+            \ client (business / customer) does not have a valid subscription for\
+            \ the service. Example: If client did not opt for receiving Reversal MIS\
+            \ during subscription, and if the sender application sent a Reversal MIS\
+            \ notification, that request would be rejected."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        422:
+          description: "API request from the sender application was understood but\
+            \ declined as one or more mandatory business data fields were either missing\
+            \ or had invalid data.'"
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        500:
+          description: "API service experienced an unexpected error that prevented\
+            \ the sender client application API request to be fulfilled."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        502:
+          description: "API response from client (business / customer) could not be\
+            \ understood."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        503:
+          description: "Client / Business API service was unavailable and hence the\
+            \ API request could not be fulfilled."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+        504:
+          description: "Client / Business API service did not respond within the stipulated\
+            \ response period. API request may or may not have been fulfilled by the\
+            \ client / business API service."
+          schema:
+            $ref: "#/definitions/reversal_intimation_notification_acknowledgment"
+definitions:
+  common_request_header:
+    type: "object"
+    required:
+    - "request_id"
+    - "request_datetime"
+    properties:
+      request_id:
+        type: "string"
+        title: "Request Identifier"
+        description: "Uniquely identifies a request. Each request, even if it is resent,\
+          \ should have a new unique request ID."
+        example: "7C615D36-1529-4B0C-A1E6-C5C67D5FA353"
+      request_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Request Timestamp"
+        description: "Timestamp in ISO 8601 format when the request was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+      parent_request_id:
+        type: "string"
+        example: "30F14673-BF37-4C55-89E3-AD7ED78BFB14"
+        description: "Uniquely identifies the parent request. Corelates the  request_batch\
+          \ that this request is a part of."
+        title: "Parent (batch) Request Identifier"
+      parent_request_datetime:
+        type: "string"
+        format: "date_time"
+        example: "2019_11_26T12:28:56.321+05:30"
+        description: "Timestamp in ISO 8601 format when the parent  batch_request\
+          \ was sent.  This is applicable to batch requests only."
+        title: "Parent (batch) Request Timestamp"
+      channel_id:
+        type: "string"
+        title: "Channel Logical ID / Name"
+        description: "Channel through which the request originated."
+        example: "Profunds"
+      sender_system_id:
+        type: "string"
+        title: "Sender System Logical ID / Name"
+        description: "Logical name of system or an application from which the request\
+          \ originated."
+        example: "Profunds"
+      sender_system_user_id:
+        type: "string"
+        title: "User ID on the Sender System / Application"
+        description: "ID of an authenticated and authorized user who / that sent the\
+          \ request. This field is useful in case the request is triggered manually.\
+          \ This could be an Employee ID, User ID in the sending application or Email\
+          \ ID. This value in field is read in conjunction with the value in \"sender_system_user_id_type\"\
+          \ field."
+        example: "raman.kumar@icicibank.com"
+      sender_system_user_id_type:
+        type: "string"
+        title: "User ID Type."
+        description: "Qualifies the Sender User ID with a type. Type versions can\
+          \ be supported through a naming convention. Currently the following types\
+          \ are supported: employee_id, email and app_user_id. This field is required\
+          \ if \"sender_system_user_id\" is used."
+        example: "email"
+      request_priority:
+        type: "integer"
+        title: "Message Priority"
+        description: "Priority processing for a request. Whether this field is considered\
+          \ is entirely dependent upon the receiving system or application and the\
+          \ nature of interaction. Example: In a typical HTTP request_response exchange\
+          \ where in the request is processed immediately and the response returned,\
+          \ this field does not play any role. It is ignored. Priority assumes significance\
+          \ when the receiving system or application, has queueing implementation\
+          \ where in it queues a request there by effectively batching or throttling\
+          \ it, and returns an \"intermediate\" response. The client can then prioritize\
+          \ the requests in case of a backlog. Here 1 is considered the highest and\
+          \ 5 the lowest priority. Default priority is 3. In case of a resent request,\
+          \ the client has the option to use the new priority value to bump up or\
+          \ bump down the priority of the \"preceeding\" request - be it original\
+          \ or a resent one if it is still on the client request queue (pending processing)."
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        example: 1
+      resent_indicator:
+        type: "boolean"
+        title: "Resent Indicator"
+        description: "Boolean indicating if the request was sent in the past and has\
+          \ been resent."
+        example: true
+        default: false
+      original_request_id:
+        type: "string"
+        title: "Original Request Identifier"
+        description: "Request id of the very first request. Co_relates the current\
+          \ request with the original request. Original Request ID is required if\
+          \ the request has been resent."
+        example: "131280011"
+      original_request_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Original Request Timestamp"
+        description: "Timestamp in ISO 8601 format when the original request was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+      original_channel_id:
+        type: "string"
+        title: "Channel Logical ID / Name"
+        description: "Channel through which the request originated."
+        example: "Profunds"
+      original_sender_system_id:
+        type: "string"
+        title: "Original Sender System Logical ID / Name"
+        description: "Uniquely identifies the sender system which sent the very first\
+          \ request. Defaults to the current request Sender System Logical ID."
+        example: "profunds"
+      original_sender_system_user_id:
+        type: "string"
+        title: "User ID on the Sender System / Application"
+        description: "ID of an authenticated and authorized user who / that sent the\
+          \ original (very first) request. This field is useful in case the original\
+          \ request was triggered manually. This could be an Employee ID, User ID\
+          \ in the sending application or Email ID. This value in field is read in\
+          \ conjunction with the value in \"sender_system_user_id_type\" field."
+        example: "raman.kumar@icicibank.com"
+      original_sender_system_user_id_type:
+        type: "string"
+        title: "User ID Type."
+        description: "Qualifies the Sender User ID with a type. Type versions can\
+          \ be supported through a naming convention. Currently the following types\
+          \ are supported: employee_id, email and app_user_id. This field is required\
+          \ if \"sender_system_user_id\" is used."
+        example: "email"
+      original_request_priority:
+        type: "integer"
+        title: "Original Request Message Priority"
+        description: "Message priority that was set for the original (very first)\
+          \ request."
+        enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        example: 1
+      test_indicator:
+        type: "boolean"
+        title: "Test Indicator"
+        description: "Indicates if this is a test request and is to be ignored. It\
+          \ is recommeded that the receiving system / application process the request\
+          \ as if it were a real one and then rollback the changes. In conditions\
+          \ where this is not possible, the receiving end should simply return a dummy\
+          \ positive acknowledgment."
+        default: false
+        example: false
+    title: "Common Request Header"
+  common_response_header:
+    type: "object"
+    required:
+    - "response_datetime"
+    - "response_id"
+    properties:
+      response_id:
+        type: "string"
+        example: "76B72B4F-31E1-4915-81E8-A85AE29955AE"
+        title: "Response Identifier"
+        description: "Uniquely identifies a response. Each response, even if it is\
+          \ sent for a \"resent\" request, should have a new unique response ID."
+      response_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Response Timestamp"
+        description: "Timestamp in ISO 8601 format when the response was sent."
+        example: "2019-11-26T12:28:56.321+05:30"
+    title: "Common Response Header"
+  common_response_trailer:
+    type: "object"
+    required:
+    - "completion_code"
+    properties:
+      completion_code:
+        type: "integer"
+        title: "Completion Code"
+        description: "Completion Code is the final status of the request processing.\
+          \ Completion Code  could have the following values 0: Successful completion,\
+          \ 1: Warning (partial completion) or 2: Error (complete failure)."
+        example: 0
+      reason_code:
+        type: "string"
+        title: "Reason Code"
+        description: "Reason Code lets the request sender know why this request succeeded\
+          \ or fialed. This field is required if a negative response is returned by\
+          \ the client. In other words, if the Completion Code has values 1 or 2.\
+          \ Reason Codes follow a naming convention. XCA<nnnnn><I|W|E> where I: Informational,\
+          \ W: Warning and E: Error code, \"nnnnn\" is a 5 digit, 0 left padded number.\
+          \ The first digit is reserved for future use and should not be used."
+        example: "XCA00001E"
+      message:
+        type: "string"
+        title: "Message"
+        description: "Describes the reason in a verbose manner. This field is required\
+          \ if a negative response is returned by the client. In other words, if the\
+          \ Completion Code has values 1 or 2."
+        example: "Sender Account Number and Sender Name mismatch."
+      retry_indicator:
+        type: "boolean"
+        title: "Retry Indicator"
+        description: "Whether this request has a chance of processing successfully\
+          \ if it resent. A receiving system or application can use this field to\
+          \ request the sending system or application to reattempt the request later.\
+          \ Default value is false."
+        example: true
+      retry_after_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Retry After"
+        description: "Whether this request has a chance of being processed successfully\
+          \ if it resent after the indicated timestamp. A receiving system or application\
+          \ can use this field to  request the sending system or application to reattempt\
+          \ the request later. Particularly useful for an unscheduled service unavailability.\
+          \ It is upto the sending system whether to enforce this waiting period and\
+          \ how. The timestamp should be in ISO 8601 format. This field is ignored\
+          \ if \"retry_indicator\" is not true."
+        example: "2019-11-26T12:28:56.321+05:30"
+      retry_after_interval:
+        type: "integer"
+        title: "Retry After Interval (in Seconds)"
+        description: "Whether this request has a chance of being processed successfully\
+          \ if it resent after the indicated interval. A receiving system or application\
+          \ can use this field to request the sending system or application to reattempt\
+          \ the request later. Particularly useful for temporary  unresponsiveness.\
+          \ It is upto the sending system whether to enforce this waiting interval\
+          \ and how. The interval represents time in seconds. This field is ignored\
+          \ if \"retry_after_datetime\" is present in the response or if \"retry_indicator\"\
+          \ is not true."
+        example: 600
+    title: "Common Response Trailer"
+  payment_transaction_data:
+    type: "object"
+    required:
+    - "client_code"
+    - "currency_code"
+    - "payment_mode"
+    - "sender_account_number"
+    - "sender_ifsc_code"
+    - "client_account_number"
+    - "sender_name"
+    - "transaction_amount"
+    - "transaction_datetime"
+    - "transaction_id"
+    - "transaction_id_type"
+    - "virtual_account_number"
+    properties:
+      client_code:
+        type: "string"
+        title: "Client Code"
+        description: ""
+        example: "ARNC"
+      virtual_account_number:
+        type: "string"
+        title: "Virtual Account Number"
+        description: ""
+        example: "ARNCMJOM104"
+      transaction_amount:
+        type: "number"
+        title: "Transaction Amount"
+        description: ""
+        example: 110
+      currency_code:
+        type: "string"
+        example: "INR"
+        title: "Currency code."
+        default: "INR"
+        description: "Currency Code conforming to ISO 4217."
+      payment_mode:
+        type: "string"
+        title: "Payment Mode."
+        description: "Payment method. Only one of the following values are valid NEFT,\
+          \ RTGS, IMPS and FT (for Fund Transfer)."
+        enum:
+        - "NEFT"
+        - "RTGS"
+        - "IMPS"
+        - "FT"
+        example: "NEFT"
+      transaction_id:
+        type: "string"
+        title: "Transaction Id"
+        description: "Uniquely identifies a payment transaction. This should be read\
+          \ in conjunction to the Transaction ID Type."
+        example: "N266190934399380"
+      transaction_id_type:
+        type: "string"
+        title: "Transaction Id Type"
+        description: "Qualifies the Transaction ID with a type. Type versions can\
+          \ be supported through a naming convention."
+        example: "UTR"
+      transaction_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Transaction Timestamp."
+        description: "Transaction Timestamp in ISO 8601 format."
+        example: "2019-11-26T11:48:46.331+05:30"
+      sender_name:
+        type: "string"
+        title: "Sender Name"
+        description: "The sender or the remitter party name."
+        example: "RAMAN KUMAR"
+      sender_account_number:
+        type: "string"
+        title: "Sender Account Number"
+        description: "The sender or the remitter party account number."
+        example: "601270000750"
+      sender_bank_name:
+        type: "string"
+        title: "Sender Bank Name"
+        description: "The sender or the remitter party bank name."
+        example: "HDFC"
+      sender_ifsc_code:
+        type: "string"
+        title: "Bank IFSC Code"
+        description: "The sender or the remitter party bank IFSC code."
+        example: "HDFC0000001"
+      client_account_name:
+        type: "string"
+        title: "Client Account Name"
+        example: "RAMAN KUMAR"
+      client_account_number:
+        type: "string"
+        title: "Client Account Number"
+        example: "601270000750"
+      client_bank_name:
+        type: "string"
+        title: "Client Bank Name"
+        description: "The client party bank name."
+        example: "ICICI"
+      client_ifsc_code:
+        type: "string"
+        title: "Client's Bank IFSC Code"
+        description: "The client party bank IFSC code."
+        example: "ICIC0000001"
+      narration_1:
+        type: "string"
+        title: "Narration 1"
+        description: "Narration. Used for Bank-To-Bank information exchange."
+      narration_2:
+        type: "string"
+        title: "Narration 2"
+        description: "Narration. Used for Bank-To-Sender information exchange."
+      informational_message:
+        type: "string"
+        title: "Information Message (Narration)"
+        description: "Informational message for the client."
+      external_system_reference_1:
+        type: "string"
+        title: "External System Reference 1"
+        description: "Cross-referencing / correlating messages / documents or data\
+          \ points between one or more participant systems / applications."
+      external_system_reference_2:
+        type: "string"
+        title: "External System Reference 2"
+        description: "Cross-referencing / correlating messages / documents or data\
+          \ points between one or more participant systems / applications."
+      client_data_ext:
+        type: "object"
+        title: "Client Data Extension"
+        description: "Client data extension allow client specific fields to be acknowledged\
+          \ between ICICI and client API. Recommendation: Use \"data_ext_version\"\
+          \ field to support handling extension block variations in the future."
+        properties: {}
+    title: "Payment Transaction Data"
+    description: "Transaction data from the bank to the client informing them about\
+      \ a payment received in their current / intermediary account."
+  payment_transaction_data_acknowledgment:
+    type: "object"
+    properties:
+      client_code:
+        type: "string"
+        title: "Client Code"
+        description: ""
+        example: "ARNC"
+      virtual_account_number:
+        type: "string"
+        title: "Virtual Account Number"
+        description: ""
+        example: "ARNCMJOM104"
+      transaction_amount:
+        type: "number"
+        title: "Transaction Amount"
+        description: ""
+        example: 110
+      currency_code:
+        type: "string"
+        example: "INR"
+        title: "Currency code."
+        default: "INR"
+        description: "Currency Code conforming to ISO 4217."
+      payment_mode:
+        type: "string"
+        title: "Payment Mode."
+        description: "Payment method. Only one of the following values are valid NEFT,\
+          \ RTGS, IMPS and FT (for Fund Transfer)."
+        enum:
+        - "NEFT"
+        - "RTGS"
+        - "IMPS"
+        - "FT"
+        example: "NEFT"
+      transaction_id:
+        type: "string"
+        title: "Transaction Id"
+        description: "Uniquely identifies a payment transaction. This should be read\
+          \ in conjunction to the Transaction ID Type."
+        example: "N266190934399380"
+      transaction_id_type:
+        type: "string"
+        title: "Transaction Id Type"
+        description: "Qualifies the Transaction ID with a type. Type versions can\
+          \ be supported through a naming convention."
+        example: "UTR"
+      transaction_datetime:
+        type: "string"
+        format: "date_time"
+        title: "Transaction Timestamp."
+        description: "Transaction Timestamp in ISO 8601 format."
+        example: "2019-11-26T11:48:46.331+05:30"
+      sender_name:
+        type: "string"
+        title: "Sender Name"
+        description: "The sender or the remitter party name."
+        example: "RAMAN KUMAR"
+      sender_account_number:
+        type: "string"
+        title: "Sender Account Number"
+        description: "The sender or the remitter party account number."
+        example: "601270000750"
+      sender_bank_name:
+        type: "string"
+        title: "Sender Bank Name"
+        description: "The sender or the remitter party bank name,"
+        example: "HDFC"
+      sender_ifsc_code:
+        type: "string"
+        title: "Bank IFSC Code"
+        description: "The sender or the remitter party bank IFSC code."
+        example: "HDFC0000001"
+      client_account_number:
+        type: "string"
+        title: "Client Account Number"
+        example: "601270000750"
+      narration_1:
+        type: "string"
+        title: "Narration 1"
+        description: "Narration. Used for Bank-To-Bank information exchange."
+      narration_2:
+        type: "string"
+        title: "Narration 2"
+        description: "Narration. Used for Bank-To-Sender information exchange."
+      informational_message:
+        type: "string"
+        title: "Information Message"
+        description: "Free form informational message for the client."
+      external_system_reference_1:
+        type: "string"
+        title: "External System Reference 1"
+        description: "Cross-referencing / correlating messages / documents or data\
+          \ points between one or more participant systems / applications."
+      external_system_reference_2:
+        type: "string"
+        title: "External System Reference 2"
+        description: "Cross-referencing / correlating messages / documents or data\
+          \ points between one or more participant systems / applications."
+      client_data_ext:
+        type: "object"
+        title: "Client Data Extension"
+        description: "Client data extension allow client specific fields to be acknowledged\
+          \ between ICICI and client API. Recommendation: Use \"data_ext_version\"\
+          \ field to support handling extension block variations in the future."
+        properties: {}
+    title: "Acknowledged Payment Transaction Data"
+    description: "Transaction data from the bank to the client informing them about\
+      \ a payment receipt. None of the fields are mandatory to facilitate client opting\
+      \ out of relaying the business data, sent as a part of the request, in the response."
+  intimation_request:
+    allOf:
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/payment_transaction_data"
+    title: "Intimation Request"
+    description: "Transaction intimation from the bank to the client informing them\
+      \ about a payment receipt."
+  intimation_response:
+    allOf:
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"
+    - $ref: "#/definitions/common_response_header"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/payment_transaction_data_acknowledgment"
+    - $ref: "#/definitions/common_response_trailer"
+    title: "Intimation Response"
+    description: "Response from the client to an intimation request."
+  payment_transaction_reversal_data:
+    allOf:
+    - $ref: "#/definitions/payment_transaction_data"
+    - type: "object"
+      required:
+      - "remitter_account_number"
+      - "cms_reference_number"
+      - "refund_payment_status"
+      properties:
+        remitter_account_number:
+          type: "string"
+          title: "Remitter Account Number"
+          description: ""
+        cms_reference_number:
+          type: "string"
+          title: "CMS Reference Number"
+          description: "Payment transaction reference number in CMS system."
+        refund_payment_status:
+          type: "string"
+          title: "Refund Payment Status"
+          description: "Status of the refund payment. P if the refund was Paid. C\
+            \ if the refund was Cancelled."
+          enum:
+          - "P"
+          - "C"
+          example: "P"
+        refund_code:
+          type: "string"
+          title: "Refund Code"
+          description: "Refund code."
+        reversal_rejection_code:
+          type: "string"
+          title: "Refund / Reversal Rejection Code"
+          description: "Code indicating the reason behind the reversal / refund rejection."
+    title: "Payment Transaction Reversal Data"
+    description: "Payment transaction reversal intimation to the client."
+  payment_transaction_reversal_data_acknowledgment:
+    allOf:
+    - $ref: "#/definitions/payment_transaction_data_acknowledgment"
+    title: "Acknowledged Payment Transaction Reversal Data"
+    description: "Acknowledgment to the payment transaction reversal intimation sent\
+      \ to the client."
+  reversal_intimation_notification:
+    allOf:
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/payment_transaction_reversal_data"
+    title: "Reversal Intimation Notification"
+    description: "Transaction reversal intimation from the bank to the client informing\
+      \ them about a payment reversal."
+  reversal_intimation_notification_acknowledgment:
+    allOf:
+    - type: "object"
+      required:
+      - "api_version"
+      properties:
+        api_version:
+          type: "string"
+          title: "API Version"
+          description: "Message version. Recommendation is to use Semantic Versioning."
+          default: "1.0"
+          example: "1.0"
+    - $ref: "#/definitions/common_response_header"
+    - $ref: "#/definitions/common_request_header"
+    - $ref: "#/definitions/payment_transaction_reversal_data_acknowledgment"
+    - $ref: "#/definitions/common_response_trailer"
+    title: "Reversal Intimation Notification Response"
+    description: "Response from the client to an transaction reversal intimation request."

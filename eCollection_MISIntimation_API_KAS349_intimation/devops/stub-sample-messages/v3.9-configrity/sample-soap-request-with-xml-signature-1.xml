@@ -1,0 +1,91 @@
+<soap11:Envelope xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap11:Header>
+			<!-- Checksum in SOAP Header -->
+			<clientNS:checksum xmlns:clientNS="http://www.icicibank.com/api/acme">7f7a4171368a19b1b2cf4fa9e006....</clientNS:checksum>
+		<NS1:Security
+			xmlns:NS1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+			<NS1:BinarySecurityToken
+				xmlns:NS2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+				NS2:EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#Base64Binary"
+				NS2:Id="IXC_ACME_PubKey"
+				NS2:ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCj80k/DQkE+C7HPsHLavfRLRPUT1CgDEZ95975UXuD0HFjPDuzlENWGFiXlQhratGFqTuE+oTm1JQWXuxuNpRmDnaWknzbbPqC9FjfKR0TRTWf6MLzPzIGGAvIbi87hOD2LZ6LMleqlANU4u4r8hwUN2+E1wooIJdVxY0o7/YVIQIDAQAB
+			</NS1:BinarySecurityToken>
+			<NS3:Signature xmlns:NS3="http://www.w3.org/2000/09/xmldsig#">
+				<NS3:SignedInfo>
+					<NS3:CanonicalizationMethod
+						Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+					<NS3:SignatureMethod
+						Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha512" />
+					<NS3:Reference>
+						<NS3:Transforms>
+							<NS3:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#base64">
+								<NS4:Selection xmlns:NS4="http://www.w3.org/2010/xmldsig2#"
+									Algorithm="http://www.w3.org/2010/xmldsig2#xml" URI="Sign-195387f8-3da1-4403-a5a4-c2d338e157a9" />
+							</NS3:Transform>
+						</NS3:Transforms>
+						<NS3:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha512" />
+						<NS3:DigestValue>7f7a4171368a19b1b2cf4fa9e006f2619d38c00e0edc81192723c9e4bc23cff4ea9fdf9fbf2712645eae9ac6d4a5d8bc73a9bbf2c48b40a6bdc89966b233c64f
+						</NS3:DigestValue>
+					</NS3:Reference>
+				</NS3:SignedInfo>
+				<NS3:SignatureValue>1ce8437ab4780f8d3f4a6ac0569444f7f152eb5cf61929abb947b5ed9dafd7d4802caaf2bb0c510f18ce38d00b0b00a8e078dd1150ef306dd15fd746f50baeb9591222d6a1ec3b1f3cbfa2d2259421e47e6e019898892a45e34b97498c2809e60fa35f6b2f29d2e9876743a6f998a28275ca732047289c54bcbd9877c90cc8d4
+				</NS3:SignatureValue>
+				<NS3:KeyInfo>
+					<NS3:KeyValue>
+						<NS1:SecurityTokenReference>
+							<NS1:Reference URI="IXC_ACME_PubKey" />
+						</NS1:SecurityTokenReference>
+					</NS3:KeyValue>
+				</NS3:KeyInfo>
+			</NS3:Signature>
+		</NS1:Security>
+	</soap11:Header>
+	<soap11:Body>
+		<clientNS:intimation_request
+			xmlns:NS5="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+			xmlns:clientNS="http://www.icicibank.com/api/acme" NS5:Id="Sign-195387f8-3da1-4403-a5a4-c2d338e157a9">
+			<!-- Checksum in Payload -->
+			<clientNS:checksum>7f7a4171368a19b1b2cf4fa9e006....</clientNS:checksum>
+			<clientNS:api_version>1.2.0</clientNS:api_version>
+			<clientNS:request_id>B4995BBD-C54B-45D5-A18B-8F6EF479EA63
+			</clientNS:request_id>
+			<clientNS:request_datetime>2020-08-03T23:28:56.994+05:30
+			</clientNS:request_datetime>
+			<clientNS:sender_system_id>Profunds</clientNS:sender_system_id>
+			<clientNS:sender_system_user_id>raman.kumar@icicibank.com
+			</clientNS:sender_system_user_id>
+			<clientNS:request_priority>3</clientNS:request_priority>
+			<clientNS:test_indicator>false</clientNS:test_indicator>
+			<clientNS:client_code>ACME</clientNS:client_code>
+			<clientNS:virtual_account_number>ADANX031192399
+			</clientNS:virtual_account_number>
+			<clientNS:transaction_amount>2.88E+4</clientNS:transaction_amount>
+			<clientNS:currency_code>INR</clientNS:currency_code>
+			<clientNS:payment_mode>NEFT</clientNS:payment_mode>
+			<clientNS:transaction_id>202008031</clientNS:transaction_id>
+			<clientNS:transaction_id_type>UTR</clientNS:transaction_id_type>
+			<clientNS:transaction_datetime>2020-08-03T23:23:46.994
+			</clientNS:transaction_datetime>
+			<clientNS:sender_name>Tryion Lannister</clientNS:sender_name>
+			<clientNS:sender_mobile_communication_number>9880001010
+			</clientNS:sender_mobile_communication_number>
+			<clientNS:sender_account_number>0710107844276
+			</clientNS:sender_account_number>
+			<clientNS:sender_bank_name>SBI</clientNS:sender_bank_name>
+			<clientNS:sender_ifsc_code>SBIN0000710</clientNS:sender_ifsc_code>
+			<clientNS:client_account_name>Adani Petrochemicals
+			</clientNS:client_account_name>
+			<clientNS:client_mobile_communication_number>9880001010
+			</clientNS:client_mobile_communication_number>
+			<clientNS:client_account_number>0081202280775
+			</clientNS:client_account_number>
+			<clientNS:client_bank_name>ICICI</clientNS:client_bank_name>
+			<clientNS:client_ifsc_code>ICIC0000008</clientNS:client_ifsc_code>
+			<clientNS:narration_1>Narration 1</clientNS:narration_1>
+			<clientNS:narration_2>Narration 2</clientNS:narration_2>
+			<clientNS:informational_message>A quick brown fox jumped over the
+				lazy dog !</clientNS:informational_message>
+		</clientNS:intimation_request>
+	</soap11:Body>
+</soap11:Envelope>

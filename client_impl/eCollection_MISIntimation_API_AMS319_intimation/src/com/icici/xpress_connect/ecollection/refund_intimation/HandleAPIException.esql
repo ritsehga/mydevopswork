@@ -1,0 +1,242 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.refund_intimation
+
+-- 		Ready-recknor for HTTP Status Codes.
+--		Status Code			Status Message				Description
+--				200					OK									The request has succeeded. The information returned with the response is 
+-- 																				dependent on the method used in the request
+--				201					Created							The request has been fulfilled and resulted in a new resource being created. 
+-- 																				The newly created resource can be referenced by the URI(s) returned in the 
+-- 																				entity of the response, with the most specific URI for the resource given by a 
+-- 																				Location header field. The entity format is specified by the media type given 
+-- 																				in the Content-Type header field. The origin server MUST create the resource 
+-- 																				before returning the 201 status code.
+--				202					Accepted						The request has been accepted for processing, but the processing has not been 
+-- 																				completed. The request might or might not eventually be acted upon, as it might 
+-- 																				be disallowed when processing actually takes place.
+--				304					Not Modified				If the client has performed a conditional GET request and access is allowed, but 
+-- 																				the document has not been modified, the server SHOULD respond with this status 
+-- 																				code. The 304 response MUST NOT contain a message-body, and thus is always 
+-- 																				terminated by the first empty line after the header fields.
+--				400					Bad Request					The request could not be understood by the server due to malformed syntax. 
+-- 																				The client SHOULD NOT repeat the request without modifications.
+--				401					Unauthorized				The request requires user authentication. The response MUST include a 
+-- 																				WWW-Authenticate header field (section 14.47) containing a challenge applicable
+-- 																				 to the requested resource. The client MAY repeat the request with a suitable 
+-- 																				Authorization header field (section 14.8). If the request already included Authorization 
+-- 																				credentials, then the 401 response indicates that authorization has been refused for those 
+-- 																				credentials.
+-- 				422					Unprocessable Entity 	The server understands the content type of the request entity, and the syntax 
+-- 																				of the request entity is correct, but it was unable to process the contained instructions.
+--				408					Request Timeout			The client did not produce a request within the time that the server was prepared to wait. 
+-- 																				The client MAY repeat the request without modifications at any later time.
+--				500					Internal Server Error	The server encountered an unexpected condition which prevented it from fulfilling the request. 
+--				502					Bad Gateway					The server, while acting as a gateway or proxy, received an invalid response from the 
+-- 																				upstream server it accessed in attempting to fulfill the request. 
+--				503					Service Unavailable	 	The server is currently unable to handle the request due to a temporary overloading or 
+-- 																				maintenance of the server. The implication is that this is a temporary condition which will
+-- 																				 be alleviated after some delay. If known, the length of the delay MAY be indicated in a 
+-- 																				Retry-After header. If no Retry-After is given, the client SHOULD handle the response 
+-- 																				as it would for a 500 response. 
+--				504					Gateway Timeout		The server, while acting as a gateway or proxy, did not receive a timely response from the 
+-- 																				upstream server specified by the URI (e.g. HTTP, FTP, LDAP) or some other auxiliary server 
+-- 																				(e.g. DNS) it needed to access in attempting to complete the request. 
+--				207					Multi Status					The 207 (Multi-Status) status code provides status for multiple independent operations. 
+-- 																				A Multi-Status response conveys information about multiple resources in situations where 
+-- 																				multiple status codes might be appropriate. https://tools.ietf.org/html/rfc4918#section-11.1 
+
+-- Terminal label.s
+DECLARE RESPONSE_READY_TERMINAL CONSTANT CHARACTER 'out';
+DECLARE RESPONSE_REHANDLE_TERMINAL CONSTANT CHARACTER 'out3';
+
+-- Default retry interval.
+-- DECLARE API_MANAGED_DEFAULT_RETRY_AFTER_INTERVAL_SECONDS CONSTANT INTEGER 	600;		-- 10 mins.
+
+-- API Retry configurations.
+DECLARE API_MANAGED_RETRIES 	EXTERNAL BOOLEAN TRUE;
+-- [24-Jan-2020]: REDELIVERY_INTERVAL deprecates API_MANAGED_RETRY_AFTER_INTERVAL_SECONDS
+--DECLARE API_MANAGED_RETRY_AFTER_INTERVAL_SECONDS 	EXTERNAL INTEGER  
+--											API_MANAGED_DEFAULT_RETRY_AFTER_INTERVAL_SECONDS;
+
+DECLARE API_REASON_CODE_CLIENT_END_BAD_REQUEST 			CONSTANT CHARACTER 'XC00104E';
+DECLARE API_REASON_CODE_UNEXPECTED_FAILURE 					CONSTANT CHARACTER 'XC00500E';
+
+-- [16-Jun-2020]: Security / Authentication / Authorization
+DECLARE API_REASON_CODE_SECURITY_EXCEPTION 											CONSTANT CHARACTER 'XC00601E';
+DECLARE API_REASON_CODE_REMOTE_SECURITY_EXCEPTION 						CONSTANT CHARACTER 'XC00602E';
+
+-- [04-Aug-2020]: Message Security: Checksum / Hashing & Encryption
+DECLARE API_REASON_CODE_SECURITY_EXCEPTION_INTEGRITY							CONSTANT CHARACTER 'XC00603E';
+DECLARE API_REASON_CODE_SECURITY_EXCEPTION_CONFIDENTIALLY 			CONSTANT CHARACTER 'XC00604E';
+DECLARE API_REASON_CODE_SECURITY_EXCEPTION_CONFIGRITY						CONSTANT CHARACTER 'XC00605E';
+
+-- [16-Jun-2020]
+DECLARE API_REASON_CODE_OPEN_ERROR 						CONSTANT CHARACTER 'XC00999E';
+DECLARE API_REASON_CODE_OPEN_WARNING 				CONSTANT CHARACTER 'XC00998W';
+DECLARE API_REASON_CODE_OPEN_INFO 							CONSTANT CHARACTER 'XC00997I';
+
+CREATE COMPUTE MODULE HandleAPIException
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+	
+		DECLARE chTargetTerminal CHARACTER RESPONSE_READY_TERMINAL;
+		
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+		
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.API.Request.Message;
+
+		IF EXISTS (InputExceptionList.*[]) THEN
+	  		-- TODO: Need to discern between different communication errors 5XX, mainly, Unable to Connect, Connection Refused and Connection Timeout.
+	  		-- These are different from 5XX HTTP status codes that we might receive from the remote client.
+	  		IF com.icici.xpress_connect.common.api.isAPIRequestBuildingException(InputExceptionList) THEN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_UNEXPECTED_FAILURE, 
+					TRUE); 
+	  		ELSE 
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_COMMUNICATION_ERROR, 
+					TRUE);
+	  		END IF;
+	
+			-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+			-- SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+		ELSE
+			DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+			DECLARE inHttpStatusCode INTEGER CAST(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code" AS INTEGER);
+
+			IF inHttpStatusCode = API_HTTP_STATUS_CODE_UNAUTHORIZED OR -- 401
+				inHttpStatusCode = API_HTTP_STATUS_CODE_FORBIDDEN THEN -- 403 
+			
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_REMOTE_SECURITY_EXCEPTION, 
+					TRUE);
+
+					-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+					-- SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+			ELSE
+
+				IF OPTIMIZE_FOR_UNIFIED_API THEN	-- Client is using our eCollection API.
+					-- [10-Jan-2020]: Check if the response content type is JSON and if so, parse it.
+					
+					IF COALESCE(chTargetMessageDomain, '') = '' THEN
+						-- [10-Jan-2020] Neither XMLNSC nor JSON domain. We do not support anything other than these domains.
+						-- Hence prepare a suitable response from the request itself and send it back.
+	
+						CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+							API_COMPLETION_CODE_ERROR, com.icici.xpress_connect.common.api.mapReasonCode(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code"), 
+							TRUE);
+	
+						-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+						-- SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+						
+					ELSE
+						-- We are looking at either a JSON or an XML message.
+						SET OutputRoot = InputRoot;
+						CREATE LASTCHILD OF OutputRoot DOMAIN(chTargetMessageDomain) 
+							PARSE(OutputRoot.BLOB.BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);  -- [20-May-2020] : Removed FORMAT 'FolderBitStream'. This was incorrect.
+		
+						SET Environment.Variables.eCollection.API.ClientResponse.BLOB = InputRoot.BLOB.BLOB;
+						DELETE FIELD OutputRoot.BLOB;
+		
+						-- [20-Jan-2020]: Before sending the response back,  5XX errors from the client service should be translated to 502 Bad Gateway.
+						
+						SET chTargetTerminal = RESPONSE_REHANDLE_TERMINAL;
+					END IF;
+	
+				ELSE	-- Client is not using our eCollection API.
+					DECLARE chTargetMessageDomain CHARACTER com.icici.xpress_connect.common.api.detectSuitableACEMessageDomain(InputRoot);
+					
+					IF COALESCE(chTargetMessageDomain, '') = '' THEN
+						-- [10-Jan-2020] Neither XMLNSC nor JSON domain. We do not support anything other than these domains.
+						-- Hence prepare a suitable response from the request itself and send it back.
+						DECLARE serverHttpStatusCode INTEGER CAST(InputRoot.HTTPResponseHeader."X-Original-HTTP-Status-Code" AS INTEGER);
+						IF serverHttpStatusCode = API_HTTP_STATUS_CODE_BAD_REQUEST THEN
+							-- Client API returned an HTTP Status Code 400 - Bad Request. We need to examine our eCollection API to client API transformation for possible errors.
+							CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+								API_COMPLETION_CODE_ERROR, API_REASON_CODE_CLIENT_END_BAD_REQUEST ,TRUE);
+						ELSE
+							-- Trusting HTTP Status Code returned by the client API to determine the reason for the error.
+							CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+								API_COMPLETION_CODE_ERROR, com.icici.xpress_connect.common.api.mapReasonCode(serverHttpStatusCode), 
+								TRUE);
+						END IF;	
+						-- Defaults to RESPONSE_READY_TERMINAL terminal. 
+						-- SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+	
+					ELSEIF COALESCE(chTargetMessageDomain, '') = 'SOAP' THEN 	-- [22-May-2020]: Handling SOAP 1.1 Faults.
+						CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+						API_COMPLETION_CODE_ERROR, API_REASON_CODE_RESPONSE_NOT_VALID, 
+						TRUE);
+	
+						SET chTargetTerminal = RESPONSE_READY_TERMINAL;	
+					ELSE
+						-- We are looking at either a JSON or an XML message.
+						SET OutputRoot = InputRoot;
+						CREATE LASTCHILD OF OutputRoot DOMAIN(chTargetMessageDomain) 
+							PARSE(OutputRoot.BLOB.BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);		-- [20-May-2020] : Removed FORMAT 'FolderBitStream'. This was incorrect.
+		
+						SET Environment.Variables.eCollection.API.ClientResponse.BLOB = InputRoot.BLOB.BLOB;
+						DELETE FIELD OutputRoot.BLOB;
+						SET chTargetTerminal = RESPONSE_REHANDLE_TERMINAL;
+					END IF;
+	
+				END IF;		-- Client is not using our eCollection API.
+						
+			END IF;
+			
+
+		END IF;
+		
+		IF chTargetTerminal = RESPONSE_READY_TERMINAL THEN
+			-- Set the HTTP Status Code.
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = com.icici.xpress_connect.ecollection.refund_intimation.gen.mapHTTPStatusCode(refAPIResponse.reason_code);
+
+			-- [14-Jan-2020]: Add Retry Indicator if applicable.
+			-- [21-Jan-2020]: TODO Refactor into a method if possible. Used in both HandleAPIException and CreateAPIResponse ESQL modules.
+			SET OutputLocalEnvironment.Variables.eCollection.RetryRequired = com.icici.xpress_connect.common.api.isAPIRequestRetriableBasisHTTPStatus
+																				(OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode) ;
+			SET OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged= API_MANAGED_RETRIES;
+
+			IF routeToRedeliveryHandler() THEN
+				-- Retry necessary and not API managed, so let the caller know.
+				CALL com.icici.xpress_connect.common.api.defaultAddAPIRequestRetryHint(NULL, 
+							REDELIVERY_INTERVAL, refAPIResponse);
+			END IF;
+		END IF;
+				
+		PROPAGATE TO TERMINAL chTargetTerminal FINALIZE NONE DELETE NONE;		-- RESPONSE_READY_TERMINAL or RESPONSE_REHANDLE_TERMINAL
+
+		IF routeToRedeliveryHandler() THEN
+			PROPAGATE TO TERMINAL REDELIVERY_HANDLER_TERMINAL;
+		END IF;
+
+		RETURN FALSE;
+	END;
+	
+		-- [08-Jun-2020]; Refactoring. Removed the Flow Sequence node.
+	CREATE FUNCTION routeToRedeliveryHandler ( ) RETURNS BOOLEAN
+	BEGIN
+		IF OutputLocalEnvironment.Variables.eCollection.RetryRequired AND 
+			OutputLocalEnvironment.Variables.eCollection.RetryAPIManaged THEN
+			RETURN TRUE;
+		ELSE	
+			RETURN FALSE;
+		END IF;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

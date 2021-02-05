@@ -1,0 +1,103 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.mh.ci
+PATH com.icici.xpress_connect.common.api;
+
+
+CREATE COMPUTE MODULE ClientGateway_ImmediateReplyFailure
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+
+ 		DECLARE chTargetTerminal CHARACTER RESPONSE_READY_TERMINAL;
+
+		-- API request is a JSON, so the response would be JSON as well. 
+		SET OutputRoot.HTTPReplyHeader."Content-Type" 			= CONTENT_TYPE_MIME_JSON;
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIResponse REFERENCE TO OutputRoot.JSON.Data;
+
+		IF EXISTS(InputRoot.Collection.Input[]) THEN
+
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_BAD_GATEWAY;
+			CALL addHTTPResponseHeaders();
+
+			SET Environment.Variables.eCollection.mh.API.Request.Message = InputRoot.Collection.Input.JSON.Data;
+			SET Environment.Variables.eCollection.mh.API.Request.RequestIdentifier = InputRoot.Collection.Input.MQRFH2.usr.RequestIdentifier; 	
+
+		-- Orphaned Response
+		ELSEIF NOT EXISTS(InputRoot.Collection.Input[]) THEN
+			RETURN FALSE;
+		END IF;
+
+		-- get the exceptionlist and idenentify the error code and description
+		IF EXISTS(InputExceptionList.*[]) THEN
+			SET Environment.Variables.Error = 0;
+			DECLARE r_inex REFERENCE TO InputExceptionList.RecoverableException;
+			
+			WHILE LASTMOVE(r_inex) DO
+				MOVE r_inex LASTCHILD TYPE Name NAME 'RecoverableException';
+			END WHILE;
+			SET Environment.Variables.Error = CAST(r_inex.Number AS CHARACTER);
+			SET Environment.Variables.ErrDesc = CAST(r_inex.Text AS CHARACTER);
+		END IF;
+		IF Environment.Variables.Error = '3742' THEN
+			RETURN FALSE;
+		END IF;
+		
+		DECLARE refAPIRequest REFERENCE TO Environment.Variables.eCollection.mh.API.Request.Message;
+
+		IF EXISTS (InputExceptionList.*[]) THEN
+	  		-- These are different from 5XX HTTP status codes that we might receive from the remote client.
+	  		IF com.icici.xpress_connect.common.api.isAPIRequestBuildingException(InputExceptionList) THEN
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_UNEXPECTED_FAILURE, 
+					TRUE); 
+	  		ELSE 
+				CALL com.icici.xpress_connect.common.api.prepareErrorResponse(refAPIRequest, refAPIResponse, 
+					API_COMPLETION_CODE_ERROR, API_REASON_CODE_COMMUNICATION_ERROR, 
+					TRUE);
+	  		END IF;
+	
+			SET chTargetTerminal = RESPONSE_READY_TERMINAL;
+		ELSE
+
+			SET OutputLocalEnvironment.Destination.HTTP.ReplyStatusCode = API_HTTP_STATUS_CODE_BAD_GATEWAY;
+			CALL addHTTPResponseHeaders();
+
+			Call prepareErrorResponse(refAPIRequest, refAPIResponse, API_COMPLETION_CODE_ERROR , API_REASON_CODE_CLIENT_SERVICE_TIMEOUT_ERROR, TRUE);
+			
+		END IF;
+
+		SET OutputLocalEnvironment.Destination.HTTP.RequestIdentifier = CAST(Environment.Variables.eCollection.mh.API.Request.RequestIdentifier AS BLOB);
+
+		PROPAGATE TO TERMINAL chTargetTerminal FINALIZE NONE DELETE NONE;		-- RESPONSE_READY_TERMINAL or RESPONSE_REHANDLE_TERMINAL
+
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+	
+
+	-- REST XML
+	CREATE FUNCTION addHTTPResponseHeaders()
+	BEGIN
+		SET OutputRoot.Properties.ContentType = COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.Properties.Encoding = InputRoot.Properties.Encoding; 
+		SET OutputRoot.Properties.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+
+		SET OutputRoot.HTTPRequestHeader."Content-Type" = COALESCE(InputRoot.HTTPInputHeader."Content-Type", CONTENT_TYPE_MIME_JSON);
+		SET OutputRoot.HTTPRequestHeader."Content-Encoding" = InputRoot.HTTPInputHeader."Content-Encoding";
+
+	END;
+	
+END MODULE;

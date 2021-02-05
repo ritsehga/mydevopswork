@@ -1,0 +1,281 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.common.redelivery
+
+
+-- For using meaningful Terminal labels instead of default terminal names.
+DECLARE API_MESSAGE_RETRY_TERMINAL 		CONSTANT CHARACTER 'out';
+-- DECLARE NO_ACTION_TERMINAL 					CONSTANT CHARACTER 'out1';
+
+DECLARE PATH_SEPARATOR 									CONSTANT CHARACTER '/';
+
+DECLARE ISO8601_DATE_FORMAT 						CONSTANT CHARACTER  'yyyy-MM-dd';
+DECLARE ISO8601_TIMESTAMP_FORMAT 			CONSTANT CHARACTER  'yyyy-MM-dd''T''HH:mm:ss.SSSZ';
+
+-- [20200509]
+DECLARE ISO8601_TIMESTAMP_FORMAT2  CONSTANT CHARACTER 'yyyy-MM-dd''T''HH:mm:ss';
+DECLARE DATETIME_PATTERN_EOD_8PM 			CONSTANT CHARACTER  '20:00:00.000+05:30';
+
+-- Redelivery (Retry) Rules
+DECLARE API_REDELIVERY_RULE_RETRY_TILL_12AM 			CONSTANT CHARACTER  'retry-till-12H';
+DECLARE API_REDELIVERY_RULE_RETRY_TILL_EOD_8PM 	CONSTANT CHARACTER 'retry-till-eod-8PM';
+DECLARE API_REDELIVERY_RULE_RETRY_AT_EOD_8PM 		CONSTANT CHARACTER 'retry-at-eod-8PM';		-- [08-May-2020]
+DECLARE API_REDELIVERY_RULE_RETRY_AT_EOD_12PM 	CONSTANT CHARACTER 'retry-at-eod-12PM';		-- [08-May-2020]
+DECLARE API_REDELIVERY_RULE_RETRY_AT_EOND				CONSTANT CHARACTER 'retry-at-eond';
+DECLARE API_REDELIVERY_RULE_RETRY_MAX_COUNT		CONSTANT CHARACTER 'retry-count';
+
+-- [24-Jan-2020]: Retry / Redelivery Default / Constants.
+DECLARE NO_REDELIVERY_RULE												CONSTANT CHARACTER 'NA'; 						-- default: None.
+DECLARE DEFAULT_REDELIVERY_INTERVAL							CONSTANT INTEGER 600;									-- default: 10 mins;
+DECLARE FOREVER_REDELIVERY_COUNT_MAX 					CONSTANT INTEGER -1;										-- default: forever.
+DECLARE UNRELEASED_APPLICATION_VERSION_TAG	 	CONSTANT CHARACTER 'UNRELEASED';	-- default: Version Unrealeased
+
+-- [24-Jan-2020] Header Fields for reuqest redelivery mechanism.
+--	Retry Indicator Flag  (Type: Boolean)
+DECLARE 	IXC_REDELIVERY_INDICATOR									CONSTANT CHARACTER 'IXC-Redelivery-Indicator';
+--	Current Attempt Counter  (Type: Integer)
+DECLARE 	IXC_REDELIVERY_COUNTER_CURRENT  				CONSTANT CHARACTER 'IXC-Redelivery-Counter-Current';
+--	User Agent  (Type: String)*
+-- Example: eCollection/<Client-Code>/<Version ID> 
+DECLARE 	IXC_USER_AGENT 														CONSTANT CHARACTER 'IXC-User-Agent';
+--	Target Endpoint URL  (Type: String, Pattern: URL)*
+DECLARE 	IXC_REDELIVERY_ENDPOINT_URI							CONSTANT CHARACTER 'IXC-Redelivery-Endpoint-URI';
+--	Message Content-Type  (Type: Boolean)*
+-- Valid Values: application/json, application/xml, text/json, text/xml
+DECLARE 	IXC_REDELIVERY_MESSAGE_CONTENT_TYPE	CONSTANT CHARACTER 'IXC-Redelivery-Message-Content-Type';
+--	Redelivery Rule  (Type: String)
+DECLARE 	IXC_REDELIVERY_RULE_NAME								CONSTANT CHARACTER 'IXC-Redelivery-Rule-Name';
+--	Max Attempt Counter  (Type: Integer, -1: Infinite, 0: Do Not Reattempt, Positive Value: those many reattempts)*
+DECLARE 	IXC_REDELIVERY_COUNTER_MAXIMUM				CONSTANT CHARACTER 'IXC-Redelivery-Counter-Maximum';
+--	Min Delay Interval Between Two Attempts (Type: Integer, Value in seconds)
+DECLARE 	IXC_REDELIVERY_INTERVAL									CONSTANT CHARACTER 'IXC-Redelivery-Interval';
+--	Last Retry (Type: Timestamp, Pattern: ISO-8601)* 
+-- Example: 2020-01-24T23:59:30.000
+DECLARE 	IXC_REDELIVERY_NOT_BEYOND								CONSTANT CHARACTER 'IXC-Redelivery-Not-Beyond';
+--	First Retry (Type: Timestamp, Pattern: ISO-8601)* 
+-- Example: 2020-01-24T23:59:30.000
+-- DECLARE 	IXC_REDELIVERY_NOT_BEFORE								CONSTANT CHARACTER 'IXC-Redelivery-Not-Before';		--[08-May-2020]
+
+--	Current Options:
+--	12 Hours: Request / Current Timestamp + 12 hours.
+--	Till 8 PM: Current Date + 20:00:00.000
+ --	At EOD: Current Date + 23:59:59.999
+
+--	DND Window Start (Type: String, Pattern: HH:mm:ss)*
+-- Example: 19:59:59
+DECLARE 	IXC_REDELIVERY_DND_AFTER_HOURS				CONSTANT CHARACTER 'IXC-Redelivery-DND-After-Hours';
+--	DND Window End (Type: String, Pattern: HH:mm:ss)*
+-- Example: 08:00:00
+DECLARE 	IXC_REDELIVERY_DND_UPTO_HOURS					CONSTANT CHARACTER 'IXC-Redelivery-DND-Upto-Hours';
+
+--	Final Retry At (Last Ditch Attempt) (Type: Timestamp, Pattern: ISO-8601)
+-- [08-Jun-2020]: Not used.
+-- DECLARE 	IXC_REDELIVERY_FALLBACK_AT						CONSTANT CHARACTER 'IXC-Redelivery-Fallback-At';
+
+--	Fallback Redelivery Rule  (Type: String) [08-May-2020]
+DECLARE 	IXC_REDELIVERY_FALLBACK_RULE_NAME	CONSTANT CHARACTER 'IXC-Redelivery-Fallback-Rule-Name';
+
+CREATE COMPUTE MODULE PrepareAPIRequest
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		
+		DECLARE refAPIResponseMessage REFERENCE TO InputRoot.JSON.Data;
+		
+		SET OutputRoot.Properties 							= InputRoot.Properties;
+		SET OutputRoot.Properties.Persistence 		= MQPER_PERSISTENT;
+
+		SET OutputRoot.MQMD.PutApplName 	= SUBSTRING(ApplicationLabel BEFORE '_');
+		SET OutputRoot.MQMD.PutApplType 		= MQAT_BROKER;
+	-- SET OutputRoot.MQMD.MsgType 				= MQMT_REQUEST;
+		SET OutputRoot.MQMD.Persistence 			= MQPER_PERSISTENT;
+		SET OutputRoot.MQMD.Encoding 				= InputRoot.Properties.Encoding;
+		SET OutputRoot.MQMD.CodedCharSetId = InputRoot.Properties.CodedCharSetId;
+		SET OutputRoot.MQMD.Format 					= MQFMT_STRING; 
+		SET OutputRoot.MQMD.Expiry 					= MQEI_UNLIMITED;
+
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Version 						= MQRFH_VERSION_2;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)Format 						= MQFMT_STRING;
+		SET OutputRoot.MQRFH2.(MQRFH2.Field)NameValueCCSID 	= 1208;
+	
+		-- Message Content Descriptor ("mcd" folder)
+		SET OutputRoot.MQRFH2.mcd.Msd = 'json';
+
+		CREATE FIELD OutputRoot.JSON.Data IDENTITY(JSON.Object) Data;
+		DECLARE refAPIRequestMessage 	REFERENCE TO OutputRoot.JSON.Data;
+
+		-- [18-Feb-2020]: TODO: Remove this api_version = '1.0.0' overriding assignment. Take the api_version from the response itself.
+		-- SET refAPIResponseMessage.api_version = '1.0.0'; -- TODO: Need to externalize
+		-- TODO: Revisit buildNewAPIRequest and buildNewAPIRequestRefund functions. 
+		-- Need to have a common generic method to copy fields irrespective of the message type.
+		-- End result should be one single method without the need to determine the message type and hence no need of the IF condition.
+		IF refAPIResponseMessage.refund_payment_status = '' THEN
+			CALL com.icici.xpress_connect.common.api.buildNewAPIRequest(refAPIResponseMessage, refAPIRequestMessage);
+		ELSE
+			CALL com.icici.xpress_connect.common.api.buildNewAPIRequestRefund(refAPIResponseMessage, refAPIRequestMessage);
+		END IF;
+		
+		CREATE FIELD OutputRoot.MQRFH2.usr;
+		DECLARE refAPIMessageTransportHeader REFERENCE TO OutputRoot.MQRFH2.usr;
+		
+		CALL com.icici.xpress_connect.common.api.injectReferenceDataTransportHeaders(ApplicationLabel, MessageFlowLabel, 
+					refAPIRequestMessage, refAPIMessageTransportHeader);
+
+		-- TODO: [06-Feb-2020]: Remove the environment field creation as it is not required. It is created as set very initially 
+		-- in the CreateClientAPIRequest ESQL module.
+		-- CREATE FIELD Environment.Variables.eCollection.Redelivery;
+
+		-- Redelivery configuration for the client.
+		DECLARE refAPIMessageRedeliveryHeader REFERENCE TO OutputLocalEnvironment.Variables.eCollection.Redelivery;
+		
+		-- Set the retry headers.
+		CALL buildMessageRedeliveryHeader(refAPIMessageRedeliveryHeader);
+		
+		CALL com.icici.xpress_connect.common.api.injectMessageRedeliveryTransportHeaders(ApplicationLabel, MessageFlowLabel, 
+					refAPIMessageRedeliveryHeader, refAPIMessageTransportHeader);	
+				 
+		PROPAGATE TO TERMINAL API_MESSAGE_RETRY_TERMINAL;
+		
+		RETURN FALSE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+	-- Enriches the message header with redelivery headers. 
+	CREATE FUNCTION buildMessageRedeliveryHeader (INOUT refAPIMessageRedeliveryHeader REFERENCE) 
+	BEGIN
+		DECLARE refAPIMessageHeader REFERENCE TO InputRoot.HTTPInputHeader;
+		-- Redelivery configuration for the client.
+		DECLARE refRedeliveryParameters REFERENCE TO Environment.Variables.eCollection.Redelivery;
+		
+		DECLARE flagIsARedeliveredMessage BOOLEAN CAST(COALESCE(refAPIMessageHeader.{IXC_REDELIVERY_INDICATOR}, FALSE) AS BOOLEAN);
+	
+		SET refAPIMessageRedeliveryHeader.RedeliveryIndicator				= flagIsARedeliveredMessage;
+		IF flagIsARedeliveredMessage THEN
+			-- not failing for the first time.
+			SET refAPIMessageRedeliveryHeader.RedeliveryCounter 			= CAST(COALESCE(refAPIMessageHeader.{IXC_REDELIVERY_COUNTER_CURRENT}, 0) AS INTEGER) + 1 ;
+		ELSE
+			-- failing for the first time.
+			SET refAPIMessageRedeliveryHeader.RedeliveryCounter 			= 0 ;		-- new message that failed for the first time.
+		END IF;	
+		
+		SET refAPIMessageRedeliveryHeader.UserAgent 								= COALESCE(refAPIMessageHeader.{IXC_USER_AGENT}, 
+																																						ApplicationLabel || PATH_SEPARATOR || 
+																																						Environment.Variables.eCollection.APISubscriptionClientCode || PATH_SEPARATOR || 
+																																						Environment.Variables.eCollection.ApplicationVersionTag);
+		-- IXC_REDELIVERY_ENDPOINT_URI
+		SET refAPIMessageRedeliveryHeader.RedeliveryEndpointURI 		= Environment.Variables.eCollection.HostEndpointURI;
+		-- IXC_REDELIVERY_MESSAGE_CONTENT_TYPE
+		SET refAPIMessageRedeliveryHeader.MessageContentType 			= Environment.Variables.eCollection.APIRequestContentType;
+		
+		IF flagIsARedeliveredMessage THEN
+			-- We are looking at a message (API request) that was retried before. This is NOT a new API request.
+			-- We had already set the redelivery parameters for the new API request that failed (first time failure). Hence not doing it again.
+			RETURN;
+		END IF;
+		
+		-- [24-Jan-2020]: refAPIMessageHeader (HTTP) will have headers only if the request was redelivered and has failed once again.
+		-- However if that is the case, we dont reach this point at all. We are returned back from this function a bit earlier by the 
+		-- IF flagIsARedeliveredMessage condition. However we will still keep the COALESCE with the header lookup for now. 
+		 
+		SET refAPIMessageRedeliveryHeader.RedeliveryRuleName 			= COALESCE(refAPIMessageHeader.{IXC_REDELIVERY_RULE_NAME}, 
+																																						  refRedeliveryParameters.RedeliveryRuleName);
+	
+		-- IXC_REDELIVERY_INTERVAL
+		SET refAPIMessageRedeliveryHeader.RedeliveryInterval 					= CAST(COALESCE(refRedeliveryParameters.RedeliveryInterval, 
+																																	refRedeliveryParameters.DefaultRedeliveryInterval) AS INTEGER);
+																																						  
+		IF CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_MAX_COUNT) THEN
+			SET refAPIMessageRedeliveryHeader.MaximumRedeliveryAttemptCount 
+																				= COALESCE(refAPIMessageHeader.{IXC_REDELIVERY_COUNTER_MAXIMUM}, 100);	-- TODO: Need to do better.
+		END IF;
+			
+		-- IXC_REDELIVERY_NOT_BEYOND
+		IF CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_TILL_12AM) OR
+			 CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_AT_EOD_12PM) THEN		-- [08-May-2020]: New EOD 8PM Rule added.
+				SET refAPIMessageRedeliveryHeader.MaximumRedeliverableTimestamp 
+																		=	CAST((CURRENT_TIMESTAMP + INTERVAL '12' HOUR) AS 
+																			CHARACTER FORMAT ISO8601_TIMESTAMP_FORMAT);
+			
+		ELSEIF CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_TILL_EOD_8PM) OR 
+					 CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_AT_EOD_8PM) THEN		-- [08-May-2020]: New EOD 8PM Rule added.
+			SET refAPIMessageRedeliveryHeader.MaximumRedeliverableTimestamp 
+																			= (CAST(CURRENT_DATE AS CHARACTER FORMAT ISO8601_DATE_FORMAT) || 'T' || 
+																			DATETIME_PATTERN_EOD_8PM);
+		END IF;
+		
+		IF CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_AT_EOD_12PM) OR			-- [08-May-2020]: New EOD 8PM Rule added.
+			CONTAINS(refRedeliveryParameters.RedeliveryRuleName, API_REDELIVERY_RULE_RETRY_AT_EOD_8PM) THEN		
+			-- IXC_REDELIVERY_DND_AFTER_HOURS
+			-- Format: HH:mm:ss
+			-- [20200509] RedeliveryBlockStartTime
+				SET refAPIMessageRedeliveryHeader.RedeliveryBlockStartTime 	= COALESCE(CAST( CURRENT_TIME AS CHARACTER FORMAT 'HH:mm:ss'),'');
+				
+			-- IXC_REDELIVERY_DND_UPTO_HOURS
+			-- Format: HH:mm:ss
+			
+		   --[20200509] RedeliveryBlockEndTime
+			 SET refAPIMessageRedeliveryHeader.RedeliveryBlockEndTime = COALESCE(CAST( CAST(com.icici.xpress_connect.common.api.DateTimeHelper_parse
+				                                                       (COALESCE(refAPIMessageRedeliveryHeader.MaximumRedeliverableTimestamp,'')
+				                                                       ,ISO8601_TIMESTAMP_FORMAT2)AS TIME )AS CHARACTER FORMAT'HH:mm:ss'),'');
+				                                                       
+			SET refAPIMessageRedeliveryHeader.MaximumRedeliveryAttemptCount = 1;
+			SET refAPIMessageRedeliveryHeader.RedeliveryCounter = 1;	                                                       
+
+				
+		END IF;
+		
+	
+		IF (COALESCE(refRedeliveryParameters.RedeliveryBlockStartTime, '') <> '') AND 
+			(COALESCE(refRedeliveryParameters.RedeliveryBlockEndTime,'') <> '')  THEN
+			-- IXC_REDELIVERY_DND_AFTER_HOURS
+			-- Format: HH:mm:ss
+            -- [20200509]
+            IF  (refAPIMessageRedeliveryHeader.RedeliveryBlockStartTime <> '') THEN
+	          --  SET refAPIMessageRedeliveryHeader.RedeliveryBlockStartTime 	= refRedeliveryParameters.RedeliveryBlockStartTime;
+            ELSEIF  (refRedeliveryParameters.RedeliveryBlockStartTime <> '') THEN
+            	
+            	SET refAPIMessageRedeliveryHeader.RedeliveryBlockStartTime 	= refRedeliveryParameters.RedeliveryBlockStartTime;
+            END IF;
+			
+			-- IXC_REDELIVERY_DND_UPTO_HOURS
+			-- Format: HH:mm:ss
+
+          --[20200509]
+            IF (refAPIMessageRedeliveryHeader.RedeliveryBlockEndTime <> '') THEN
+	         --   SET refAPIMessageRedeliveryHeader.RedeliveryBlockEndTime 		= refRedeliveryParameters.RedeliveryBlockEndTime;
+             ELSEIF  (refRedeliveryParameters.RedeliveryBlockStartTime <> '') THEN
+            	 SET refAPIMessageRedeliveryHeader.RedeliveryBlockEndTime 		= refRedeliveryParameters.RedeliveryBlockEndTime;
+            END IF;
+		
+		END IF;	
+	
+		-- [08-May-2020]
+		SET refAPIMessageRedeliveryHeader.FallbackRedeliveryRuleName 			= COALESCE(refAPIMessageHeader.{IXC_REDELIVERY_FALLBACK_RULE_NAME}, 
+																				 refRedeliveryParameters.FallbackRedeliveryRuleName);
+	
+		-- [08-Jun-2020]: Not used. Fallback Redelivery Rule Name is sufficient. Upon the need to fallback (redeliveries for normal rule exhaust), 
+		-- the fallback redelivery rule name is treated as a normal rule and redeliveries are reinitated, but now conforming to the newly set rule.
+		-- IXC_REDELIVERY_FALLBACK_AT
+		--		IF CONTAINS(refRedeliveryParameters.FallbackRedeliveryRuleName, API_REDELIVERY_RULE_RETRY_AT_EOND) THEN
+		--			SET refAPIMessageRedeliveryHeader.FallbackRedeliveryTimestamp 	
+		--																	= CAST((CURRENT_DATE + INTERVAL '1' DAY) AS 
+		--																					CHARACTER FORMAT ISO8601_DATE_FORMAT) || 'T' ||
+		--																					DATETIME_PATTERN_EOD_8PM;
+		--		END IF;
+		
+	END;	-- FUNCTION buildMessageRedeliveryHeader 
+
+
+END MODULE;

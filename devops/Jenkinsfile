@@ -1,0 +1,336 @@
+pipeline {
+    agent any
+	parameters {
+		string(name: 'devops_stage', defaultValue: 'buildandpackage', description: 'DevOps Stage - buildandpackage, SIT, UAT')
+		string(name: 'alm_level', defaultValue: 'Release', description: 'Application Life Cycle Level - Feature, Testing, Release')
+		string(name: 'target_environment', defaultValue: 'Non-Prod', description: 'Target Environment - Prod, Non-Prod')
+		
+		
+		string(name: 'product',   defaultValue: 'profund', description: 'No Product Specified')
+		string(name: 'clientid',  defaultValue: 'AMS319', description: 'Client Id for which the build will be processed')
+		string(name: 'clientdir', defaultValue: 'eCollection_MISIntimation_API_AMS319_intimation',description: 'Directory of client')
+		string(name: 'credentialkey', defaultValue: 'e8f3366fe2096f77c2c0d27b3b0331ffd5eb2c4e', description: 'Credential of user to access the repository')
+		string(name: 'gitrepourl', defaultValue: 'https://github.com/vndube/mydevopsworks.git', description: 'Directory of client')
+
+		string(name: 'business_scenario_name', defaultValue: 'Not Available', description: 'Business Secenario Name')
+		string(name: 'project_id', defaultValue: 'Project_NA', description: 'Project ID')
+		string(name: 'build_initiating_user_id', defaultValue: 'NA_user_id', description: 'Buld Initiating User ID')
+		string(name: 'business_scenario_name', defaultValue: 'NA_scenarioname', description: 'Buld Initiating User ID')
+				
+		string(name: 'event_publishing_endpoint', defaultValue: 'EndPoint_Not_Aailable', description: 'Event Publishing URL')
+
+		
+    }    
+    environment {
+		devops_stage = "${params.devops_stage}"
+		target_environment = "${params.target_environment}"
+		alm_level = "${params.alm_level}"
+	  
+		builddir = "${params.clientid}"
+//		gitclientdir =  "/${params.clientdir}"
+		gitclientdir =  "/client_impl/${params.clientdir}"  //adding the client_impl
+
+		clientdir =  "${params.clientdir}"
+		credentialkey = "${params.credentialkey}"
+		gitrepourl =  "${params.gitrepourl}"
+		
+		
+		source_dir = "${gitclientdir}/src"
+		dependents = "/common/eCollection_MISIntimation_API,/common/eCollection_MessageHolding_CustomerInstance"
+	  
+   }
+
+    stages {
+	
+		stage('SCM Initialization') {
+		//this will download the source code from specified SCM. SCM location is passed in parameter named as gitrepourl and credential key id
+		   steps {
+		      echo "Clone the repository under a specified directory. Sparse Check-out will be used.  ${gitclientdir}"
+				
+				sh 'mkdir -pv ' + builddir
+				script{
+				    def paths = [["path":"${gitclientdir}"],["path": "/common"],["path": "/devops"]]
+					dir(builddir) {
+						checkout([$class: 'GitSCM', 
+						   branches: [[name: '*/master']], 
+						   doGenerateSubmoduleConfigurations: false, 
+						   extensions: [
+								[$class: 'SparseCheckoutPaths',
+								 sparseCheckoutPaths: paths
+								]
+							], 
+						   submoduleCfg: [], 
+						   userRemoteConfigs: [[  credentialsId: credentialkey, url: gitrepourl]]])
+					}
+				}
+		    }			  
+		}
+	
+        stage("build, package and push package to repository") {
+		//this stage will perform the packages loaded from  
+ 		    when {
+			    environment name:'devops_stage', value: 'buildandpackage'
+            }
+            
+            stages {
+                stage("build the code") {
+                    steps {
+                        echo "In build"
+                        copySource("target")
+                    }
+                }
+                stage("Perform SAST") {
+                   when {
+				      environment name:'alm_level', value: 'Release'
+				   }
+				   steps {
+				      echo "In Performing SAST"
+				   }
+                }				
+                stage("package the bars and others") {
+				    // this stage will perform packaging the bar - 
+					// mqsipackagebar client to be used.
+					// the bar file name: product_name + client_name.bar
+					// It would be created in target folder from workspace directory. 
+                    steps {
+                        echo "In package the bars and others"
+                        buildPackage()
+                    }
+                }
+				stage("Push bars to SCM") {
+   				    // this stage will perform packaging the bar - 
+					// mqsipackagebar client to be used
+                    steps {
+                        echo "Push bars to SCM"
+                        uploadPackage()
+                    }
+                }
+				stage("Build Docker Container") {
+                    steps {
+                        echo "Build Docker Container"
+                    }
+                }				
+                stage("Scanning the image") {
+                   when {
+				      environment name:'alm_level', value: 'Release'
+				   }
+				   steps {
+				      echo "In Scanning the image"
+				   }
+                }	
+
+				stage("Perform DIT") {
+					stages {
+						stage("Deploying Image") {
+							steps {
+								echo "In Deploying Image"
+							}
+						}
+						stage("Pushing APIs") {
+							steps {
+								echo "In Pushing APIs"
+							}
+						}
+						stage("Performing DIT ") {
+							steps {
+								echo "In Performing DIT"
+							}
+						}
+					}
+                }					
+			}
+        }
+
+		stage("Function Testing - SIT") {
+			when {
+				environment name:'devops_stage', value: 'SIT'
+            }
+			stages {
+				stage("SIT - Pull the image and Deploying Image") {
+					steps {
+						echo "SIT - In Deploying Image"
+					}
+				}
+				stage("SIT - Pushing APIs") {
+					steps {
+						echo "SIT - In Pushing APIs"
+					}
+				}
+				stage("Performing SIT ") {
+					steps {
+						echo "In Performing SIT"
+					}
+				}
+			}
+        }
+		
+		stage("Acceptance Testing - UAT") {
+			when {
+				environment name:'devops_stage', value: 'UAT'
+            }
+			stages {
+				stage("UAT - Pull the image and Deploying Image") {
+					steps {
+						echo "UAT - In Deploying Image"
+					}
+				}
+				stage("UAT - Pushing APIs") {
+					steps {
+						echo "UAT - In Pushing APIs"
+					}
+				}
+				stage("Performing UAT ") {
+					steps {
+						echo "In Performing UAT"
+					}
+				}
+			}
+        }
+    }
+
+    post {
+        // Always runs. And it runs before any of the other post conditions.
+        //always {
+            // Let's wipe out the workspace before we finish!
+        //    deleteDir()
+        //}
+        success {
+            sendEmail("Successful");
+        }
+        unstable {
+            sendEmail("Unstable");
+        }
+        failure {
+            sendEmail("Failed");
+        }
+    }
+
+// The options directive is for configuration that applies to the whole job.
+    options {
+        // For example, we'd like to make sure we only keep 10 builds at a time, so
+        // we don't fill up our storage!
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+
+        // And we'd really like to be sure that this build doesn't hang forever, so
+        // let's time it out after an hour.
+        timeout(time: 25, unit: 'MINUTES')
+    }		
+}
+
+def copySource(target){
+    sh 'mkdir -pv '+target
+    
+    //def sourceDir = "${source_dir}"
+    //def workspace = pwd()
+    //echo "current directory is $workspace"
+    
+    sh 'cp -rv ./${builddir}${source_dir}/. '+target
+    //sh 'cp -rv ./${builddir}/common/eCollection_MISIntimation_API/. target'
+    // sh 'cp -rv ./${builddir}/common/eCollection_MessageHolding_CustomerInstance/. target'
+
+    def arr = "${dependents}".split(",")
+    for (dir in arr) {
+       sh 'cp -rv '+"./${builddir}${dir}/. "+target
+    }
+
+}
+
+def buildPackage(){
+	//This is to be modified as per mqsipackagebar tool 
+	sh '''
+	cd target
+	tar -cvf ../${builddir}/devops/packages/package-${builddir}.tar .
+	cd ..
+	'''	
+	dir("target@tmp") {
+	   deleteDir()
+	}
+}
+
+def uploadPackage(){
+           dir("${builddir}") {
+				sh '''
+				git init
+				git add .
+				if ! git commit -m "adding package.tar"|grep -i "nothing to commit\\|no changes added"; 
+				then
+					echo "pushing tar file"
+					git push origin HEAD:master
+				fi
+				'''
+			}
+}
+
+// get change log to be send over the mail
+@NonCPS
+def getChangeString() {
+    MAX_MSG_LEN = 100
+    def changeString = ""
+
+    echo "Gathering SCM changes"
+    def changeLogSets = currentBuild.changeSets
+    for (int i = 0; i < changeLogSets.size(); i++) {
+        def entries = changeLogSets[i].items
+        for (int j = 0; j < entries.length; j++) {
+            def entry = entries[j]
+            truncated_msg = entry.msg.take(MAX_MSG_LEN)
+            changeString += " - ${truncated_msg} [${entry.author}]\n"
+		}
+    }
+}
+
+def sendEmail(status) {
+   echo "Build $BUILD_NUMBER - " + status + " (${currentBuild.fullDisplayName})"
+   echo "Build $BUILD_NUMBER - " + status + " (${currentBuild.fullDisplayName})"
+   echo "Changes:\n " + getChangeString() + "\n\n Check console output at: $BUILD_URL/console" 
+  
+  //  mail(
+  //          to: "$EMAIL_RECIPIENTS",
+  //          subject: "Build $BUILD_NUMBER - " + status + " (${currentBuild.fullDisplayName})",
+  //          body: "Changes:\n " + getChangeString() + "\n\n Check console output at: $BUILD_URL/console" + "\n")
+}
+
+def buildJsonStr(task_name,task_sequence_number){
+    def task_dateTime=new Date()
+    def task_id=UUID.randomUUID().toString()
+
+	 def dataStruct = [
+              'taskId' : task_id,
+              'taskSequenceNumber' : task_sequence_number,
+			  'totalTasksCount' : 9,
+			  'taskName' : task_name,
+			  'taskDateTime' : task_dateTime,
+			  'buildId': "${BUILD_ID}",
+			  'targetEnvironment' : ${target_environment},
+			  'productName': ${product_name},
+			  'serviceName' : ${business_scenario_name},
+			  'projectId' : ${project_id},
+			  'clientCode' : ${clientCode},
+			  'buildInitiatingUserId' : ${build_initiating_user_id},
+			  'taskLog' : ${taskCompletionCode},
+			  'taskReasonCode': ${task_reason_code},
+			  'taskMessage' : ${task_message},
+			  'tasksAborted' : ${tasks_aborted}
+     ]
+	 
+	 def json = new groovy.json.JsonBuilder(dataStruct)
+	 
+	 return json.toString()
+}
+
+
+def sendEventNotification(task_name,task_sequence_number){
+	 
+	 script {
+	    final String jsonData = buildJsonStr(task_name,task_sequence_number) 
+		final def (String response, int code) =
+ 		         sh(script: "curl --insecure -vs -X POST -w '\\n%{response_code}' ${event_publishing_endpoint} -H 'accept: application/json' -H 'Content-Type: application/json' -d ${jsonData}", returnStdout: true).trim().tokenize("\n")
+		
+//		echo response
+		echo "HTTP response status code: $code"
+        if (code == 200) {
+               echo "Successfully published"
+       }
+		
+	 }
+}

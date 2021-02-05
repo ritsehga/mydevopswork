@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:restapiDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.restapi" definitionType="swagger_20" definitionFile="ixc-ecollection-profunds-api-swagger-v3.9.profunds-downgrade.yaml" implementation="gen/eCollection_MISIntimation_API.msgflow" https="false">
+    <references>
+        <sharedLibraryReference>
+            <libraryName>common-api-functions-lib</libraryName>
+        </sharedLibraryReference>
+        <sharedLibraryReference>
+            <libraryName>common-unified-api-lib</libraryName>
+        </sharedLibraryReference>
+    </references>
+    <ns2:operations>
+        <ns2:operation name="Batch-Intimation" implementation="BatchIntimation.subflow"/>
+        <ns2:operation name="Batch-Refund-Intimation" implementation="BatchRefundIntimation.subflow"/>
+        <ns2:operation name="Intimation" implementation="Intimation.subflow"/>
+        <ns2:operation name="Refund-Intimation" implementation="RefundIntimation.subflow"/>
+    </ns2:operations>
+    <ns2:errorHandlers>
+        <ns2:errorHandler type="FAILURE" implementation="eCollection_MISIntimation_APIInputFailureHandler.subflow"/>
+    </ns2:errorHandlers>
+</ns2:restapiDescriptor>

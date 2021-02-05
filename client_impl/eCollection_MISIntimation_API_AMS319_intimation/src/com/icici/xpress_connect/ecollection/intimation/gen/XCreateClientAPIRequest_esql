@@ -1,0 +1,141 @@
+BROKER SCHEMA com.icici.xpress_connect.ecollection.intimation.gen
+
+
+--			CREATE COMPUTE MODULE CreateClientAPIRequest
+--				CREATE FUNCTION Main() RETURNS BOOLEAN
+--				BEGIN
+--					-- CALL CopyMessageHeaders();
+--					-- CALL CopyEntireMessage();
+--					RETURN TRUE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyMessageHeaders() BEGIN
+--					DECLARE I INTEGER 1;
+--					DECLARE J INTEGER;
+--					SET J = CARDINALITY(InputRoot.*[]);
+--					WHILE I < J DO
+--						SET OutputRoot.*[I] = InputRoot.*[I];
+--						SET I = I + 1;
+--					END WHILE;
+--				END;
+--			
+--				CREATE PROCEDURE CopyEntireMessage() BEGIN
+--					SET OutputRoot = InputRoot;
+--				END;
+--			END MODULE;
+
+
+-- [20-Jan-2020]: Ensure the endpoint is configured per the client (or the mock service)
+
+-- Perform business data validation.
+CREATE FUNCTION performBusinessDataValidation(IN refAPIRequest REFERENCE, INOUT refValidationResult REFERENCE) 
+BEGIN
+	-- Validate rest of the message fields.
+	-- @@IXC.AutoGenerateESQL
+END;
+
+-- Map / Build API request body (data / payload).
+CREATE FUNCTION mapAPIRequest(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- @@IXC.AutoGenerateESQL
+		CALL mapAPIRequest_ProfundsMock(refAPIRequest, refClientAPIRequest);
+	-- CALL mapAPIRequest_Adani(refAPIRequest, refClientAPIRequest);
+	--	CALL mapAPIRequest_RNVP(refAPIRequest, refClientAPIRequest);
+	-- CALL mapAPIRequest_PhillipCapital(refAPIRequest, refClientAPIRequest);
+END;
+
+-- [20-Jan-2020]: Our Profunds Mock specific payload.
+CREATE FUNCTION mapAPIRequest_ProfundsMock(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+		CALL com.icici.xpress_connect.common.api.defaultMapAPIRequest(refAPIRequest, refClientAPIRequest);
+		SET refClientAPIRequest.*[] = refAPIRequest.*[];
+	
+		-- [14-Feb-2020]: API Downgraded for Profunds datatype issue.
+		IF COALESCE(refAPIRequest.request_priority, '') <> '' THEN
+			SET refClientAPIRequest.request_priority = CAST(refAPIRequest.request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.resent_indicator, '') <> '' THEN
+			SET refClientAPIRequest.resent_indicator = CAST(refAPIRequest.resent_indicator AS BOOLEAN);
+		END IF;
+		IF COALESCE(refAPIRequest.original_request_priority, '') <> '' THEN
+			SET refClientAPIRequest.original_request_priority = CAST(refAPIRequest.original_request_priority AS INTEGER);
+		END IF;
+		IF COALESCE(refAPIRequest.test_indicator, '') <> '' THEN
+			SET refClientAPIRequest.test_indicator = CAST(refAPIRequest.test_indicator AS BOOLEAN);
+		END IF;
+			
+END;
+
+-- [20-Jan-2020]: Adani specific payload.
+CREATE FUNCTION mapAPIRequest_Adani(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- Adani	
+	SET refClientAPIRequest.vid = refAPIRequest.virtual_account_number;
+    
+END;
+
+-- [15-Feb-2020]: RNVP specific payload.
+CREATE FUNCTION mapAPIRequest_RNVP(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- RNVP	
+
+		SET refClientAPIRequest.client_code 										= refAPIRequest.client_code; 								-- "3044",
+		SET refClientAPIRequest.virtual_account_number 				= refAPIRequest.virtual_account_number; 		-- "30450000000000245376",
+		SET refClientAPIRequest.transaction_amount 						= 
+									CAST(refAPIRequest.transaction_amount AS CHARACTER FORMAT '0#.##'); 					-- "22222.22",
+		SET refClientAPIRequest.transaction_mode 							= 																					-- "N"
+									com.icici.xpress_connect.rules.core.DefaultPaymentModeMatcher_getValue(refAPIRequest.payment_mode);
+		SET refClientAPIRequest.utr_number 									= refAPIRequest.transaction_id; 							-- "00015632002150000123",
+		SET refClientAPIRequest.source_bank_holder_name 			= refAPIRequest.sender_name; 							-- "John Doe",
+		SET refClientAPIRequest.source_bank_account_number 	= refAPIRequest.sender_account_number; 		-- "0001563001969",
+		SET refClientAPIRequest.source_bank_ifsc_code 				= refAPIRequest.sender_ifsc_code; 						-- "HDFC0001563",
+		SET refClientAPIRequest.transaction_date							= 
+										CAST(CAST(refAPIRequest.transaction_datetime AS TIMESTAMP FORMAT 'IU') 
+																AS CHARACTER FORMAT 'dd-MM-yyyy'); 													-- 31-01-2020",
+
+--		DECLARE  iso8601TransactionDate	TIMESTAMP 
+--		com.icici.xpress_connect.common.api.DateTimeHelper_parse_iso8601(refAPIRequest.transaction_datetime);
+--																				
+--		SET refClientAPIRequest.transaction_date							= 
+--										CAST(iso8601TransactionDate	AS CHARACTER FORMAT 'dd-MM-yyyy'); 													-- 31-01-2020",
+
+		SET refClientAPIRequest.sender_to_receiver_info = refAPIRequest.informational_message; 						-- "A/c 00003993 EMI 2/12"
+    
+END;
+
+-- [12-Apr-2020]: Phillp Capital specific payload.
+-- 	Virtual Code		Account No
+-- 		PCAS			000405004621
+-- 		PFNO			623505376585
+-- 		PCUR			000405070637
+-- 		PPCM			000405009016
+-- 		PNCD			000405116802
+-- 		PMCX			000405117510
+-- 		PDXP			000405005378
+CREATE FUNCTION mapAPIRequest_PhillipCapital(IN refAPIRequest REFERENCE, INOUT refClientAPIRequest REFERENCE)
+BEGIN
+	-- Uses API field map on Customer On-Boarding Portal to produce ESQL code.
+	-- Phillip Capital
+		CREATE FIELD refClientAPIRequest."Virtual Account Number Verification IN" IDENTITY(JSON.Array) "Virtual Account Number Verification IN";
+		
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].ClientCode 										= refAPIRequest.client_code; 								-- "3044",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].VirtualAccountNumber 				= refAPIRequest.virtual_account_number; 		-- "30450000000000245376",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].TransactionAmount 						= 
+									CAST(refAPIRequest.transaction_amount AS CHARACTER FORMAT '0#.##'); 																											-- "22222.22",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].Mode 													= 																						-- "N"
+									com.icici.xpress_connect.rules.core.DefaultPaymentModeMatcher_getValue(refAPIRequest.payment_mode);
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].UTRNumber 									= refAPIRequest.transaction_id; 								-- "00015632002150000123",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].RemitterName 			= refAPIRequest.sender_name; 												-- "John Doe",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].RemitterAccountNumber 	= refAPIRequest.sender_account_number; 				-- "0001563001969",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].RemitterIFSC_Code 				= refAPIRequest.sender_ifsc_code; 								-- "HDFC0001563",
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].Date							= 
+										CAST(CAST(refAPIRequest.transaction_datetime AS TIMESTAMP FORMAT 'IU') 
+																AS CHARACTER FORMAT 'dd-MM-yyyy'); 																																					-- 31-01-2020",
+
+		SET refClientAPIRequest."Virtual Account Number Verification IN".Item[1].ReceiverInformation = refAPIRequest.informational_message; 								-- "A/c 00003993 EMI 2/12"
+    
+END;

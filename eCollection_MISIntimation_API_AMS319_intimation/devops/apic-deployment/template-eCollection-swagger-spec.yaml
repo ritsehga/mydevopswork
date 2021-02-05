@@ -1,0 +1,33 @@
+swagger: '2.0'
+info:
+  title: <title-placeholder>
+  x-ibm-name: <x-ibm-name-placeholder>
+  version: 1.0.0
+  description: <description-placeholder>
+  termsOfService: "http://termsOfService-placeholder"
+schemes:
+  - https
+basePath: "/<basePath-placeholder>"
+produces:
+  - <produces-placeholder>
+consumes:
+  - <consumes-placeholder>
+securityDefinitions: {}
+x-ibm-configuration:
+  gateway: datapower-gateway
+  type: rest
+  phase: realized
+  enforced: true
+  testable: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - proxy:
+          version: 1.0.0
+          title: proxy
+          timeout: 60
+          verb: keep
+          cache-response: protocol
+          cache-ttl: 900
+          target-url: "<url-placeholder>"

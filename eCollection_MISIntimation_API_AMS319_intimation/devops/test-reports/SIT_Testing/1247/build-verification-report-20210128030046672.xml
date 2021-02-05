@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+<httpSample t="73" it="0" lt="69" ct="58" ts="1611802847077" s="false" lb="New-Request-AMS319-${test_case_id}" rc="503" rm="Service Unavailable" tn="Intimation-MainThreadGroup 1-1" dt="text" de="" by="3278" sby="1509" ng="1" na="1">
+  <responseHeader class="java.lang.String">HTTP/1.0 503 Service Unavailable
+Pragma: no-cache
+Cache-Control: private, max-age=0, no-cache, no-store
+Connection: close
+Content-Type: text/html
+</responseHeader>
+  <requestHeader class="java.lang.String">Connection: keep-alive
+Content-Type: application/json
+Accept: application/json
+IXC-DevOps-Test-Indicator: true
+IXC-DevOps-Test-Run-Id: f4542ed0-6114-11eb-8c7c-6bad9f58db5d
+IXC-DevOps-Test-Sample-Id: Success 1
+Content-Length: 1091
+Host: ace-sit-ecollection.ixc-dev.apps.nonprod.iciciltd.com
+User-Agent: Apache-HttpClient/4.5.10 (Java/1.8.0_242)
+</requestHeader>
+  <responseData class="java.lang.String">&lt;html&gt;
+  &lt;head&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+
+  &lt;style type=&quot;text/css&quot;&gt;
+  /*!
+   * Bootstrap v3.3.5 (http://getbootstrap.com)
+   * Copyright 2011-2015 Twitter, Inc.
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+   */
+  /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
+  html {
+    font-family: sans-serif;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+  }
+  h1 {
+    font-size: 1.7em;
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 0.68em 0;
+  }
+  * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  *:before,
+  *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  body {
+    font-family: &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif;
+    line-height: 1.66666667;
+    font-size: 13px;
+    color: #333333;
+    background-color: #ffffff;
+    margin: 2em 1em;
+  }
+  p {
+    margin: 0 0 10px;
+    font-size: 13px;
+  }
+  .alert.alert-info {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    background-color: #f5f5f5;
+    border-color: #8b8d8f;
+    color: #363636;
+    margin-top: 30px;
+  }
+  .alert p {
+    padding-left: 35px;
+  }
+  a {
+    color: #0088ce;
+  }
+
+  ul {
+    position: relative;
+    padding-left: 51px;
+  }
+  p.info {
+    position: relative;
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  p.info:before, p.info:after {
+    content: &quot;&quot;;
+    position: absolute;
+    top: 9%;
+    left: 0;
+  }
+  p.info:before {
+    content: &quot;i&quot;;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    font-family: serif;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 21px;
+    text-align: center;
+    color: #fff;
+    background: #4d5258;
+    border-radius: 16px;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      margin: 4em 3em;
+    }
+    h1 {
+      font-size: 2.15em;}
+  }
+
+  &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div&gt;
+      &lt;h1&gt;Application is not available&lt;/h1&gt;
+      &lt;p&gt;The application is currently not serving requests at this endpoint. It may not have been started or is still starting.&lt;/p&gt;
+
+      &lt;div class=&quot;alert alert-info&quot;&gt;
+        &lt;p class=&quot;info&quot;&gt;
+          Possible reasons you are seeing this page:
+        &lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;
+            &lt;strong&gt;The host doesn&apos;t exist.&lt;/strong&gt;
+            Make sure the hostname was typed correctly and that a route matching this hostname exists.
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;strong&gt;The host exists, but doesn&apos;t have a matching path.&lt;/strong&gt;
+            Check if the URL path was typed correctly and that the route was created using the desired path.
+          &lt;/li&gt;
+          &lt;li&gt;
+            &lt;strong&gt;Route and path matches, but all pods are down.&lt;/strong&gt;
+            Make sure that the resources exposed by this route (pods, services, deployment configs, etc) have at least one pod running.
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</responseData>
+  <cookies class="java.lang.String"></cookies>
+  <method class="java.lang.String">POST</method>
+  <queryString class="java.lang.String">{&#xd;
+  &quot;api_version&quot;: &quot;1.2.0&quot;,&#xd;
+  &quot;request_id&quot;: &quot;f46fcd20-6114-11eb-8c7c-6bad9f58db5d&quot;,&#xd;
+  &quot;request_datetime&quot;: &quot;2021-01-28T03:00:47.004Z&quot;,&#xd;
+  &quot;sender_system_id&quot;: &quot;DevOps&quot;,&#xd;
+  &quot;sender_system_user_id&quot;: &quot;DevOps&quot;,&#xd;
+  &quot;request_priority&quot;: &quot;3&quot;,&#xd;
+  &quot;test_indicator&quot;: &quot;true&quot;,&#xd;
+  &quot;client_code&quot;: &quot;AMS319&quot;,&#xd;
+  &quot;virtual_account_number&quot;: &quot;AMS319OM104&quot;,&#xd;
+  &quot;transaction_amount&quot;: 2000.00,&#xd;
+  &quot;currency_code&quot;: &quot;INR&quot;,&#xd;
+  &quot;payment_mode&quot;: &quot;FT&quot;,&#xd;
+  &quot;transaction_id&quot;: &quot;7C615D36-1529-4B0C-A1E6-C5C67D5FA353&quot;,&#xd;
+  &quot;transaction_id_type&quot;: &quot;TRANID&quot;,&#xd;
+  &quot;transaction_datetime&quot;: &quot;2021-01-28T02:55:37.005&quot;,&#xd;
+  &quot;sender_name&quot;: &quot;SHIV&quot;,&#xd;
+  &quot;sender_mobile_communication_number&quot; : &quot;9218541254&quot;,&#xd;
+  &quot;sender_account_number&quot;: &quot;921854125400&quot;,&#xd;
+  &quot;sender_bank_name&quot;: &quot;HDFC&quot;,&#xd;
+  &quot;sender_ifsc_code&quot;: &quot;HDFC0001&quot;,&#xd;
+  &quot;client_account_name&quot;: &quot;&quot;,&#xd;
+  &quot;client_mobile_communication_number&quot; : &quot;&quot;,&#xd;
+  &quot;client_account_number&quot;: &quot;921854125401&quot;,&#xd;
+  &quot;client_bank_name&quot;: &quot;&quot;,&#xd;
+  &quot;client_ifsc_code&quot;: &quot;&quot;,&#xd;
+  &quot;payer_code&quot;: &quot;&quot;,&#xd;
+  &quot;cms_reference_number&quot;: &quot;0003837123914&quot;,&#xd;
+  &quot;narration_1&quot;: &quot;&quot;,&#xd;
+  &quot;narration_2&quot;: &quot;&quot;,&#xd;
+  &quot;informational_message&quot;: &quot;SUCCESS&quot;&#xd;
+}&#xd;
+</queryString>
+  <java.net.URL>http://ace-sit-ecollection.ixc-dev.apps.nonprod.iciciltd.com/api/eCollection/mis/AMS319/intimation/intimate</java.net.URL>
+</httpSample>
+
+</testResults>
