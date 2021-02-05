@@ -9,8 +9,8 @@ pipeline {
 		string(name: 'product',   defaultValue: 'profund', description: 'No Product Specified')
 		string(name: 'clientid',  defaultValue: 'AMS319', description: 'Client Id for which the build will be processed')
 		string(name: 'clientdir', defaultValue: 'eCollection_MISIntimation_API_AMS319_intimation',description: 'Directory of client')
-		string(name: 'credentialkey', defaultValue: 'e8f3366fe2096f77c2c0d27b3b0331ffd5eb2c4e', description: 'Credential of user to access the repository')
-		string(name: 'gitrepourl', defaultValue: 'https://github.com/vndube/mydevopsworks.git', description: 'Directory of client')
+		string(name: 'credentialkey', defaultValue: 'cf85925e142b9685a3342fa8bb4a26062fd2b148', description: 'Credential of user to access the repository')
+		string(name: 'gitrepourl', defaultValue: 'https://github.com/ritsehga/mydevopsworks.git', description: 'Directory of client')
 
 		string(name: 'business_scenario_name', defaultValue: 'Not Available', description: 'Business Secenario Name')
 		string(name: 'project_id', defaultValue: 'Project_NA', description: 'Project ID')
