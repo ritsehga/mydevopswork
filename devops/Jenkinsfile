@@ -2,15 +2,18 @@ pipeline {
     agent any
 	parameters {
 		string(name: 'devops_stage', defaultValue: 'buildandpackage', description: 'DevOps Stage - buildandpackage, SIT, UAT')
-		string(name: 'alm_level', defaultValue: 'Release', description: 'Application Life Cycle Level - Feature, Testing, Release')
+		string(name: 'alm_level', defaultValue: 'Feature', description: 'Application Life Cycle Level - Feature, Testing, Release')
 		string(name: 'target_environment', defaultValue: 'Non-Prod', description: 'Target Environment - Prod, Non-Prod')
 		
 		
 		string(name: 'product',   defaultValue: 'profund', description: 'No Product Specified')
 		string(name: 'clientid',  defaultValue: 'AMS319', description: 'Client Id for which the build will be processed')
 		string(name: 'clientdir', defaultValue: 'eCollection_MISIntimation_API_AMS319_intimation',description: 'Directory of client')
-		string(name: 'credentialkey', defaultValue: 'cf85925e142b9685a3342fa8bb4a26062fd2b148', description: 'Credential of user to access the repository')
-		string(name: 'gitrepourl', defaultValue: 'https://github.com/ritsehga/mydevopsworks.git', description: 'Directory of client')
+//		string(name: 'credentialkey', defaultValue: 'e8f3366fe2096f77c2c0d27b3b0331ffd5eb2c4e', description: 'Credential of user to access the repository')
+//		string(name: 'gitrepourl', defaultValue: 'https://github.com/vndube/mydevopsworks.git', description: 'Directory of client')
+
+
+
 
 		string(name: 'business_scenario_name', defaultValue: 'Not Available', description: 'Business Secenario Name')
 		string(name: 'project_id', defaultValue: 'Project_NA', description: 'Project ID')
@@ -27,17 +30,33 @@ pipeline {
 		alm_level = "${params.alm_level}"
 	  
 		builddir = "${params.clientid}"
+
 //		gitclientdir =  "/${params.clientdir}"
 		gitclientdir =  "/client_impl/${params.clientdir}"  //adding the client_impl
 
 		clientdir =  "${params.clientdir}"
-		credentialkey = "${params.credentialkey}"
-		gitrepourl =  "${params.gitrepourl}"
+//		credentialkey = "${params.credentialkey}"
+		credentialkey = "git-credential"
+		
+		
+//		gitrepourl =  "${params.gitrepourl}"
+		gitrepourl = "github.com/ritsehga/mydevopsworks.git"
+		
+		 //below is just to push the images 
+		reportZipFile = "package.zip"
 		
 		
 		source_dir = "${gitclientdir}/src"
-		dependents = "/common/eCollection_MISIntimation_API,/common/eCollection_MessageHolding_CustomerInstance"
-	  
+//		dependents = "/common/eCollection_MISIntimation_API,/common/eCollection_MessageHolding_CustomerInstance"
+		dependents = "common-api-functions-lib,common-unified-api-lib"
+	
+	    sonar_project = "This_is_my_esql_project_devtest"  
+	    
+	    
+	    
+	    imagename = "ixc-dev/acemqclient-profund"
+        docker_registry_url = "127.0.0.1:5000"
+        docker_credential = "nexus_docker_registry_credential"
    }
 
     stages {
@@ -51,6 +70,12 @@ pipeline {
 				script{
 				    def paths = [["path":"${gitclientdir}"],["path": "/common"],["path": "/devops"]]
 					dir(builddir) {
+					    sh 'git config --global credential.helper cache'
+                        sh 'git config --global push.default simple'
+                        sh 'git config --global user.email "ritsehga@gmail.com"'
+                        sh 'git config --global user.name "ritsehga"'
+                        
+                        
 						checkout([$class: 'GitSCM', 
 						   branches: [[name: '*/master']], 
 						   doGenerateSubmoduleConfigurations: false, 
@@ -60,46 +85,71 @@ pipeline {
 								]
 							], 
 						   submoduleCfg: [], 
-						   userRemoteConfigs: [[  credentialsId: credentialkey, url: gitrepourl]]])
+						   userRemoteConfigs: [[  credentialsId: credentialkey, url: 'https://'+gitrepourl]]])
+						   sh "git checkout master"
 					}
 				}
 		    }			  
 		}
+        stage("Perform SAST") {
+            when {
+	   	        environment name:'alm_level', value: 'Release'
+			}
+            stages{
+                stage("Performing Analysis") {
+				   steps {
+				      echo "In Performing SAST"
+				      dir("${builddir}${gitclientdir}") {
+				        withSonarQubeEnv('localSonar') {
+                          //sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.2:sonar -Dsonar.login=XXXXXXXXX'
+                          sh '/var/jenkins_home/sonar-scanner-cli/bin/sonar-scanner -Dsonar.projectKey=${sonar_project}'
+                          //below code is for quality gate
+                          script{
+                            def qg = waitforqualitgateLocal() // Reuse taskId previously collected by withSonarQubeEnv
+                            if (qg.status != 'OK') {
+                               error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                            }
+                          }
+                        }
+				      }
+				      
+				   }
+                }
+                // No need to occupy a node
+                stage("Quality Gate"){
+				   steps {
+				       echo "In Quality Gate"
+//                      timeout(time: 1, unit: 'HOURS') { // Just in case something goes wrong, pipeline will be killed after a timeout
+                        // script{
+                        //  def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+                        // def qg = waitforqualitgateLocal() // Reuse taskId previously collected by withSonarQubeEnv
+                        // if (qg.status != 'OK') {
+                        //    error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        // }
+                         //}
+                    //  }
+                    }
+               }
+            }
+        }
 	
         stage("build, package and push package to repository") {
 		//this stage will perform the packages loaded from  
  		    when {
 			    environment name:'devops_stage', value: 'buildandpackage'
             }
-            
             stages {
-                stage("build the code") {
-                    steps {
-                        echo "In build"
-                        copySource("target")
-                    }
-                }
-                stage("Perform SAST") {
-                   when {
-				      environment name:'alm_level', value: 'Release'
-				   }
-				   steps {
-				      echo "In Performing SAST"
-				   }
-                }				
-                stage("package the bars and others") {
-				    // this stage will perform packaging the bar - 
-					// mqsipackagebar client to be used.
-					// the bar file name: product_name + client_name.bar
-					// It would be created in target folder from workspace directory. 
+                stage("package the bars") {
                     steps {
                         echo "In package the bars and others"
-                        buildPackage()
+                        //sh 'mqsipackagebar -a "${params.clientdir}".bar -w target -k "${params.clientdir}"'
+                        //buildPackage()
+                        //dir('srcDir'){
+                           sh 'pwd; ls -l;chmod +x "${builddir}/devops/build-mqsibar.sh"; "${builddir}/devops/build-mqsibar.sh" "${clientdir}"; ls -l "${builddir}/devops/packages"'
+                        //}
                     }
                 }
 				stage("Push bars to SCM") {
-   				    // this stage will perform packaging the bar - 
-					// mqsipackagebar client to be used
                     steps {
                         echo "Push bars to SCM"
                         uploadPackage()
@@ -107,9 +157,26 @@ pipeline {
                 }
 				stage("Build Docker Container") {
                     steps {
-                        echo "Build Docker Container"
+                      echo "building docker image from ${WORKSPACE}"
+                      dir("${builddir}/devops") {
+                        script{
+                          dockerImage = docker.build imagename
+                        }
+                      }
                     }
                 }				
+                stage("push docker image "){
+                    steps{
+                      echo "Pushing docker image to registry ${docker_registry_url}"
+                      script{
+                        docker.withRegistry( "https://"+docker_registry_url, docker_credential ) {
+                           dockerImage.push("$BUILD_NUMBER")
+                           dockerImage.push('latest')
+                        }
+                      }
+                   }  
+                }
+
                 stage("Scanning the image") {
                    when {
 				      environment name:'alm_level', value: 'Release'
@@ -221,44 +288,69 @@ def copySource(target){
     sh 'mkdir -pv '+target
     
     //def sourceDir = "${source_dir}"
-    //def workspace = pwd()
-    //echo "current directory is $workspace"
+    def workspace = pwd()
+    echo "current directory is $workspace"
     
     sh 'cp -rv ./${builddir}${source_dir}/. '+target
     //sh 'cp -rv ./${builddir}/common/eCollection_MISIntimation_API/. target'
-    // sh 'cp -rv ./${builddir}/common/eCollection_MessageHolding_CustomerInstance/. target'
+   // sh 'cp -rv ./${builddir}/common/eCollection_MessageHolding_CustomerInstance/. target'
 
     def arr = "${dependents}".split(",")
     for (dir in arr) {
+       println "now got ./${builddir}${dir}/."
+
        sh 'cp -rv '+"./${builddir}${dir}/. "+target
     }
 
 }
 
 def buildPackage(){
-	//This is to be modified as per mqsipackagebar tool 
-	sh '''
-	cd target
-	tar -cvf ../${builddir}/devops/packages/package-${builddir}.tar .
-	cd ..
-	'''	
-	dir("target@tmp") {
-	   deleteDir()
-	}
+
+		//This is to be modified as per mqsipackagebar tool 
+		sh '''
+		#cd target
+		#tar -cvf ../${builddir}/devops/packages/package-${builddir}.tar .
+		#mqsipackagebar -a ${params.clientdir}.bar -w . -k ${params.clientdir} 
+		.  /opt/ibm/ace-11/server/bin/mqsiprofile
+	
+		#/opt/ibm/ace-11/server/bin/mqsipackagebar -a package-${builddir}.bar -w . -k package-${builddir} 
+		cd ..
+		'''	
+		dir("target@tmp") {
+		   deleteDir()
+		}
 }
 
 def uploadPackage(){
+//		git push origin HEAD:master
+//
+//git remote set-url origin "https://${credentialkey}@${gitrepourl}"
+//, url: gitrepourl
+//                git remote set-url origin "https://e8f3366fe2096f77c2c0d27b3b0331ffd5eb2c4e@github.com/vndube/mydevopsworks.git"
+
+
            dir("${builddir}") {
+               
+               withCredentials([usernamePassword(credentialsId: credentialkey, 
+                               passwordVariable: 'GIT_PASSWORD', 
+                               usernameVariable: 'GIT_USERNAME')]) {
+//                        sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/my-org/my-repo.git')
+                
+               
 				sh '''
-				git init
+				pwd
+				git remote -v
+                git remote set-url origin "https://${GIT_USERNAME}:${GIT_PASSWORD}@${gitrepourl}"
 				git add .
-				if ! git commit -m "adding package.tar"|grep -i "nothing to commit\\|no changes added"; 
+				if ! git commit -m "adding package files" | grep -i "nothing to commit\\|no changes added"; 
 				then
-					echo "pushing tar file"
+					echo "pushing changed files - bar files"
 					git push origin HEAD:master
 				fi
 				'''
+               } //end of withCredentials
 			}
+	
 }
 
 // get change log to be send over the mail
@@ -278,6 +370,38 @@ def getChangeString() {
 		}
     }
 }
+
+def waitforqualitgateLocal(){
+      sh "cat .scannerwork/report-task.txt"
+      
+      def props = readProperties  file: '.scannerwork/report-task.txt'
+      echo "properties=${props}"
+      def sonarServerUrl=props['serverUrl']
+      def ceTaskUrl= props['ceTaskUrl']
+      def ceTask
+      timeout(time: 1, unit: 'MINUTES') {
+          waitUntil {
+              def response = httpRequest ceTaskUrl
+              ceTask = readJSON text: response.content
+              echo ceTask.toString()
+              echo ceTask["task"]["status"]
+              return "SUCCESS".equals(ceTask["task"]["status"])
+             //return true
+          }
+      }
+      
+//      def response2 = httpRequest url : sonarServerUrl + "/api/qualitygates/project_status?analysisId=" + ceTask["task"]["analysisId"], authentication: 'jenkins_scanner'
+        def response2 = httpRequest url : sonarServerUrl + "/api/qualitygates/project_status?analysisId=" + ceTask["task"]["analysisId"]
+        echo "${response2}"
+        def qualitygate =  readJSON text: response2.content
+        echo qualitygate.toString()
+        return qualitygate["projectStatus"]
+//        return qualitygate["projectStatus"]["status"]
+//        if ("ERROR".equals(qualitygate["projectStatus"]["status"])) {
+//          error  "Quality Gate failure"
+//        } 
+}
+
 
 def sendEmail(status) {
    echo "Build $BUILD_NUMBER - " + status + " (${currentBuild.fullDisplayName})"
