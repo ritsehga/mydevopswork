@@ -73,7 +73,7 @@ pipeline {
 					    sh 'git config --global credential.helper cache'
                         sh 'git config --global push.default simple'
                         sh 'git config --global user.email "ritsehga@gmail.com"'
-                        sh 'git config --global user.name "ritsehga"'
+                        sh 'git config --global user.name "ritika"'
                         
                         
 						checkout([$class: 'GitSCM', 
