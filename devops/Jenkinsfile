@@ -40,7 +40,7 @@ pipeline {
 		
 		
 //		gitrepourl =  "${params.gitrepourl}"
-		gitrepourl = "github.com/bharnaya/Jenkins_MH2.0.git"
+		gitrepourl = "github.com/ritsehga/mydevopswork.git"
 		
 		 //below is just to push the images 
 		reportZipFile = "package.zip"
