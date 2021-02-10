@@ -9,8 +9,8 @@ pipeline {
 		string(name: 'product',   defaultValue: 'profund', description: 'No Product Specified')
 		string(name: 'clientid',  defaultValue: 'AMS319', description: 'Client Id for which the build will be processed')
 		string(name: 'clientdir', defaultValue: 'eCollection_MISIntimation_API_AMS319_intimation',description: 'Directory of client')
-//		string(name: 'credentialkey', defaultValue: 'e8f3366fe2096f77c2c0d27b3b0331ffd5eb2c4e', description: 'Credential of user to access the repository')
-//		string(name: 'gitrepourl', defaultValue: 'https://github.com/vndube/mydevopsworks.git', description: 'Directory of client')
+//		string(name: 'credentialkey', defaultValue: '7288e4e167dd7f38068de1141e260cbd69b42d38', description: 'Credential of user to access the repository')
+//		string(name: 'gitrepourl', defaultValue: 'https://github.com/bharnaya/Jenkins_MH2.0.git', description: 'Directory of client')
 
 
 
@@ -40,7 +40,7 @@ pipeline {
 		
 		
 //		gitrepourl =  "${params.gitrepourl}"
-		gitrepourl = "github.com/ritsehga/mydevopsworks.git"
+		gitrepourl = "github.com/bharnaya/Jenkins_MH2.0.git"
 		
 		 //below is just to push the images 
 		reportZipFile = "package.zip"
